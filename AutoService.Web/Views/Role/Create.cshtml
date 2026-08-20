@@ -1,0 +1,217 @@
+﻿@model AutoService.Dto.RoleDtos.CreateRoleDto
+
+@{
+    ViewData["Title"] = "Yeni Rol";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-shield-plus"></i>
+            Sistem Yönetimi
+        </div>
+
+        <h1>Yeni Rol Oluştur</h1>
+
+        <p>
+            Sisteme yeni bir kullanıcı rolü ekleyin.
+        </p>
+
+    </div>
+
+    <a asp-action="Index"
+       class="btn-app-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+        Rol Listesine Dön
+
+    </a>
+
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+        @TempData["Error"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+
+    </div>
+}
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-8 col-lg-10">
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-primary">
+
+                        <i class="bi bi-shield-plus"></i>
+
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Rol Bilgileri</h5>
+
+                        <span>
+                            Oluşturmak istediğiniz rolün adını girin
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <form asp-action="Create"
+                      method="post"
+                      id="createRoleForm">
+
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger">
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label asp-for="RoleName"
+                               class="form-label fw-semibold">
+
+                            Rol Adı
+
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+
+                                <i class="bi bi-shield-lock-fill"></i>
+
+                            </span>
+
+                            <input asp-for="RoleName"
+                                   class="form-control"
+                                   placeholder="Örnek: Muhasebe Uzmanı"
+                                   autocomplete="off"
+                                   maxlength="50" />
+
+                        </div>
+
+                        <span asp-validation-for="RoleName"
+                              class="text-danger small">
+                        </span>
+
+                        <div class="form-text">
+
+                            Rol adı 2 ile 50 karakter arasında olmalıdır.
+
+                        </div>
+
+                    </div>
+
+                    <div class="alert alert-info">
+
+                        <div class="d-flex align-items-start gap-3">
+
+                            <i class="bi bi-info-circle-fill fs-5"></i>
+
+                            <div>
+
+                                <strong>Bilgilendirme</strong>
+
+                                <div class="mt-1">
+
+                                    Rol oluşturulduktan sonra kullanıcı
+                                    hesaplarına atanabilir.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+
+                        <a asp-action="Index"
+                           class="btn-app-secondary">
+
+                            <i class="bi bi-x-circle"></i>
+                            Vazgeç
+
+                        </a>
+
+                        <button type="submit"
+                                class="btn-app-primary">
+
+                            <i class="bi bi-check-circle-fill"></i>
+                            Rolü Kaydet
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const form =
+                document.getElementById("createRoleForm");
+
+            if (!form) {
+                return;
+            }
+
+            form.addEventListener("submit", function () {
+
+                const submitButton =
+                    form.querySelector('button[type="submit"]');
+
+                if (!submitButton) {
+                    return;
+                }
+
+                submitButton.disabled = true;
+
+                submitButton.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2"></span>' +
+                    'Kaydediliyor...';
+
+            });
+
+        });
+
+    </script>
+}

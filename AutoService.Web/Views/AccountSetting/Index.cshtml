@@ -1,0 +1,244 @@
+﻿@model AutoService.Dto.AccountSettingDtos.ChangePasswordDto
+
+@{
+    ViewData["Title"] = "Hesap Ayarları";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-shield-lock-fill me-2"></i>
+                Hesap Ayarları
+            </h2>
+
+            <p class="text-muted mb-0">
+                Hesabınızın şifresini ve güvenlik bilgilerini yönetin.
+            </p>
+        </div>
+
+        <a asp-controller="Profile"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Profile Dön
+
+        </a>
+
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm">
+
+            <i class="bi bi-check-circle-fill me-2"></i>
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm">
+
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+    <div class="row justify-content-center">
+
+        <div class="col-xl-8 col-lg-9">
+
+            <div class="card border-0 shadow-sm rounded-4">
+
+                <div class="card-header bg-white border-0 pt-4 px-4">
+
+                    <div class="d-flex align-items-center">
+
+                        <div class="bg-primary bg-opacity-10
+                                    text-primary rounded-3 p-3 me-3">
+
+                            <i class="bi bi-key-fill fs-4"></i>
+
+                        </div>
+
+                        <div>
+                            <h5 class="fw-bold mb-1">
+                                Şifre Değiştir
+                            </h5>
+
+                            <small class="text-muted">
+                                Hesabınız için güçlü ve güvenli bir şifre belirleyin.
+                            </small>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="card-body p-4">
+
+                    <form asp-controller="AccountSetting"
+                          asp-action="Index"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3">
+                        </div>
+
+                        <div class="mb-4">
+
+                            <label asp-for="CurrentPassword"
+                                   class="form-label fw-semibold">
+
+                                Mevcut Şifre
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+
+                                <input asp-for="CurrentPassword"
+                                       type="password"
+                                       class="form-control"
+                                       placeholder="Mevcut şifrenizi giriniz" />
+
+                            </div>
+
+                            <span asp-validation-for="CurrentPassword"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                        <div class="mb-4">
+
+                            <label asp-for="NewPassword"
+                                   class="form-label fw-semibold">
+
+                                Yeni Şifre
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-shield-lock"></i>
+                                </span>
+
+                                <input asp-for="NewPassword"
+                                       type="password"
+                                       class="form-control"
+                                       placeholder="Yeni şifrenizi giriniz" />
+
+                            </div>
+
+                            <span asp-validation-for="NewPassword"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                        <div class="mb-4">
+
+                            <label asp-for="ConfirmPassword"
+                                   class="form-label fw-semibold">
+
+                                Yeni Şifre Tekrar
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-shield-check"></i>
+                                </span>
+
+                                <input asp-for="ConfirmPassword"
+                                       type="password"
+                                       class="form-control"
+                                       placeholder="Yeni şifrenizi tekrar giriniz" />
+
+                            </div>
+
+                            <span asp-validation-for="ConfirmPassword"
+                                  class="text-danger small">
+                            </span>
+
+                        </div>
+
+                        <div class="alert alert-light border">
+
+                            <div class="d-flex">
+
+                                <i class="bi bi-info-circle-fill
+                                          text-primary me-2 mt-1">
+                                </i>
+
+                                <div class="small text-muted">
+                                    Şifreniz en az 6 karakter olmalıdır.
+                                    Güvenlik için harf, rakam ve özel karakter
+                                    kullanmanız önerilir.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+
+                            <a asp-controller="Profile"
+                               asp-action="Index"
+                               class="btn btn-light border px-4">
+
+                                <i class="bi bi-x-circle me-1"></i>
+                                Vazgeç
+
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary px-4">
+
+                                <i class="bi bi-floppy me-1"></i>
+                                Şifreyi Güncelle
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

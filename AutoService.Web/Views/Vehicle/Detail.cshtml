@@ -1,0 +1,287 @@
+﻿@model AutoService.Dto.VehicleDtos.VehicleDetailDto
+
+@{
+    ViewData["Title"] = "Araç Detayı";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-car-front-fill"></i>
+            Araç Yönetimi
+        </div>
+
+        <h1>Araç Detayı</h1>
+
+        <p>
+            Aracın teknik, sahiplik ve kimlik bilgilerini görüntüleyin.
+        </p>
+
+    </div>
+
+    <a asp-action="Index"
+       class="btn-app-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+        Araç Listesi
+
+    </a>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-xl-4">
+
+        <div class="app-card vehicle-profile-card">
+
+            <div class="vehicle-profile-cover">
+
+                <div class="vehicle-profile-cover-icon">
+                    <i class="bi bi-car-front-fill"></i>
+                </div>
+
+            </div>
+
+            <div class="vehicle-profile-content">
+
+                <span class="vehicle-detail-plate">
+                    @Model.Plate
+                </span>
+
+                <h4>
+                    @Model.BrandName @Model.ModelName
+                </h4>
+
+                <span class="vehicle-profile-owner">
+
+                    <i class="bi bi-person-check-fill"></i>
+
+                    @Model.CustomerName
+
+                </span>
+
+                <div class="vehicle-profile-stats">
+
+                    <div>
+
+                        <strong>@Model.ModelYear</strong>
+
+                        <span>Model Yılı</span>
+
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            @Model.Mileage.ToString("N0")
+                        </strong>
+
+                        <span>Kilometre</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-8">
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-primary">
+                        <i class="bi bi-card-list"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Araç Bilgileri</h5>
+
+                        <span>
+                            Araca ait kayıtlı teknik ve müşteri bilgileri
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <span class="app-badge app-badge-success">
+
+                    <i class="bi bi-check-circle-fill"></i>
+
+                    Kayıtlı Araç
+
+                </span>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <div class="detail-info-grid">
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-primary">
+                            <i class="bi bi-credit-card-2-front-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Plaka</span>
+
+                            <strong>@Model.Plate</strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-warning">
+                            <i class="bi bi-calendar-check-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Model Yılı</span>
+
+                            <strong>@Model.ModelYear</strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-success">
+                            <i class="bi bi-building-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Marka</span>
+
+                            <strong>@Model.BrandName</strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-primary">
+                            <i class="bi bi-car-front-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Model</span>
+
+                            <strong>@Model.ModelName</strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-danger">
+                            <i class="bi bi-speedometer2"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Kilometre</span>
+
+                            <strong>
+                                @Model.Mileage.ToString("N0") KM
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-success">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Araç Sahibi</span>
+
+                            <strong>@Model.CustomerName</strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item detail-info-full">
+
+                        <div class="detail-info-icon icon-warning">
+                            <i class="bi bi-upc-scan"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Şasi Numarası</span>
+
+                            @if (!string.IsNullOrWhiteSpace(Model.VinNumber))
+                            {
+                                <strong class="vehicle-vin-value">
+                                    @Model.VinNumber
+                                </strong>
+                            }
+                            else
+                            {
+                                <strong>
+                                    Şasi numarası belirtilmemiş
+                                </strong>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-footer">
+
+                <a asp-action="Index"
+                   class="btn-app-secondary">
+
+                    <i class="bi bi-arrow-left"></i>
+                    Araç Listesine Dön
+
+                </a>
+
+                <a asp-controller="ServiceRecord"
+                   asp-action="Index"
+                   asp-route-keyword="@Model.Plate"
+                   class="btn-app-primary">
+
+                    <i class="bi bi-wrench-adjustable-circle-fill"></i>
+                    Servis Kayıtlarını Gör
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

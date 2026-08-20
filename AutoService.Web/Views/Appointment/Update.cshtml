@@ -1,0 +1,409 @@
+﻿@model AutoService.Dto.AppointmentDtos.UpdateAppointmentDto
+
+@{
+    ViewData["Title"] = "Randevuyu Güncelle";
+}
+
+<style>
+    .appointment-form-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .appointment-info-list {
+        display: grid;
+        gap: 12px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+        .appointment-info-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            color: #475467;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .appointment-info-list i {
+            color: #16a34a;
+            margin-top: 2px;
+        }
+
+    @@media (max-width: 992px) {
+        .appointment-form-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="page-header">
+    <div>
+        <div class="page-header-label">
+            <i class="bi bi-pencil-square"></i>
+            Randevu Yönetimi
+        </div>
+
+        <h1>Randevuyu Güncelle</h1>
+
+        <p>
+            Randevuya ait müşteri, araç, tarih ve durum bilgilerini düzenleyin.
+        </p>
+    </div>
+
+    <a asp-action="Detail"
+       asp-route-id="@Model.AppointmentId"
+       class="btn-app-secondary">
+        <i class="bi bi-arrow-left"></i>
+        Randevu Detayı
+    </a>
+</div>
+
+<div class="appointment-form-layout">
+
+    <div class="app-card">
+        <div class="app-card-header">
+            <div class="d-flex align-items-center gap-3">
+                <div class="chart-header-icon icon-warning">
+                    <i class="bi bi-calendar2-check-fill"></i>
+                </div>
+
+                <div class="app-card-title">
+                    <h5>Randevu Bilgileri</h5>
+                    <span>Mevcut randevu bilgilerini güncelleyin</span>
+                </div>
+            </div>
+
+            <span class="app-badge app-badge-warning">
+                <i class="bi bi-hash"></i>
+                @Model.AppointmentId
+            </span>
+        </div>
+
+        <div class="app-card-body">
+            <form asp-action="Update"
+                  method="post"
+                  class="app-form">
+
+                @Html.AntiForgeryToken()
+
+                <input asp-for="AppointmentId"
+                       type="hidden" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger">
+                </div>
+
+                <div class="service-form-section">
+                    <div class="service-form-section-header">
+                        <div class="service-form-section-icon icon-primary">
+                            <i class="bi bi-person-vcard-fill"></i>
+                        </div>
+
+                        <div>
+                            <h6>Müşteri ve Araç</h6>
+                            <span>Randevu sahibini ve ilgili aracı güncelleyin</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="app-form-group">
+                                <label asp-for="CustomerId"
+                                       class="app-form-label">
+                                    <i class="bi bi-person-fill"></i>
+                                    Müşteri
+                                    <span>*</span>
+                                </label>
+
+                                <div class="app-select-wrapper">
+                                    <i class="bi bi-person"></i>
+
+                                    <select asp-for="CustomerId"
+                                            asp-items="ViewBag.Customers"
+                                            class="app-form-control app-form-select customer-select">
+                                        <option value="">Müşteri seçiniz</option>
+                                    </select>
+                                </div>
+
+                                <span asp-validation-for="CustomerId"
+                                      class="app-validation-message">
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="app-form-group">
+                                <label asp-for="VehicleId"
+                                       class="app-form-label">
+                                    <i class="bi bi-car-front-fill"></i>
+                                    Araç
+                                    <span>*</span>
+                                </label>
+
+                                <div class="app-select-wrapper">
+                                    <i class="bi bi-car-front"></i>
+
+                                    <select asp-for="VehicleId"
+                                            asp-items="ViewBag.Vehicles"
+                                            class="app-form-control app-form-select vehicle-select">
+                                        <option value="">Araç seçiniz</option>
+                                    </select>
+                                </div>
+
+                                <span asp-validation-for="VehicleId"
+                                      class="app-validation-message">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-form-section">
+                    <div class="service-form-section-header">
+                        <div class="service-form-section-icon icon-warning">
+                            <i class="bi bi-calendar-event-fill"></i>
+                        </div>
+
+                        <div>
+                            <h6>Tarih ve Durum</h6>
+                            <span>Randevu tarihini, saatini ve durumunu güncelleyin</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="app-form-group">
+                                <label asp-for="AppointmentDate"
+                                       class="app-form-label">
+                                    <i class="bi bi-calendar3"></i>
+                                    Randevu Tarihi ve Saati
+                                    <span>*</span>
+                                </label>
+
+                                <div class="app-input-wrapper">
+                                    <i class="bi bi-clock-fill"></i>
+
+                                    <input asp-for="AppointmentDate"
+                                           type="datetime-local"
+                                           class="app-form-control" />
+                                </div>
+
+                                <span asp-validation-for="AppointmentDate"
+                                      class="app-validation-message">
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="app-form-group">
+                                <label asp-for="Status"
+                                       class="app-form-label">
+                                    <i class="bi bi-activity"></i>
+                                    Randevu Durumu
+                                    <span>*</span>
+                                </label>
+
+                                <div class="app-select-wrapper">
+                                    <i class="bi bi-list-check"></i>
+
+                                    <select asp-for="Status"
+                                            asp-items="ViewBag.Statuses"
+                                            class="app-form-control app-form-select">
+                                    </select>
+                                </div>
+
+                                <span asp-validation-for="Status"
+                                      class="app-validation-message">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-form-section">
+                    <div class="service-form-section-header">
+                        <div class="service-form-section-icon icon-danger">
+                            <i class="bi bi-chat-left-text-fill"></i>
+                        </div>
+
+                        <div>
+                            <h6>Müşteri Talebi</h6>
+                            <span>Servise geliş nedeni ve ek açıklamalar</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="app-form-group">
+                                <label asp-for="CustomerRequest"
+                                       class="app-form-label">
+                                    <i class="bi bi-person-exclamation"></i>
+                                    Müşteri Talebi
+                                    <span>*</span>
+                                </label>
+
+                                <div class="app-textarea-wrapper">
+                                    <i class="bi bi-chat-left-text"></i>
+
+                                    <textarea asp-for="CustomerRequest"
+                                              rows="5"
+                                              class="app-form-control"></textarea>
+                                </div>
+
+                                <span asp-validation-for="CustomerRequest"
+                                      class="app-validation-message">
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="app-form-group">
+                                <label asp-for="Description"
+                                       class="app-form-label">
+                                    <i class="bi bi-card-text"></i>
+                                    Açıklama
+                                </label>
+
+                                <div class="app-textarea-wrapper">
+                                    <i class="bi bi-journal-text"></i>
+
+                                    <textarea asp-for="Description"
+                                              rows="4"
+                                              class="app-form-control"></textarea>
+                                </div>
+
+                                <span asp-validation-for="Description"
+                                      class="app-validation-message">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="app-form-actions">
+                    <a asp-action="Detail"
+                       asp-route-id="@Model.AppointmentId"
+                       class="btn-app-secondary">
+                        <i class="bi bi-x-circle"></i>
+                        Vazgeç
+                    </a>
+
+                    <button type="submit"
+                            class="btn-app-warning">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Değişiklikleri Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="app-card form-info-card">
+        <div class="form-info-icon">
+            <i class="bi bi-info-circle-fill"></i>
+        </div>
+
+        <h5>Randevu Güncelleme</h5>
+
+        <p>
+            Servis kaydına dönüştürülmüş randevular güncellenemez.
+        </p>
+
+        <ul class="appointment-info-list">
+            <li>
+                <i class="bi bi-check-circle-fill"></i>
+                Müşteri değiştirildiğinde araç listesini tekrar kontrol edin.
+            </li>
+            <li>
+                <i class="bi bi-check-circle-fill"></i>
+                İptal edilen randevular çakışma hesabına katılmaz.
+            </li>
+            <li>
+                <i class="bi bi-check-circle-fill"></i>
+                Aktif randevu tarihinin geçmişte olmaması gerekir.
+            </li>
+        </ul>
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const customerSelect =
+                document.querySelector(".customer-select");
+
+            const vehicleSelect =
+                document.querySelector(".vehicle-select");
+
+            if (!customerSelect || !vehicleSelect) {
+                return;
+            }
+
+            customerSelect.addEventListener("change", async function () {
+                const customerId = this.value;
+
+                vehicleSelect.innerHTML =
+                    '<option value="">Araçlar yükleniyor...</option>';
+
+                vehicleSelect.disabled = true;
+
+                if (!customerId) {
+                    vehicleSelect.innerHTML =
+                        '<option value="">Önce müşteri seçiniz</option>';
+
+                    return;
+                }
+
+                try {
+                    const url =
+                        '@Url.Action("GetVehiclesByCustomer", "Appointment")'
+                        + "?customerId="
+                        + encodeURIComponent(customerId);
+
+                    const response = await fetch(url);
+
+                    if (!response.ok) {
+                        throw new Error("Araç listesi alınamadı.");
+                    }
+
+                    const vehicles = await response.json();
+
+                    if (!vehicles.length) {
+                        vehicleSelect.innerHTML =
+                            '<option value="">Bu müşteriye ait araç bulunamadı</option>';
+
+                        return;
+                    }
+
+                    vehicleSelect.innerHTML =
+                        '<option value="">Araç seçiniz</option>';
+
+                    vehicles.forEach(function (vehicle) {
+                        const option = document.createElement("option");
+
+                        option.value = vehicle.id;
+                        option.textContent = vehicle.text;
+
+                        vehicleSelect.appendChild(option);
+                    });
+
+                    vehicleSelect.disabled = false;
+                }
+                catch (error) {
+                    vehicleSelect.innerHTML =
+                        '<option value="">Araçlar yüklenemedi</option>';
+
+                    console.error(error);
+                }
+            });
+        });
+    </script>
+}

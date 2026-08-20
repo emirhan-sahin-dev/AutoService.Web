@@ -1,0 +1,347 @@
+﻿@model AutoService.Dto.ServiceRecordDtos.UpdateServiceRecordDto
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Servis Kaydını Güncelle";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-header-label">
+            <i class="bi bi-pencil-square"></i>
+            Servis Yönetimi
+        </div>
+        <h1>Servis Kaydını Güncelle</h1>
+        <p>Mevcut servis ve kabul bilgilerini güncelleyin.</p>
+    </div>
+
+    <a asp-action="Index" class="btn-app-secondary">
+        <i class="bi bi-arrow-left"></i>
+        Servis Listesi
+    </a>
+</div>
+
+<div class="app-card">
+    <div class="app-card-header">
+        <div class="d-flex align-items-center gap-3">
+            <div class="chart-header-icon icon-warning">
+                <i class="bi bi-wrench-adjustable"></i>
+            </div>
+            <div class="app-card-title">
+                <h5>Servis Kaydı Bilgileri</h5>
+                <span>Servis ve kabul bilgilerindeki mevcut değerleri düzenleyin</span>
+            </div>
+        </div>
+
+        <span class="app-badge app-badge-warning">
+            <i class="bi bi-hash"></i>
+            @Model.ServiceRecordId
+        </span>
+    </div>
+
+    <div class="app-card-body">
+        <form asp-action="Update" method="post" class="app-form">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="ServiceRecordId" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="service-form-section">
+                <div class="service-form-section-header">
+                    <div class="service-form-section-icon icon-primary">
+                        <i class="bi bi-car-front-fill"></i>
+                    </div>
+                    <div>
+                        <h6>Araç Bilgisi</h6>
+                        <span>Servis kaydına bağlı aracı güncelleyin</span>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="app-form-group">
+                            <label asp-for="VehicleId" class="app-form-label">
+                                <i class="bi bi-car-front-fill"></i>
+                                Araç <span>*</span>
+                            </label>
+                            <div class="app-select-wrapper">
+                                <i class="bi bi-car-front"></i>
+                                <select asp-for="VehicleId"
+                                        asp-items="ViewBag.Vehicles"
+                                        class="app-form-control app-form-select">
+                                    <option value="">Araç seçiniz</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="VehicleId" class="app-validation-message"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-form-section">
+                <div class="service-form-section-header">
+                    <div class="service-form-section-icon icon-warning">
+                        <i class="bi bi-calendar-check-fill"></i>
+                    </div>
+                    <div>
+                        <h6>Tarih, Kilometre ve Durum</h6>
+                        <span>Servis tarihleri, kilometre ve mevcut durum</span>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-3">
+                        <div class="app-form-group">
+                            <label asp-for="CheckInDate" class="app-form-label">
+                                <i class="bi bi-calendar-plus-fill"></i>
+                                Giriş Tarihi <span>*</span>
+                            </label>
+                            <div class="app-input-wrapper">
+                                <i class="bi bi-calendar3"></i>
+                                <input asp-for="CheckInDate" type="date" class="app-form-control" />
+                            </div>
+                            <span asp-validation-for="CheckInDate" class="app-validation-message"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="app-form-group">
+                            <label asp-for="EstimatedDeliveryDate" class="app-form-label">
+                                <i class="bi bi-calendar-event-fill"></i>
+                                Tahmini Teslim <span>*</span>
+                            </label>
+                            <div class="app-input-wrapper">
+                                <i class="bi bi-calendar3"></i>
+                                <input asp-for="EstimatedDeliveryDate" type="date" class="app-form-control" />
+                            </div>
+                            <span asp-validation-for="EstimatedDeliveryDate" class="app-validation-message"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="app-form-group">
+                            <label asp-for="Mileage" class="app-form-label">
+                                <i class="bi bi-speedometer2"></i>
+                                Kilometre <span>*</span>
+                            </label>
+                            <div class="app-input-wrapper">
+                                <i class="bi bi-speedometer"></i>
+                                <input asp-for="Mileage" type="number" min="0" class="app-form-control" />
+                            </div>
+                            <span asp-validation-for="Mileage" class="app-validation-message"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="app-form-group">
+                            <label asp-for="Status" class="app-form-label">
+                                <i class="bi bi-activity"></i>
+                                Servis Durumu <span>*</span>
+                            </label>
+                            <div class="app-select-wrapper">
+                                <i class="bi bi-list-check"></i>
+                                <select asp-for="Status"
+                                        asp-items="ViewBag.Statuses"
+                                        class="app-form-control app-form-select">
+                                </select>
+                            </div>
+                            <span asp-validation-for="Status" class="app-validation-message"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-form-section">
+                <div class="service-form-section-header">
+                    <div class="service-form-section-icon icon-danger">
+                        <i class="bi bi-chat-left-text-fill"></i>
+                    </div>
+                    <div>
+                        <h6>Servis Açıklamaları</h6>
+                        <span>Müşteri şikâyeti ve servis kabul açıklaması</span>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="app-form-group">
+                            <label asp-for="CustomerComplaint" class="app-form-label">
+                                <i class="bi bi-person-exclamation"></i>
+                                Müşteri Şikâyeti <span>*</span>
+                            </label>
+                            <div class="app-textarea-wrapper">
+                                <i class="bi bi-chat-left-text"></i>
+                                <textarea asp-for="CustomerComplaint" rows="4" class="app-form-control"></textarea>
+                            </div>
+                            <span asp-validation-for="CustomerComplaint" class="app-validation-message"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="app-form-group">
+                            <label asp-for="Description" class="app-form-label">
+                                <i class="bi bi-card-text"></i>
+                                Servis Kabul Açıklaması
+                            </label>
+                            <div class="app-textarea-wrapper">
+                                <i class="bi bi-card-text"></i>
+                                <textarea asp-for="Description" rows="4" class="app-form-control"></textarea>
+                            </div>
+                            <span asp-validation-for="Description" class="app-validation-message"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-form-section">
+                <div class="service-form-section-header">
+                    <div class="service-form-section-icon icon-success">
+                        <i class="bi bi-clipboard2-check-fill"></i>
+                    </div>
+                    <div>
+                        <h6>Servis Kabul Bilgileri</h6>
+                        <span>Yakıt, hasar, teslim edilen eşya ve danışman bilgileri</span>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="app-form-group">
+                            <label asp-for="FuelLevel" class="app-form-label">
+                                <i class="bi bi-fuel-pump-fill"></i>
+                                Yakıt Seviyesi
+                            </label>
+                            <div class="app-select-wrapper">
+                                <i class="bi bi-speedometer"></i>
+                                <select asp-for="FuelLevel" class="app-form-control app-form-select">
+                                    <option value="0">Boş</option>
+                                    <option value="1">1/4</option>
+                                    <option value="2">1/2</option>
+                                    <option value="3">3/4</option>
+                                    <option value="4">Dolu</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="FuelLevel" class="app-validation-message"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="app-form-group">
+                            <label asp-for="AdvisorName" class="app-form-label">
+                                <i class="bi bi-person-badge-fill"></i>
+                                Servis Danışmanı
+                            </label>
+                            <div class="app-input-wrapper">
+                                <i class="bi bi-person"></i>
+                                <input asp-for="AdvisorName"
+                                       class="app-form-control"
+                                       placeholder="Servis danışmanının adı soyadı" />
+                            </div>
+                            <span asp-validation-for="AdvisorName" class="app-validation-message"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="app-form-group">
+                            <label asp-for="ExistingDamages" class="app-form-label">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                Araç Üzerindeki Hasarlar
+                            </label>
+                            <div class="app-textarea-wrapper">
+                                <i class="bi bi-car-front"></i>
+                                <textarea asp-for="ExistingDamages"
+                                          rows="5"
+                                          class="app-form-control"
+                                          placeholder="Çizik, göçük, kırık veya mevcut hasarları yazın"></textarea>
+                            </div>
+                            <span asp-validation-for="ExistingDamages" class="app-validation-message"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="app-form-group">
+                            <label asp-for="DeliveredItems" class="app-form-label">
+                                <i class="bi bi-box-seam-fill"></i>
+                                Teslim Edilen Eşyalar
+                            </label>
+                            <div class="app-textarea-wrapper">
+                                <i class="bi bi-box-seam"></i>
+                                <textarea asp-for="DeliveredItems"
+                                          rows="5"
+                                          class="app-form-control"
+                                          placeholder="Stepne, kriko, ruhsat, bijon anahtarı vb."></textarea>
+                            </div>
+                            <span asp-validation-for="DeliveredItems" class="app-validation-message"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="app-form-group">
+                            <label asp-for="CustomerNotes" class="app-form-label">
+                                <i class="bi bi-journal-text"></i>
+                                Müşteri Notu
+                            </label>
+                            <div class="app-textarea-wrapper">
+                                <i class="bi bi-journal-text"></i>
+                                <textarea asp-for="CustomerNotes"
+                                          rows="4"
+                                          class="app-form-control"
+                                          placeholder="Müşterinin özel talep ve notlarını yazın"></textarea>
+                            </div>
+                            <span asp-validation-for="CustomerNotes" class="app-validation-message"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-form-actions">
+                <a asp-action="Index" class="btn-app-secondary">
+                    <i class="bi bi-x-circle"></i>
+                    Vazgeç
+                </a>
+
+                <button type="submit" class="btn-app-warning">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Değişiklikleri Kaydet
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<style>
+    .app-switch-card {
+        min-height: 54px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+    }
+
+        .app-switch-card .form-check-input {
+            width: 2.7rem;
+            height: 1.35rem;
+            margin: 0;
+            flex: 0 0 auto;
+            cursor: pointer;
+        }
+
+        .app-switch-card .form-check-label {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 700;
+            color: #344054;
+            line-height: 1.4;
+            cursor: pointer;
+        }
+</style>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

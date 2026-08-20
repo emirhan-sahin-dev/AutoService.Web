@@ -1,0 +1,665 @@
+﻿@using AutoService.Web.Security
+@model List<AutoService.Dto.CustomerDtos.ResultCustomerDto>
+
+@{
+    ViewData["Title"] = "Müşteriler";
+
+    var keyword = ViewBag.Keyword as string;
+    var currentPage = ViewBag.CurrentPage != null
+        ? Convert.ToInt32(ViewBag.CurrentPage)
+        : 1;
+
+    var totalPage = ViewBag.TotalPage != null
+        ? Convert.ToInt32(ViewBag.TotalPage)
+        : 1;
+
+    var canManageCustomers =
+        User.IsInRole(AppRoles.Admin) ||
+        User.IsInRole(AppRoles.ServiceAdvisor);
+}
+
+<!-- SAYFA BAŞLIĞI -->
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-people-fill"></i>
+            Müşteri Yönetimi
+        </div>
+
+        <h1>
+            Müşteriler
+        </h1>
+
+        <p>
+            Sistemde kayıtlı müşterileri görüntüleyin, düzenleyin ve yönetin.
+        </p>
+
+    </div>
+
+    @if (canManageCustomers)
+    {
+        <a asp-action="Create"
+           class="btn-app-primary">
+
+            <i class="bi bi-person-plus-fill"></i>
+
+            Yeni Müşteri
+
+        </a>
+    }
+
+</div>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-4"
+         role="alert">
+
+        <i class="bi bi-check-circle-fill me-2"></i>
+
+        @TempData["Success"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Kapat">
+        </button>
+
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-4"
+         role="alert">
+
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+        @TempData["Error"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Kapat">
+        </button>
+
+    </div>
+}
+<!-- ÖZET KARTLARI -->
+<div class="row g-4 mb-4">
+
+    <div class="col-xl-4 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-primary">
+
+            <div class="dashboard-alert-icon icon-primary">
+                <i class="bi bi-people-fill"></i>
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>
+                    @Model.Count
+                </strong>
+
+                <span>
+                    Bu sayfada görüntülenen müşteri
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-success">
+
+            <div class="dashboard-alert-icon icon-success">
+                <i class="bi bi-person-check-fill"></i>
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>
+                    @(Model.Count(x => !string.IsNullOrWhiteSpace(x.Phone)))
+                </strong>
+
+                <span>
+                    Telefon bilgisi bulunan müşteri
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4 col-md-12">
+
+        <div class="dashboard-alert dashboard-alert-warning">
+
+            <div class="dashboard-alert-icon icon-warning">
+                <i class="bi bi-envelope-check-fill"></i>
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>
+                    @(Model.Count(x => !string.IsNullOrWhiteSpace(x.Email)))
+                </strong>
+
+                <span>
+                    E-posta bilgisi bulunan müşteri
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ARAMA VE TABLO -->
+<div class="app-card">
+
+    <div class="app-card-header">
+
+        <div class="d-flex align-items-center gap-3">
+
+            <div class="chart-header-icon icon-primary">
+                <i class="bi bi-person-lines-fill"></i>
+            </div>
+
+            <div class="app-card-title">
+
+                <h5>
+                    Müşteri Listesi
+                </h5>
+
+                <span>
+                    Müşteri kayıtlarını arayın ve yönetin
+                </span>
+
+            </div>
+
+        </div>
+
+        <span class="app-badge app-badge-primary">
+
+            <i class="bi bi-database"></i>
+
+            Sayfa @currentPage / @totalPage
+
+        </span>
+
+    </div>
+
+    <div class="app-card-body">
+
+        <!-- ARAMA FORMU -->
+        <form method="get"
+              asp-action="Index"
+              class="customer-filter-form">
+
+            <div class="customer-search-box">
+
+                <i class="bi bi-search"></i>
+
+                <input type="text"
+                       name="keyword"
+                       value="@keyword"
+                       placeholder="Ad veya soyad ile müşteri ara..."
+                       autocomplete="off" />
+
+            </div>
+
+            <button type="submit"
+                    class="btn-app-primary">
+
+                <i class="bi bi-search"></i>
+
+                Ara
+
+            </button>
+
+            @if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                <a asp-action="Index"
+                   class="btn-app-secondary">
+
+                    <i class="bi bi-x-circle"></i>
+
+                    Temizle
+
+                </a>
+            }
+
+        </form>
+
+    </div>
+
+    <div class="app-card-body p-0">
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+
+                <table class="table app-table align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Müşteri
+                            </th>
+
+                            <th>
+                                Telefon
+                            </th>
+
+                            <th>
+                                E-Posta
+                            </th>
+
+                            <th>
+                                Kayıt No
+                            </th>
+
+                            <th class="text-end">
+                                İşlemler
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model)
+                        {
+                            var initials = string.Empty;
+
+                            if (!string.IsNullOrWhiteSpace(item.FullName))
+                            {
+                                var nameParts = item.FullName
+                                .Split(
+                                ' ',
+                                StringSplitOptions.RemoveEmptyEntries
+                                );
+
+                                initials = string.Join(
+                                string.Empty,
+                                nameParts
+                                .Take(2)
+                                .Select(x => x[0])
+                                ).ToUpper();
+                            }
+
+                            if (string.IsNullOrWhiteSpace(initials))
+                            {
+                                initials = "M";
+                            }
+
+                            <tr>
+
+                                <td>
+
+                                    <div class="customer-identity">
+
+                                        <div class="customer-avatar">
+                                            @initials
+                                        </div>
+
+                                        <div>
+
+                                            <div class="customer-name">
+                                                @item.FullName
+                                            </div>
+
+                                            <span class="customer-subtitle">
+                                                Müşteri kaydı
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    @if (!string.IsNullOrWhiteSpace(item.Phone))
+                                    {
+                                        <a href="tel:@item.Phone"
+                                           class="customer-contact-link">
+
+                                            <i class="bi bi-telephone-fill"></i>
+
+                                            @item.Phone
+
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="customer-empty-value">
+                                            <i class="bi bi-dash-circle"></i>
+                                            Telefon yok
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td>
+
+                                    @if (!string.IsNullOrWhiteSpace(item.Email))
+                                    {
+                                        <a href="mailto:@item.Email"
+                                           class="customer-contact-link">
+
+                                            <i class="bi bi-envelope-fill"></i>
+
+                                            @item.Email
+
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="customer-empty-value">
+                                            <i class="bi bi-dash-circle"></i>
+                                            E-posta yok
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td>
+
+                                    <span class="customer-id-badge">
+                                        #@item.CustomerId
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <div class="table-actions justify-content-end">
+
+                                        <a asp-action="Detail"
+                                           asp-route-id="@item.CustomerId"
+                                           class="table-action-btn action-detail"
+                                           title="Detay">
+
+                                            <i class="bi bi-eye-fill"></i>
+
+                                        </a>
+
+                                        @if (canManageCustomers)
+                                        {
+                                            <a asp-action="Update"
+                                               asp-route-id="@item.CustomerId"
+                                               class="table-action-btn action-edit"
+                                               title="Düzenle">
+
+                                                <i class="bi bi-pencil-square"></i>
+
+                                            </a>
+
+                                            <button type="button"
+                                                    class="table-action-btn action-delete deleteBtn"
+                                                    title="Sil"
+                                                    data-id="@item.CustomerId"
+                                                    data-name="@item.FullName">
+
+                                                <i class="bi bi-trash3-fill"></i>
+
+                                            </button>
+                                        }
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <div class="dashboard-empty-state customer-empty-state">
+
+                <i class="bi bi-person-x-fill"></i>
+
+                <h6>
+                    Müşteri bulunamadı
+                </h6>
+
+                <span>
+                    Arama kriterine uygun bir müşteri kaydı bulunamadı.
+                </span>
+
+                @if (!string.IsNullOrWhiteSpace(keyword))
+                {
+                    <a asp-action="Index"
+                       class="btn-app-secondary mt-3">
+
+                        <i class="bi bi-arrow-counterclockwise"></i>
+
+                        Tüm müşterileri göster
+
+                    </a>
+                }
+                else
+                {
+                    @if (canManageCustomers)
+                    {
+                        <a asp-action="Create"
+                           class="btn-app-primary mt-3">
+
+                            <i class="bi bi-person-plus-fill"></i>
+
+                            İlk müşteriyi ekle
+
+                        </a>
+                    }
+                }
+
+            </div>
+        }
+
+    </div>
+
+    @if (string.IsNullOrWhiteSpace(keyword) &&
+        totalPage > 1)
+    {
+        <div class="app-card-footer customer-pagination-footer">
+
+            <div class="pagination-info">
+
+                <i class="bi bi-file-earmark-text"></i>
+
+                <span>
+                    Sayfa @currentPage / @totalPage
+                </span>
+
+            </div>
+
+            <nav aria-label="Müşteri sayfaları">
+
+                <ul class="pagination app-pagination mb-0">
+
+                    <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(currentPage - 1)">
+
+                            <i class="bi bi-chevron-left"></i>
+
+                        </a>
+
+                    </li>
+
+                    @{
+                        var startPage = Math.Max(1, currentPage - 2);
+                        var endPage = Math.Min(totalPage, currentPage + 2);
+                    }
+
+                    @if (startPage > 1)
+                    {
+                        <li class="page-item">
+
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="1">
+                                1
+                            </a>
+
+                        </li>
+
+                        @if (startPage > 2)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">…</span>
+                            </li>
+                        }
+                    }
+
+                    @for (var i = startPage; i <= endPage; i++)
+                    {
+                        <li class="page-item @(currentPage == i ? "active" : "")">
+
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@i">
+                                @i
+                            </a>
+
+                        </li>
+                    }
+
+                    @if (endPage < totalPage)
+                    {
+                        @if (endPage < totalPage - 1)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">…</span>
+                            </li>
+                        }
+
+                        <li class="page-item">
+
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@totalPage">
+                                @totalPage
+                            </a>
+
+                        </li>
+                    }
+
+                    <li class="page-item @(currentPage >= totalPage ? "disabled" : "")">
+
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(currentPage + 1)">
+
+                            <i class="bi bi-chevron-right"></i>
+
+                        </a>
+
+                    </li>
+
+                </ul>
+
+            </nav>
+
+        </div>
+    }
+
+</div>
+
+@section Scripts
+{
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const deleteButtons =
+                document.querySelectorAll(".deleteBtn");
+
+            deleteButtons.forEach(function (button) {
+
+                button.addEventListener("click", function () {
+
+                    const id = this.dataset.id;
+                    const name = this.dataset.name;
+
+                    Swal.fire({
+
+                        title: "Müşteri silinsin mi?",
+
+                        html:
+                            "<strong>" +
+                            escapeHtml(name) +
+                            "</strong> adlı müşteri silinecek.<br>" +
+                            "<small>Bu işlem sonrasında kayıt müşteri listesinden kaldırılır.</small>",
+
+                        icon: "warning",
+
+                        showCancelButton: true,
+
+                        reverseButtons: true,
+
+                        focusCancel: true,
+
+                        confirmButtonColor: "#dc2626",
+
+                        cancelButtonColor: "#64748b",
+
+                        confirmButtonText:
+                            '<i class="bi bi-trash3-fill me-1"></i> Evet, sil',
+
+                        cancelButtonText:
+                            '<i class="bi bi-x-circle me-1"></i> İptal'
+
+                    }).then(function (result) {
+
+                        if (result.isConfirmed) {
+
+                            window.location.href =
+                                "/Customer/Delete/" +
+                                encodeURIComponent(id);
+
+                        }
+
+                    });
+
+                });
+
+            });
+
+        });
+
+        function escapeHtml(value) {
+
+            const element =
+                document.createElement("div");
+
+            element.textContent = value || "";
+
+            return element.innerHTML;
+
+        }
+
+    </script>
+}

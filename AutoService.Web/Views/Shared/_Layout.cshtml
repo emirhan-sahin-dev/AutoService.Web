@@ -1,0 +1,1007 @@
+﻿@using System.Security.Claims
+@using AutoService.Web.Security
+
+@{
+    var currentController =
+        ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+    var currentAction =
+        ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    var isAuthenticated =
+        User.Identity?.IsAuthenticated == true;
+
+    var userName = isAuthenticated
+        ? User.Identity?.Name ?? "Kullanıcı"
+        : "Misafir";
+
+    var userRole =
+        User.FindFirstValue(ClaimTypes.Role) ?? "Yetkisiz";
+
+    var isAdmin =
+        User.IsInRole(AppRoles.Admin);
+
+    var isServiceAdvisor =
+        User.IsInRole(AppRoles.ServiceAdvisor);
+
+    var isMechanic =
+        User.IsInRole(AppRoles.Mechanic);
+
+    var canManageCustomers =
+        isAdmin || isServiceAdvisor;
+
+    var canManageServices =
+        isAdmin || isServiceAdvisor;
+
+    var canViewReports =
+        isAdmin || isServiceAdvisor;
+    var notificationCount =
+        canManageServices ? 3 : 2;
+
+    var roleDisplayName = userRole switch
+    {
+        AppRoles.Admin => "Sistem Yöneticisi",
+        AppRoles.ServiceAdvisor => "Servis Danışmanı",
+        AppRoles.Mechanic => "Teknisyen",
+        _ => "Kullanıcı"
+    };
+
+    var nameParts = userName
+        .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+    var userInitials = nameParts.Length switch
+    {
+        >= 2 => string.Concat(
+            nameParts[0][0],
+            nameParts[^1][0]),
+
+        1 => nameParts[0][0].ToString(),
+
+        _ => "K"
+    };
+
+    userInitials = userInitials.ToUpper(
+        System.Globalization.CultureInfo.GetCultureInfo("tr-TR"));
+
+    string GetActiveClass(params string[] controllers)
+    {
+        return controllers.Contains(
+            currentController,
+            StringComparer.OrdinalIgnoreCase)
+                ? "active"
+                : "";
+    }
+}
+
+<!DOCTYPE html>
+
+<html lang="tr">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        @ViewData["Title"] - AutoService ERP
+    </title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- Google Font -->
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet" />
+
+    <!-- Uygulama CSS -->
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+</head>
+
+<body>
+
+    <div class="app-shell">
+
+        <!-- MOBİL KARARTMA ALANI -->
+        <div class="sidebar-overlay"
+             id="sidebarOverlay">
+        </div>
+
+        <!-- SIDEBAR -->
+        <aside class="app-sidebar"
+               id="appSidebar">
+
+            <!-- LOGO -->
+            <div class="sidebar-header">
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="sidebar-brand">
+
+                    <span class="sidebar-brand-icon">
+                        <i class="bi bi-car-front-fill"></i>
+                    </span>
+
+                    <span class="sidebar-brand-content">
+
+                        <strong>
+                            AutoService
+                        </strong>
+
+                        <small>
+                            ERP Yönetim Sistemi
+                        </small>
+
+                    </span>
+
+                </a>
+
+                <button type="button"
+                        class="sidebar-mobile-close"
+                        id="sidebarMobileClose"
+                        aria-label="Menüyü kapat">
+
+                    <i class="bi bi-x-lg"></i>
+
+                </button>
+
+            </div>
+
+            <!-- KULLANICI -->
+            <div class="sidebar-user">
+
+                <div class="sidebar-user-avatar">
+                    @userInitials
+                </div>
+
+                <div class="sidebar-user-content">
+
+                    <strong>
+                        @userName
+                    </strong>
+
+                    <span>
+                        @roleDisplayName
+                    </span>
+
+                </div>
+
+                <span class="sidebar-online-dot"
+                      title="Çevrimiçi">
+                </span>
+
+            </div>
+
+            <!-- MENÜ -->
+            <nav class="sidebar-navigation">
+
+                <div class="sidebar-section">
+
+                    <span class="sidebar-section-title">
+                        GENEL
+                    </span>
+
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       class="sidebar-nav-link @GetActiveClass("Home")">
+
+                        <span class="sidebar-nav-icon">
+                            <i class="bi bi-grid-1x2-fill"></i>
+                        </span>
+
+                        <span class="sidebar-nav-text">
+                            Dashboard
+                        </span>
+
+                    </a>
+
+                </div>
+
+                @if (canManageCustomers)
+                {
+                    <div class="sidebar-section">
+
+                        <span class="sidebar-section-title">
+                            MÜŞTERİ VE ARAÇ
+                        </span>
+
+                        <a asp-controller="Customer"
+                           asp-action="Index"
+                           class="sidebar-nav-link @GetActiveClass("Customer")">
+
+                            <span class="sidebar-nav-icon">
+                                <i class="bi bi-people-fill"></i>
+                            </span>
+
+                            <span class="sidebar-nav-text">
+                                Müşteriler
+                            </span>
+
+                        </a>
+
+                        <a asp-controller="Vehicle"
+                           asp-action="Index"
+                           class="sidebar-nav-link @GetActiveClass("Vehicle")">
+
+                            <span class="sidebar-nav-icon">
+                                <i class="bi bi-car-front-fill"></i>
+                            </span>
+
+                            <span class="sidebar-nav-text">
+                                Araçlar
+                            </span>
+
+                        </a>
+
+                    </div>
+                }
+
+                <div class="sidebar-section">
+
+                    <span class="sidebar-section-title">
+                        SERVİS YÖNETİMİ
+                    </span>
+
+                    <a asp-controller="ServiceRecord"
+                       asp-action="Index"
+                       class="sidebar-nav-link @GetActiveClass("ServiceRecord")">
+
+                        <span class="sidebar-nav-icon">
+                            <i class="bi bi-clipboard2-check-fill"></i>
+                        </span>
+
+                        <span class="sidebar-nav-text">
+                            Servis Kayıtları
+                        </span>
+
+                    </a>
+                    @if (canManageServices)
+                    {
+                        <a asp-controller="Appointment"
+                           asp-action="Index"
+                           class="sidebar-nav-link @GetActiveClass("Appointment")">
+
+                            <span class="sidebar-nav-icon">
+                                <i class="bi bi-calendar2-week-fill"></i>
+                            </span>
+
+                            <span class="sidebar-nav-text">
+                                Randevular
+                            </span>
+
+                        </a>
+                    }
+                    <a asp-controller="ServiceOperation"
+                       asp-action="Index"
+                       class="sidebar-nav-link @GetActiveClass("ServiceOperation")">
+
+                        <span class="sidebar-nav-icon">
+                            <i class="bi bi-wrench-adjustable-circle-fill"></i>
+                        </span>
+
+                        <span class="sidebar-nav-text">
+                            Servis İşlemleri
+                        </span>
+
+                    </a>
+
+                    @if (canManageServices)
+                    {
+                        <a asp-controller="Mechanic"
+                           asp-action="Index"
+                           class="sidebar-nav-link @GetActiveClass("Mechanic")">
+
+                            <span class="sidebar-nav-icon">
+                                <i class="bi bi-person-workspace"></i>
+                            </span>
+
+                            <span class="sidebar-nav-text">
+                                Ustalar
+                            </span>
+
+                        </a>
+
+                        <a asp-controller="SparePart"
+                           asp-action="Index"
+                           class="sidebar-nav-link @GetActiveClass("SparePart")">
+
+                            <span class="sidebar-nav-icon">
+                                <i class="bi bi-box-seam-fill"></i>
+                            </span>
+
+                            <span class="sidebar-nav-text">
+                                Yedek Parçalar
+                            </span>
+
+                        </a>
+                        <a asp-controller="Brand"
+                           asp-action="Index"
+                           class="sidebar-nav-link @GetActiveClass("Brand")">
+
+                            <span class="sidebar-nav-icon">
+                                <i class="bi bi-tags-fill"></i>
+                            </span>
+
+                            <span class="sidebar-nav-text">
+                                Markalar
+                            </span>
+
+                        </a>
+                        <a asp-controller="Model"
+                           asp-action="Index"
+                           class="sidebar-nav-link @GetActiveClass("Model")">
+
+                            <span class="sidebar-nav-icon">
+                                <i class="bi bi-car-front"></i>
+                            </span>
+
+                            <span class="sidebar-nav-text">
+                                Modeller
+                            </span>
+
+                        </a>
+                    }
+
+                </div>
+
+                @if (canViewReports)
+                {
+                    <div class="sidebar-section">
+
+                        <span class="sidebar-section-title">
+                            RAPORLAMA
+                        </span>
+
+                        <a asp-controller="Report"
+                           asp-action="Index"
+                           class="sidebar-nav-link @GetActiveClass("Report")">
+
+                            <span class="sidebar-nav-icon">
+                                <i class="bi bi-bar-chart-line-fill"></i>
+                            </span>
+
+                            <span class="sidebar-nav-text">
+                                Raporlar
+                            </span>
+
+                        </a>
+
+                    </div>
+                }
+
+                @if (isAdmin)
+                {
+                    <div class="sidebar-section">
+
+                        <span class="sidebar-section-title">
+                            SİSTEM YÖNETİMİ
+                        </span>
+
+                        <a asp-controller="Admin"
+                           asp-action="Index"
+                           class="sidebar-nav-link @GetActiveClass("Admin")">
+
+                            <span class="sidebar-nav-icon">
+                                <i class="bi bi-person-gear"></i>
+                            </span>
+
+                            <span class="sidebar-nav-text">
+                                Kullanıcı Yönetimi
+                            </span>
+
+                        </a>
+                        <a asp-controller="SystemSetting"
+                           asp-action="Index"
+                           class="sidebar-nav-link @GetActiveClass("SystemSetting")">
+
+                            <span class="sidebar-nav-icon">
+                                <i class="bi bi-gear-fill"></i>
+                            </span>
+
+                            <span class="sidebar-nav-text">
+                                Sistem Ayarları
+                            </span>
+
+                        </a>
+
+                    </div>
+                }
+
+            </nav>
+
+            <!-- SIDEBAR ALT -->
+            <div class="sidebar-footer">
+
+                <div class="sidebar-version">
+
+                    <i class="bi bi-shield-check"></i>
+
+                    <div>
+
+                        <strong>
+                            AutoService ERP
+                        </strong>
+
+                        <span>
+                            Sürüm 1.0.0
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <form asp-controller="Login"
+                      asp-action="Logout"
+                      method="post"
+                      class="sidebar-logout-form">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="sidebar-logout">
+
+                        <i class="bi bi-box-arrow-left"></i>
+
+                        <span>
+                            Güvenli Çıkış
+                        </span>
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </aside>
+
+        <!-- ANA ALAN -->
+        <div class="app-main"
+             id="appMain">
+
+            <!-- TOPBAR -->
+            <header class="app-topbar">
+
+                <div class="topbar-start">
+
+                    <button type="button"
+                            class="topbar-menu-button"
+                            id="sidebarToggle"
+                            aria-label="Menüyü aç veya kapat">
+
+                        <i class="bi bi-list"></i>
+
+                    </button>
+
+                    <div class="topbar-page-info">
+
+                        <strong>
+                            @(ViewData["Title"] ?? "Yönetim Paneli")
+                        </strong>
+
+                        <span>
+                            Kurumsal otomotiv servis yönetimi
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="topbar-end">
+
+                    <!-- ARAMA -->
+                    <button type="button"
+                            class="topbar-icon-button"
+                            title="Ara">
+
+                        <i class="bi bi-search"></i>
+
+                    </button>
+
+                    <!-- BİLDİRİM -->
+                    <div class="topbar-dropdown">
+
+                        <button type="button"
+                                class="topbar-icon-button"
+                                id="notificationButton"
+                                aria-expanded="false"
+                                title="Bildirimler">
+
+                            <i class="bi bi-bell-fill"></i>
+
+                            <span class="topbar-notification-dot">
+                            </span>
+
+                        </button>
+
+                        <div class="topbar-dropdown-menu notification-menu"
+                             id="notificationMenu">
+
+                            <div class="dropdown-menu-header">
+
+                                <div>
+
+                                    <strong>
+                                        Bildirimler
+                                    </strong>
+
+                                    <span>
+                                        Sistem uyarıları
+                                    </span>
+
+                                </div>
+
+                                <span class="dropdown-count-badge">
+                                    @notificationCount
+                                </span>
+
+                            </div>
+
+                            <div class="notification-list">
+
+                                @if (canManageServices)
+                                {
+                                    <a asp-controller="SparePart"
+                                       asp-action="Index"
+                                       class="notification-item">
+
+                                        <span class="notification-icon notification-danger">
+
+                                            <i class="bi bi-exclamation-triangle-fill"></i>
+
+                                        </span>
+
+                                        <span class="notification-content">
+
+                                            <strong>
+                                                Kritik stok kontrolü
+                                            </strong>
+
+                                            <small>
+                                                Stok seviyesi düşük parçaları inceleyin.
+                                            </small>
+
+                                        </span>
+
+                                    </a>
+                                }
+
+                                <a asp-controller="ServiceRecord"
+                                   asp-action="Index"
+                                   class="notification-item">
+
+                                    <span class="notification-icon notification-warning">
+
+                                        <i class="bi bi-clock-fill"></i>
+
+                                    </span>
+
+                                    <span class="notification-content">
+
+                                        <strong>
+                                            Yaklaşan teslimatlar
+                                        </strong>
+
+                                        <small>
+                                            Teslim tarihi yaklaşan araçları kontrol edin.
+                                        </small>
+
+                                    </span>
+
+                                </a>
+
+                                <a asp-controller="ServiceRecord"
+                                   asp-action="Index"
+                                   class="notification-item">
+
+                                    <span class="notification-icon notification-primary">
+
+                                        <i class="bi bi-tools"></i>
+
+                                    </span>
+
+                                    <span class="notification-content">
+
+                                        <strong>
+                                            Aktif servis kayıtları
+                                        </strong>
+
+                                        <small>
+                                            Devam eden servis işlemlerini görüntüleyin.
+                                        </small>
+
+                                    </span>
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- KULLANICI MENÜSÜ -->
+                    <div class="topbar-dropdown">
+
+                        <button type="button"
+                                class="topbar-profile-button"
+                                id="profileButton"
+                                aria-expanded="false">
+
+                            <span class="topbar-profile-avatar">
+                                @userInitials
+                            </span>
+
+                            <span class="topbar-profile-content">
+
+                                <strong>
+                                    @userName
+                                </strong>
+
+                                <small>
+                                    @roleDisplayName
+                                </small>
+
+                            </span>
+
+                            <i class="bi bi-chevron-down"></i>
+
+                        </button>
+
+                        <div class="topbar-dropdown-menu profile-menu"
+                             id="profileMenu">
+
+                            <div class="profile-menu-header">
+
+                                <span class="profile-menu-avatar">
+                                    @userInitials
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        @userName
+                                    </strong>
+
+                                    <span>
+                                        @roleDisplayName
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="profile-menu-links">
+
+                                <a asp-controller="Profile"
+                                   asp-action="Index">
+
+                                    <i class="bi bi-person-fill"></i>
+                                    Profilim
+
+                                </a>
+
+                                <a asp-controller="AccountSetting"
+                                   asp-action="Index">
+
+                                    <i class="bi bi-gear"></i>
+                                    Hesap Ayarları
+
+                                </a>
+
+                                <form asp-controller="Login"
+                                      asp-action="Logout"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit"
+                                            class="profile-menu-logout">
+
+                                        <i class="bi bi-box-arrow-left"></i>
+
+                                        Çıkış Yap
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+            <!-- SAYFA İÇERİĞİ -->
+            <main class="app-content">
+
+                @RenderBody()
+
+            </main>
+
+            <!-- FOOTER -->
+            <footer class="app-footer">
+
+                <span>
+                    © @DateTime.Now.Year AutoService ERP
+                </span>
+
+                <span>
+                    Kurumsal Servis Yönetim Sistemi
+                </span>
+
+            </footer>
+
+        </div>
+
+    </div>
+
+    <!-- Bootstrap -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Layout JavaScript -->
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const body =
+                document.body;
+
+            const sidebarToggle =
+                document.getElementById("sidebarToggle");
+
+            const sidebarMobileClose =
+                document.getElementById("sidebarMobileClose");
+
+            const sidebarOverlay =
+                document.getElementById("sidebarOverlay");
+
+            const notificationButton =
+                document.getElementById("notificationButton");
+
+            const notificationMenu =
+                document.getElementById("notificationMenu");
+
+            const profileButton =
+                document.getElementById("profileButton");
+
+            const profileMenu =
+                document.getElementById("profileMenu");
+
+
+            function isMobile() {
+
+                return window.innerWidth <= 991;
+
+            }
+
+
+            function closeMobileSidebar() {
+
+                body.classList.remove("sidebar-mobile-open");
+
+            }
+
+
+            function closeDropdowns() {
+
+                notificationMenu?.classList.remove("show");
+
+                profileMenu?.classList.remove("show");
+
+                notificationButton?.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
+
+                profileButton?.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
+
+            }
+
+
+            if (!isMobile()) {
+
+                const savedSidebarState =
+                    localStorage.getItem(
+                        "autoServiceSidebarCollapsed"
+                    );
+
+                if (savedSidebarState === "true") {
+
+                    body.classList.add(
+                        "sidebar-collapsed"
+                    );
+
+                }
+
+            }
+
+
+            sidebarToggle?.addEventListener(
+                "click",
+                function (event) {
+
+                    event.stopPropagation();
+
+                    if (isMobile()) {
+
+                        body.classList.toggle(
+                            "sidebar-mobile-open"
+                        );
+
+                        closeDropdowns();
+
+                        return;
+
+                    }
+
+                    body.classList.toggle(
+                        "sidebar-collapsed"
+                    );
+
+                    localStorage.setItem(
+                        "autoServiceSidebarCollapsed",
+                        body.classList.contains(
+                            "sidebar-collapsed"
+                        )
+                    );
+
+                }
+            );
+
+
+            sidebarMobileClose?.addEventListener(
+                "click",
+                closeMobileSidebar
+            );
+
+
+            sidebarOverlay?.addEventListener(
+                "click",
+                closeMobileSidebar
+            );
+
+
+            notificationButton?.addEventListener(
+                "click",
+                function (event) {
+
+                    event.stopPropagation();
+
+                    profileMenu?.classList.remove("show");
+
+                    profileButton?.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                    notificationMenu?.classList.toggle(
+                        "show"
+                    );
+
+                    notificationButton.setAttribute(
+                        "aria-expanded",
+                        notificationMenu?.classList.contains(
+                            "show"
+                        )
+                            ? "true"
+                            : "false"
+                    );
+
+                }
+            );
+
+
+            profileButton?.addEventListener(
+                "click",
+                function (event) {
+
+                    event.stopPropagation();
+
+                    notificationMenu?.classList.remove(
+                        "show"
+                    );
+
+                    notificationButton?.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                    profileMenu?.classList.toggle(
+                        "show"
+                    );
+
+                    profileButton.setAttribute(
+                        "aria-expanded",
+                        profileMenu?.classList.contains(
+                            "show"
+                        )
+                            ? "true"
+                            : "false"
+                    );
+
+                }
+            );
+
+
+            notificationMenu?.addEventListener(
+                "click",
+                function (event) {
+
+                    event.stopPropagation();
+
+                }
+            );
+
+
+            profileMenu?.addEventListener(
+                "click",
+                function (event) {
+
+                    event.stopPropagation();
+
+                }
+            );
+
+
+            document.addEventListener(
+                "click",
+                closeDropdowns
+            );
+
+
+            window.addEventListener(
+                "resize",
+                function () {
+
+                    closeDropdowns();
+
+                    if (!isMobile()) {
+
+                        closeMobileSidebar();
+
+                    }
+
+                }
+            );
+
+        });
+
+    </script>
+
+    @await RenderSectionAsync(
+    "Scripts",
+        required: false
+        )
+
+</body>
+
+</html>

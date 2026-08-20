@@ -1,0 +1,601 @@
+﻿@model AutoService.Dto.ServiceOperationDtos.ServiceOperationDetailDto
+
+@using AutoService.Entity.Enums
+
+@{
+    ViewData["Title"] = "Servis İşlem Detayı";
+
+    var statusText = Model.Status switch
+    {
+        ServiceOperationStatus.Waiting => "Bekliyor",
+        ServiceOperationStatus.InProgress => "İşleme Alındı",
+        ServiceOperationStatus.WaitingForPart => "Parça Bekleniyor",
+        ServiceOperationStatus.Completed => "Tamamlandı",
+        ServiceOperationStatus.QualityControl => "Kalite Kontrol",
+        ServiceOperationStatus.ReadyForDelivery => "Teslime Hazır",
+        ServiceOperationStatus.Cancelled => "İptal Edildi",
+        _ => Model.Status.ToString()
+    };
+
+    var statusClass = Model.Status switch
+    {
+        ServiceOperationStatus.Waiting => "app-badge-warning",
+        ServiceOperationStatus.InProgress => "app-badge-primary",
+        ServiceOperationStatus.WaitingForPart => "app-badge-warning",
+        ServiceOperationStatus.Completed => "app-badge-success",
+        ServiceOperationStatus.QualityControl => "app-badge-primary",
+        ServiceOperationStatus.ReadyForDelivery => "app-badge-success",
+        ServiceOperationStatus.Cancelled => "app-badge-danger",
+        _ => "app-badge-primary"
+    };
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-wrench-adjustable-circle-fill"></i>
+            Servis İşlemleri
+        </div>
+
+        <h1>Servis İşlem Detayı</h1>
+
+        <p>
+            İşleme ait usta, fiyat, süre, durum ve parça bilgilerini görüntüleyin.
+        </p>
+
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+
+        <a asp-action="Index"
+           asp-route-serviceRecordId="@Model.ServiceRecordId"
+           class="btn-app-secondary">
+
+            <i class="bi bi-arrow-left"></i>
+            İşlem Listesine Dön
+
+        </a>
+
+        <a asp-action="UpdateStatus"
+           asp-route-id="@Model.ServiceOperationId"
+           class="btn-app-primary">
+
+            <i class="bi bi-arrow-repeat"></i>
+            Durumu Güncelle
+
+        </a>
+
+    </div>
+
+</div>
+
+<div class="row g-4 mb-4">
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-primary">
+
+            <div class="dashboard-alert-icon icon-primary">
+                <i class="bi bi-car-front-fill"></i>
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>@Model.VehiclePlate</strong>
+
+                <span>Servis #@Model.ServiceRecordId</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-success">
+
+            <div class="dashboard-alert-icon icon-success">
+                <i class="bi bi-cash-stack"></i>
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>
+                    @Model.CustomerLaborPrice.ToString("N2") ₺
+                </strong>
+
+                <span>Müşteri işçilik bedeli</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-warning">
+
+            <div class="dashboard-alert-icon icon-warning">
+                <i class="bi bi-person-check-fill"></i>
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>
+                    @Model.MechanicPayment.ToString("N2") ₺
+                </strong>
+
+                <span>Usta hakedişi</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-primary">
+
+            <div class="dashboard-alert-icon icon-primary">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>
+                    @Model.LaborGrossMargin.ToString("N2") ₺
+                </strong>
+
+                <span>Brüt işçilik farkı</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-xl-8">
+
+        <div class="app-card mb-4">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-primary">
+                        <i class="bi bi-tools"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>İşlem Bilgileri</h5>
+
+                        <span>
+                            Serviste yapılan işleme ait temel bilgiler
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <span class="app-badge @statusClass">
+                    @statusText
+                </span>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+
+                        <label class="form-label text-muted small">
+                            İşlem Türü
+                        </label>
+
+                        <div class="form-control bg-light">
+                            @Model.OperationTypeName
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label text-muted small">
+                            Uzmanlık Alanı
+                        </label>
+
+                        <div class="form-control bg-light">
+                            @Model.SpecialtyName
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label text-muted small">
+                            Atanan Usta
+                        </label>
+
+                        <div class="form-control bg-light">
+                            @Model.MechanicFullName
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label text-muted small">
+                            Varsayılan Süre
+                        </label>
+
+                        <div class="form-control bg-light">
+                            @Model.LaborHours.ToString("N2") saat
+                        </div>
+
+                    </div>
+
+                    <div class="col-12">
+
+                        <label class="form-label text-muted small">
+                            Tespit Edilen Problem
+                        </label>
+
+                        <div class="form-control bg-light"
+                             style="min-height: 100px; white-space: pre-wrap;">
+
+                            @(string.IsNullOrWhiteSpace(Model.ProblemDescription)
+                                                        ? "Problem açıklaması bulunmuyor."
+                                                        : Model.ProblemDescription)
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-12">
+
+                        <label class="form-label text-muted small">
+                            Yapılan / Planlanan İşlem
+                        </label>
+
+                        <div class="form-control bg-light"
+                             style="min-height: 100px; white-space: pre-wrap;">
+
+                            @(string.IsNullOrWhiteSpace(Model.WorkDescription)
+                                                        ? "İşlem açıklaması bulunmuyor."
+                                                        : Model.WorkDescription)
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-warning">
+                        <i class="bi bi-box-seam-fill"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Kullanılan Parçalar</h5>
+
+                        <span>
+                            Bu işleme bağlı yedek parça kayıtları
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+
+                    <span class="app-badge app-badge-warning">
+
+                        @Model.Parts.Count parça
+
+                    </span>
+
+                    <a asp-action="AddPart"
+                       asp-route-serviceOperationId="@Model.ServiceOperationId"
+                       class="btn-app-primary">
+
+                        <i class="bi bi-plus-circle-fill"></i>
+                        Parça Ekle
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body p-0">
+
+                @if (Model.Parts.Any())
+                {
+                    <div class="table-responsive">
+
+                        <table class="table app-table align-middle mb-0">
+
+                            <thead>
+                                <tr>
+                                    <th>Parça</th>
+                                    <th>Parça Kodu</th>
+                                    <th>Adet</th>
+                                    <th>Birim Fiyat</th>
+                                    <th>Toplam</th>
+                                    <th class="text-end">İşlem</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var part in Model.Parts)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            <strong>@part.PartName</strong>
+                                        </td>
+
+                                        <td>
+                                            @part.PartCode
+                                        </td>
+
+                                        <td>
+                                            @part.Quantity
+                                        </td>
+
+                                        <td>
+                                            @part.UnitPrice.ToString("N2") ₺
+                                        </td>
+
+                                        <td>
+                                            <strong>
+                                                @part.TotalPrice.ToString("N2") ₺
+                                            </strong>
+                                        </td>
+                                        <td class="text-end">
+
+                                            <form asp-action="RemovePart"
+                                                  method="post"
+                                                  class="d-inline remove-part-form">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="serviceOperationPartId"
+                                                       value="@part.ServiceOperationPartId" />
+
+                                                <input type="hidden"
+                                                       name="serviceOperationId"
+                                                       value="@Model.ServiceOperationId" />
+
+                                                <button type="submit"
+                                                        class="table-action-btn action-delete"
+                                                        title="Parçayı kaldır">
+
+                                                    <i class="bi bi-trash3-fill"></i>
+
+                                                </button>
+
+                                            </form>
+
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="dashboard-empty-state">
+
+                        <i class="bi bi-box-seam"></i>
+
+                        <h6>Parça kullanılmamış</h6>
+
+                        <span>
+                            Bu servis işlemine henüz yedek parça eklenmemiştir.
+                        </span>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4">
+
+        <div class="app-card mb-4">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-success">
+                        <i class="bi bi-calculator-fill"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Finansal Özet</h5>
+
+                        <span>
+                            İşlem maliyet ve satış değerleri
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <div class="d-flex justify-content-between mb-3">
+
+                    <span class="text-muted">
+                        Müşteri işçilik
+                    </span>
+
+                    <strong>
+                        @Model.CustomerLaborPrice.ToString("N2") ₺
+                    </strong>
+
+                </div>
+
+                <div class="d-flex justify-content-between mb-3">
+
+                    <span class="text-muted">
+                        Parça toplamı
+                    </span>
+
+                    <strong>
+                        @Model.PartsTotal.ToString("N2") ₺
+                    </strong>
+
+                </div>
+
+                <hr />
+
+                <div class="d-flex justify-content-between mb-4">
+
+                    <span class="fw-semibold">
+                        Müşteri toplamı
+                    </span>
+
+                    <strong class="text-success fs-5">
+                        @Model.CustomerTotal.ToString("N2") ₺
+                    </strong>
+
+                </div>
+
+                <div class="d-flex justify-content-between mb-3">
+
+                    <span class="text-muted">
+                        Usta hakedişi
+                    </span>
+
+                    <strong class="text-warning">
+                        @Model.MechanicPayment.ToString("N2") ₺
+                    </strong>
+
+                </div>
+
+                <div class="d-flex justify-content-between">
+
+                    <span class="text-muted">
+                        Brüt işçilik farkı
+                    </span>
+
+                    <strong class="text-primary">
+                        @Model.LaborGrossMargin.ToString("N2") ₺
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-primary">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Tarih Bilgileri</h5>
+
+                        <span>
+                            İşlemin zaman bilgileri
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <div class="mb-3">
+
+                    <small class="text-muted d-block">
+                        Kayıt Tarihi
+                    </small>
+
+                    <strong>
+                        @Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                    </strong>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <small class="text-muted d-block">
+                        Başlama Tarihi
+                    </small>
+
+                    <strong>
+                        @(Model.StartedDate.HasValue
+                                                ? Model.StartedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                                : "Henüz başlamadı")
+                    </strong>
+
+                </div>
+
+                <div>
+
+                    <small class="text-muted d-block">
+                        Tamamlanma Tarihi
+                    </small>
+
+                    <strong>
+                        @(Model.CompletedDate.HasValue
+                                                ? Model.CompletedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                                : "Henüz tamamlanmadı")
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

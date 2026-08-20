@@ -1,0 +1,303 @@
+﻿@model AutoService.Dto.MechanicDtos.MechanicDetailDto
+
+@{
+    ViewData["Title"] = "Usta Detayı";
+
+    var fullName = $"{Model.FirstName} {Model.LastName}";
+    var firstLetter = !string.IsNullOrWhiteSpace(Model.FirstName)
+        ? Model.FirstName.Substring(0, 1).ToUpper()
+        : "U";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-person-gear"></i>
+            Usta Yönetimi
+        </div>
+
+        <h1>Usta Detayı</h1>
+
+        <p>
+            Personelin iletişim, uzmanlık ve işe giriş bilgilerini görüntüleyin.
+        </p>
+
+    </div>
+
+    <div class="d-flex gap-2">
+
+        <a asp-action="Update"
+           asp-route-id="@Model.MechanicId"
+           class="btn-app-warning">
+
+            <i class="bi bi-pencil-square"></i>
+            Güncelle
+
+        </a>
+
+        <a asp-action="Index"
+           class="btn-app-secondary">
+
+            <i class="bi bi-arrow-left"></i>
+            Geri Dön
+
+        </a>
+
+    </div>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-xl-4">
+
+        <div class="app-card mechanic-profile-card">
+
+            <div class="mechanic-profile-cover">
+
+                <div class="mechanic-profile-avatar">
+                    @firstLetter
+                </div>
+
+            </div>
+
+            <div class="mechanic-profile-content">
+
+                <h4>@fullName</h4>
+
+                <span class="mechanic-specialty-badge">
+
+                    <i class="bi bi-tools"></i>
+                    @Model.Specialty
+
+                </span>
+
+                <div class="mechanic-contact-list">
+
+                    <a href="tel:@Model.Phone"
+                       class="mechanic-contact-item">
+
+                        <i class="bi bi-telephone-fill"></i>
+
+                        <span>@Model.Phone</span>
+
+                    </a>
+
+                    <a href="mailto:@Model.Email"
+                       class="mechanic-contact-item">
+
+                        <i class="bi bi-envelope-fill"></i>
+
+                        <span>@Model.Email</span>
+
+                    </a>
+
+                </div>
+
+                <div class="mechanic-profile-stats">
+
+                    <div>
+
+                        <strong>
+                            @Model.HireDate.ToString("dd.MM.yyyy")
+                        </strong>
+
+                        <span>İşe Giriş Tarihi</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-8">
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-primary">
+                        <i class="bi bi-person-vcard-fill"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Personel Bilgileri</h5>
+
+                        <span>
+                            Ustaya ait kayıtlı kişisel ve mesleki bilgiler
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <span class="app-badge app-badge-success">
+
+                    <i class="bi bi-check-circle-fill"></i>
+                    Aktif Personel
+
+                </span>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <div class="detail-info-grid">
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-primary">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Ad</span>
+
+                            <strong>@Model.FirstName</strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-primary">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Soyad</span>
+
+                            <strong>@Model.LastName</strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-success">
+                            <i class="bi bi-telephone-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Telefon</span>
+
+                            <strong>@Model.Phone</strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-primary">
+                            <i class="bi bi-envelope-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>E-posta</span>
+
+                            <strong class="mechanic-email-value">
+                                @Model.Email
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-warning">
+                            <i class="bi bi-tools"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Uzmanlık Alanı</span>
+
+                            <strong>@Model.Specialty</strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-success">
+                            <i class="bi bi-calendar-check-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>İşe Giriş Tarihi</span>
+
+                            <strong>
+                                @Model.HireDate.ToString("dd.MM.yyyy")
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="mechanic-detail-notice">
+
+                    <i class="bi bi-person-check-fill"></i>
+
+                    <div>
+
+                        <strong>Servis personeli</strong>
+
+                        <span>
+                            Bu usta servis kayıtlarına görevli personel olarak
+                            atanabilir ve yaptığı işlemler sistemde takip edilebilir.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-footer">
+
+                <a asp-action="Index"
+                   class="btn-app-secondary">
+
+                    <i class="bi bi-arrow-left"></i>
+                    Usta Listesine Dön
+
+                </a>
+
+                <a asp-controller="ServiceRecord"
+                   asp-action="Index"
+                   asp-route-keyword="@fullName"
+                   class="btn-app-primary">
+
+                    <i class="bi bi-wrench-adjustable-circle-fill"></i>
+                    Servis Kayıtlarını Gör
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

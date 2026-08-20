@@ -1,0 +1,638 @@
+﻿@model AutoService.Dto.ServiceOperationDtos.CreateServiceOperationDto
+
+@{
+    ViewData["Title"] = "Yeni Servis İşlemi";
+
+    int? returnServiceRecordId = null;
+
+    if (ViewBag.ReturnServiceRecordId != null &&
+        Convert.ToInt32(ViewBag.ReturnServiceRecordId) > 0)
+    {
+        returnServiceRecordId =
+            Convert.ToInt32(ViewBag.ReturnServiceRecordId);
+    }
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-wrench-adjustable-circle-fill"></i>
+            Servis İşlemleri
+        </div>
+
+        <h1>Yeni Servis İşlemi Ekle</h1>
+
+        <p>
+            Servis kaydına yapılacak işlemi ve uzman ustayı atayın.
+            İşçilik fiyatları seçilen işlem türünden otomatik alınır.
+        </p>
+
+    </div>
+
+    <a asp-action="Index"
+       asp-route-serviceRecordId="@returnServiceRecordId"
+       class="btn-app-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+        İşlem Listesine Dön
+
+    </a>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-xl-8">
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-primary">
+                        <i class="bi bi-tools"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>İşlem Bilgileri</h5>
+
+                        <span>
+                            İşlem türünü seçin ve uygun uzmanı atayın
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <form asp-action="Create"
+                      method="post"
+                      id="serviceOperationForm">
+
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger">
+                    </div>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="ServiceRecordId"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-clipboard2-pulse-fill"></i>
+                                    Servis Kaydı
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-select-wrapper">
+
+                                    <i class="bi bi-hash"></i>
+
+                                    <select asp-for="ServiceRecordId"
+                                            asp-items="ViewBag.ServiceRecords"
+                                            class="app-form-control app-form-select">
+
+                                        <option value="">
+                                            Servis kaydı seçiniz
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                                <span asp-validation-for="ServiceRecordId"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="ServiceOperationTypeId"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-list-check"></i>
+                                    İşlem Türü
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-select-wrapper">
+
+                                    <i class="bi bi-wrench-adjustable"></i>
+
+                                    <select asp-for="ServiceOperationTypeId"
+                                            asp-items="ViewBag.OperationTypes"
+                                            class="app-form-control app-form-select"
+                                            id="operationTypeSelect">
+
+                                        <option value="">
+                                            İşlem türü seçiniz
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                                <span asp-validation-for="ServiceOperationTypeId"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="MechanicId"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-person-workspace"></i>
+                                    Atanacak Usta
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-select-wrapper">
+
+                                    <i class="bi bi-person-gear"></i>
+
+                                    <select asp-for="MechanicId"
+                                            class="app-form-control app-form-select"
+                                            id="mechanicSelect"
+                                            disabled>
+
+                                        <option value="">
+                                            Önce işlem türü seçiniz
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                                <span asp-validation-for="MechanicId"
+                                      class="app-validation-message">
+                                </span>
+
+                                <small class="text-muted">
+                                    Yalnızca seçilen işlemin uzmanlık alanına
+                                    uygun aktif ustalar listelenir.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label class="app-form-label">
+
+                                    <i class="bi bi-award-fill"></i>
+                                    Gerekli Uzmanlık
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-shield-check"></i>
+
+                                    <input type="text"
+                                           id="specialtyName"
+                                           class="app-form-control"
+                                           value="-"
+                                           readonly />
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-12">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="ProblemDescription"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-exclamation-diamond-fill"></i>
+                                    Tespit Edilen Problem
+                                    <span>*</span>
+
+                                </label>
+
+                                <textarea asp-for="ProblemDescription"
+                                          class="app-form-control"
+                                          rows="4"
+                                          placeholder="Araçta tespit edilen problemi ayrıntılı olarak yazınız...">
+                                </textarea>
+
+                                <span asp-validation-for="ProblemDescription"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-12">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="WorkDescription"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-card-text"></i>
+                                    Yapılacak İşlem Açıklaması
+
+                                </label>
+
+                                <textarea asp-for="WorkDescription"
+                                          class="app-form-control"
+                                          rows="4"
+                                          placeholder="Yapılacak işlem veya planlanan çalışma hakkında açıklama yazınız...">
+                                </textarea>
+
+                                <span asp-validation-for="WorkDescription"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="service-detail-form-notice">
+
+                        <i class="bi bi-info-circle-fill"></i>
+
+                        <div>
+
+                            <strong>Otomatik fiyatlandırma</strong>
+
+                            <span>
+                                Süre, müşteriye uygulanacak işçilik bedeli,
+                                usta hakedişi ve brüt işçilik farkı seçilen
+                                işlem türüne göre otomatik belirlenir.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="app-form-actions">
+
+                        <a asp-action="Index"
+                           asp-route-serviceRecordId="@returnServiceRecordId"
+                           class="btn-app-secondary">
+
+                            <i class="bi bi-x-circle"></i>
+                            Vazgeç
+
+                        </a>
+
+                        <button type="submit"
+                                class="btn-app-primary"
+                                id="submitButton">
+
+                            <i class="bi bi-check-circle-fill"></i>
+                            İşlemi Kaydet
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4">
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-success">
+                        <i class="bi bi-calculator-fill"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>İşçilik Özeti</h5>
+
+                        <span>
+                            Seçilen işleme ait otomatik değerler
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <div class="mb-4">
+
+                    <small class="text-muted d-block mb-1">
+                        Varsayılan Süre
+                    </small>
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        <i class="bi bi-clock-fill text-primary"></i>
+
+                        <strong id="durationHours">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <hr />
+
+                <div class="mb-4">
+
+                    <small class="text-muted d-block mb-1">
+                        Müşteri İşçilik Bedeli
+                    </small>
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        <i class="bi bi-cash-stack text-success"></i>
+
+                        <strong id="customerLaborPrice">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <small class="text-muted d-block mb-1">
+                        Usta Hakedişi
+                    </small>
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        <i class="bi bi-person-check-fill text-warning"></i>
+
+                        <strong id="mechanicPayment">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div>
+
+                    <small class="text-muted d-block mb-1">
+                        Brüt İşçilik Farkı
+                    </small>
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        <i class="bi bi-graph-up-arrow text-primary"></i>
+
+                        <strong id="laborGrossMargin">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const operationTypeSelect =
+                document.getElementById("operationTypeSelect");
+
+            const mechanicSelect =
+                document.getElementById("mechanicSelect");
+
+            const specialtyName =
+                document.getElementById("specialtyName");
+
+            const durationHours =
+                document.getElementById("durationHours");
+
+            const customerLaborPrice =
+                document.getElementById("customerLaborPrice");
+
+            const mechanicPayment =
+                document.getElementById("mechanicPayment");
+
+            const laborGrossMargin =
+                document.getElementById("laborGrossMargin");
+
+            operationTypeSelect.addEventListener(
+                "change",
+                loadOperationInformation
+            );
+
+            async function loadOperationInformation() {
+
+                const operationTypeId =
+                    operationTypeSelect.value;
+
+                resetInformation();
+
+                mechanicSelect.innerHTML =
+                    '<option value="">Usta seçiniz</option>';
+
+                mechanicSelect.disabled = true;
+
+                if (!operationTypeId) {
+                    mechanicSelect.innerHTML =
+                        '<option value="">Önce işlem türü seçiniz</option>';
+
+                    return;
+                }
+
+                try {
+
+                    const infoResponse = await fetch(
+                        '@Url.Action("GetOperationTypeInfo", "ServiceOperation")'
+                        + '?operationTypeId='
+                        + encodeURIComponent(operationTypeId)
+                    );
+
+                    if (!infoResponse.ok) {
+                        throw new Error(
+                            "İşlem bilgileri alınamadı."
+                        );
+                    }
+
+                    const info =
+                        await infoResponse.json();
+
+                    durationHours.textContent =
+                        formatNumber(info.durationHours)
+                        + " saat";
+
+                    customerLaborPrice.textContent =
+                        formatCurrency(
+                            info.customerLaborPrice
+                        );
+
+                    mechanicPayment.textContent =
+                        formatCurrency(
+                            info.mechanicPayment
+                        );
+
+                    laborGrossMargin.textContent =
+                        formatCurrency(
+                            info.laborGrossMargin
+                        );
+
+                    specialtyName.value =
+                        info.specialtyName || "-";
+
+                    const mechanicsResponse = await fetch(
+                        '@Url.Action("GetMechanicsByOperationType", "ServiceOperation")'
+                        + '?operationTypeId='
+                        + encodeURIComponent(operationTypeId)
+                    );
+
+                    if (!mechanicsResponse.ok) {
+                        throw new Error(
+                            "Usta bilgileri alınamadı."
+                        );
+                    }
+
+                    const mechanics =
+                        await mechanicsResponse.json();
+
+                    if (!mechanics.length) {
+
+                        mechanicSelect.innerHTML =
+                            '<option value="">Uygun aktif usta bulunamadı</option>';
+
+                        return;
+                    }
+
+                    mechanics.forEach(function (mechanic) {
+
+                        const option =
+                            document.createElement("option");
+
+                        option.value = mechanic.id;
+
+                        option.textContent =
+                            mechanic.name
+                            + " - "
+                            + mechanic.specialty;
+
+                        mechanicSelect.appendChild(option);
+
+                    });
+
+                    mechanicSelect.disabled = false;
+
+                }
+                catch (error) {
+
+                    mechanicSelect.innerHTML =
+                        '<option value="">Bilgiler yüklenemedi</option>';
+
+                    console.error(error);
+
+                    if (typeof Swal !== "undefined") {
+
+                        Swal.fire({
+                            title: "Bilgiler alınamadı",
+                            text: error.message,
+                            icon: "error",
+                            confirmButtonText: "Tamam"
+                        });
+
+                    }
+
+                }
+
+            }
+
+            function resetInformation() {
+
+                specialtyName.value = "-";
+                durationHours.textContent = "-";
+                customerLaborPrice.textContent = "-";
+                mechanicPayment.textContent = "-";
+                laborGrossMargin.textContent = "-";
+
+            }
+
+            function formatNumber(value) {
+
+                return new Intl.NumberFormat(
+                    "tr-TR",
+                    {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2
+                    }
+                ).format(value || 0);
+
+            }
+
+            function formatCurrency(value) {
+
+                return new Intl.NumberFormat(
+                    "tr-TR",
+                    {
+                        style: "currency",
+                        currency: "TRY"
+                    }
+                ).format(value || 0);
+
+            }
+
+        });
+
+    </script>
+}

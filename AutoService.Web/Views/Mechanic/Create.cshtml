@@ -1,0 +1,364 @@
+﻿@model AutoService.Dto.MechanicDtos.CreateMechanicDto
+
+@{
+    ViewData["Title"] = "Yeni Usta";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-person-gear"></i>
+            Usta Yönetimi
+        </div>
+
+        <h1>Yeni Usta</h1>
+
+        <p>
+            Serviste görev yapacak yeni ustanın kişisel ve mesleki bilgilerini oluşturun.
+        </p>
+
+    </div>
+
+    <a asp-action="Index"
+       class="btn-app-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+        Usta Listesi
+
+    </a>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-xl-8">
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-primary">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Usta Bilgileri</h5>
+
+                        <span>
+                            Kişisel, iletişim ve uzmanlık bilgilerini girin
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <form asp-action="Create"
+                      method="post"
+                      class="app-form">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger">
+                    </div>
+
+                    <div class="mechanic-form-visual">
+
+                        <div class="mechanic-form-avatar">
+                            <i class="bi bi-person-gear"></i>
+                        </div>
+
+                        <div>
+
+                            <strong>Yeni personel kaydı</strong>
+
+                            <span>
+                                Usta bilgileri servis atamalarında ve personel
+                                takibinde kullanılacaktır.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="FirstName"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-person-fill"></i>
+                                    Ad
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-person"></i>
+
+                                    <input asp-for="FirstName"
+                                           class="app-form-control"
+                                           placeholder="Ustanın adı"
+                                           autocomplete="off" />
+
+                                </div>
+
+                                <span asp-validation-for="FirstName"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="LastName"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-person-badge-fill"></i>
+                                    Soyad
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-person-badge"></i>
+
+                                    <input asp-for="LastName"
+                                           class="app-form-control"
+                                           placeholder="Ustanın soyadı"
+                                           autocomplete="off" />
+
+                                </div>
+
+                                <span asp-validation-for="LastName"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="Phone"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-telephone-fill"></i>
+                                    Telefon
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-telephone"></i>
+
+                                    <input asp-for="Phone"
+                                           type="tel"
+                                           class="app-form-control"
+                                           placeholder="05XX XXX XX XX"
+                                           autocomplete="tel" />
+
+                                </div>
+
+                                <span asp-validation-for="Phone"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="Email"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-envelope-fill"></i>
+                                    E-posta
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-envelope"></i>
+
+                                    <input asp-for="Email"
+                                           type="email"
+                                           class="app-form-control"
+                                           placeholder="ornek@mail.com"
+                                           autocomplete="email" />
+
+                                </div>
+
+                                <span asp-validation-for="Email"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="Specialty"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-tools"></i>
+                                    Uzmanlık Alanı
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-wrench-adjustable"></i>
+
+                                    <input asp-for="Specialty"
+                                           class="app-form-control"
+                                           placeholder="Örn: Motor ve Mekanik"
+                                           autocomplete="off" />
+
+                                </div>
+
+                                <span asp-validation-for="Specialty"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="HireDate"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-calendar-check-fill"></i>
+                                    İşe Giriş Tarihi
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-calendar3"></i>
+
+                                    <input asp-for="HireDate"
+                                           type="date"
+                                           class="app-form-control" />
+
+                                </div>
+
+                                <span asp-validation-for="HireDate"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="app-form-actions">
+
+                        <a asp-action="Index"
+                           class="btn-app-secondary">
+
+                            <i class="bi bi-x-circle"></i>
+                            Vazgeç
+
+                        </a>
+
+                        <button type="submit"
+                                class="btn-app-primary">
+
+                            <i class="bi bi-check-circle-fill"></i>
+                            Ustayı Kaydet
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4">
+
+        <div class="app-card form-info-card">
+
+            <div class="form-info-icon">
+                <i class="bi bi-person-gear"></i>
+            </div>
+
+            <h5>Personel Kaydı</h5>
+
+            <p>
+                Usta bilgileri servis kayıtlarında görevli personel
+                olarak kullanılacaktır.
+            </p>
+
+            <ul class="form-info-list">
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Ad ve soyadı eksiksiz girin
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Güncel iletişim bilgilerini yazın
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Uzmanlık alanını açık belirtin
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    İşe giriş tarihini kontrol edin
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

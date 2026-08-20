@@ -1,0 +1,490 @@
+﻿@model AutoService.Dto.VehicleDtos.CreateVehicleDto
+
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Yeni Araç";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-car-front-fill"></i>
+            Araç Yönetimi
+        </div>
+
+        <h1>Yeni Araç</h1>
+
+        <p>
+            Müşteriye ait yeni bir araç kaydı oluşturun.
+        </p>
+
+    </div>
+
+    <a asp-action="Index"
+       class="btn-app-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+        Araç Listesi
+
+    </a>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-xl-8">
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-primary">
+                        <i class="bi bi-car-front-fill"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Araç Bilgileri</h5>
+
+                        <span>
+                            Araç, müşteri, marka ve model bilgilerini girin
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <form asp-action="Create"
+                      method="post"
+                      class="app-form">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger">
+                    </div>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="Plate"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-credit-card-2-front-fill"></i>
+
+                                    Plaka
+
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-credit-card-2-front"></i>
+
+                                    <input asp-for="Plate"
+                                           class="app-form-control vehicle-plate-input"
+                                           placeholder="Örn: 34 ABC 123"
+                                           autocomplete="off" />
+
+                                </div>
+
+                                <span asp-validation-for="Plate"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="VinNumber"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-upc-scan"></i>
+
+                                    Şasi Numarası
+
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-upc"></i>
+
+                                    <input asp-for="VinNumber"
+                                           class="app-form-control vehicle-vin-input"
+                                           placeholder="17 karakterli şasi numarası"
+                                           autocomplete="off" />
+
+                                </div>
+
+                                <span asp-validation-for="VinNumber"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="ModelYear"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-calendar-check-fill"></i>
+
+                                    Model Yılı
+
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-calendar3"></i>
+
+                                    <input asp-for="ModelYear"
+                                           type="number"
+                                           class="app-form-control"
+                                           placeholder="Örn: 2020"
+                                           min="1900"
+                                           max="2100" />
+
+                                </div>
+
+                                <span asp-validation-for="ModelYear"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="Mileage"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-speedometer2"></i>
+
+                                    Kilometre
+
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-speedometer"></i>
+
+                                    <input asp-for="Mileage"
+                                           type="number"
+                                           class="app-form-control"
+                                           placeholder="Örn: 125000"
+                                           min="0" />
+
+                                </div>
+
+                                <span asp-validation-for="Mileage"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-12">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="CustomerId"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-person-fill"></i>
+
+                                    Araç Sahibi
+
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-select-wrapper">
+
+                                    <i class="bi bi-person"></i>
+
+                                    <select asp-for="CustomerId"
+                                            asp-items="@(new SelectList(
+                                                                                            ViewBag.Customers,
+                                                                                            "CustomerId",
+                                                                                            "FullName"
+                                                                                        ))"
+                                            class="app-form-control app-form-select">
+
+                                        <option value="">
+                                            Müşteri seçiniz
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                                <span asp-validation-for="CustomerId"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="BrandId"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-building-fill"></i>
+
+                                    Marka
+
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-select-wrapper">
+
+                                    <i class="bi bi-building"></i>
+
+                                    <select asp-for="BrandId"
+                                            asp-items="@(new SelectList(
+                                                                                            ViewBag.Brands,
+                                                                                            "BrandId",
+                                                                                            "BrandName"
+                                                                                        ))"
+                                            class="app-form-control app-form-select">
+
+                                        <option value="">
+                                            Marka seçiniz
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                                <span asp-validation-for="BrandId"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="ModelId"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-car-front"></i>
+
+                                    Model
+
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-select-wrapper">
+
+                                    <i class="bi bi-car-front"></i>
+
+                                    <select asp-for="ModelId"
+                                            asp-items="@(new SelectList(
+                                                                                            ViewBag.Models,
+                                                                                            "ModelId",
+                                                                                            "ModelName"
+                                                                                        ))"
+                                            class="app-form-control app-form-select">
+
+                                        <option value="">
+                                            Önce marka seçiniz
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                                <span asp-validation-for="ModelId"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="app-form-actions">
+
+                        <a asp-action="Index"
+                           class="btn-app-secondary">
+
+                            <i class="bi bi-x-circle"></i>
+                            Vazgeç
+
+                        </a>
+
+                        <button type="submit"
+                                class="btn-app-primary">
+
+                            <i class="bi bi-check-circle-fill"></i>
+                            Aracı Kaydet
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4">
+
+        <div class="app-card form-info-card">
+
+            <div class="form-info-icon">
+                <i class="bi bi-info-circle-fill"></i>
+            </div>
+
+            <h5>Araç Kaydı</h5>
+
+            <p>
+                Araç bilgileri servis kayıtları, bakım geçmişi
+                ve müşteri ilişkilerinde kullanılacaktır.
+            </p>
+
+            <ul class="form-info-list">
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Plakayı doğru ve eksiksiz girin
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Şasi numarasını kontrol edin
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Güncel kilometre bilgisini yazın
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Doğru müşteri, marka ve modeli seçin
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        $(document).ready(function () {
+
+            $("#BrandId").change(function () {
+
+                const brandId = $(this).val();
+                const modelSelect = $("#ModelId");
+
+                modelSelect.empty();
+
+                modelSelect.append(
+                    '<option value="">Model seçiniz</option>'
+                );
+
+                if (!brandId) {
+                    return;
+                }
+
+                modelSelect.prop("disabled", true);
+
+                $.get(
+                    "/Model/GetByBrand",
+                    { brandId: brandId },
+                    function (data) {
+
+                        $.each(data, function (index, item) {
+
+                            modelSelect.append(
+                                `<option value="${item.modelId}">
+                                    ${item.modelName}
+                                </option>`
+                            );
+
+                        });
+
+                    }
+                )
+                .fail(function () {
+
+                    Swal.fire({
+                        title: "Modeller yüklenemedi",
+                        text: "Markaya ait modeller alınırken bir hata oluştu.",
+                        icon: "error",
+                        confirmButtonText: "Tamam"
+                    });
+
+                })
+                .always(function () {
+
+                    modelSelect.prop("disabled", false);
+
+                });
+
+            });
+
+            $(".vehicle-plate-input").on("input", function () {
+                this.value = this.value.toUpperCase();
+            });
+
+            $(".vehicle-vin-input").on("input", function () {
+                this.value = this.value.toUpperCase();
+            });
+
+        });
+
+    </script>
+}

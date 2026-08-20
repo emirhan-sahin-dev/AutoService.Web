@@ -1,0 +1,79 @@
+﻿@{
+    ViewData["Title"] = "Admin Panel";
+}
+
+<div class="container-fluid mt-4">
+
+    <div class="card shadow border-0 rounded-4">
+
+        <div class="card-header bg-danger text-white">
+
+            <h3 class="mb-0">
+                <i class="bi bi-shield-lock-fill"></i>
+                Admin Paneli
+            </h3>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="alert alert-success">
+
+                <h5>
+                    Hoş Geldiniz
+                </h5>
+
+                <p class="mb-0">
+                    Bu sayfa yalnızca <strong>Admin</strong> rolüne sahip kullanıcılar tarafından görüntülenebilir.
+                </p>
+
+            </div>
+
+            <div class="row g-3 mt-2">
+
+                <div class="col-md-4">
+
+                    <a asp-controller="User"
+                       asp-action="Index"
+                       class="btn btn-primary w-100">
+
+                        <i class="bi bi-people-fill"></i>
+                        Kullanıcı Yönetimi
+
+                    </a>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <a asp-controller="Role"
+                       asp-action="Index"
+                       class="btn btn-warning w-100">
+
+                        <i class="bi bi-person-gear"></i>
+                        Rol Yönetimi
+
+                    </a>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <a asp-controller="Report"
+                       asp-action="Index"
+                       class="btn btn-success w-100">
+
+                        <i class="bi bi-graph-up-arrow"></i>
+                        Raporlar
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

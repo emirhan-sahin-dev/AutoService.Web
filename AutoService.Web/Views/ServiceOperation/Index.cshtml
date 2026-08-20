@@ -1,0 +1,612 @@
+﻿@model List<AutoService.Dto.ServiceOperationDtos.ResultServiceOperationDto>
+
+@using AutoService.Entity.Enums
+
+@{
+    ViewData["Title"] = "Servis İşlemleri";
+
+    int? serviceRecordId = null;
+
+    if (ViewBag.ServiceRecordId != null &&
+        Convert.ToInt32(ViewBag.ServiceRecordId) > 0)
+    {
+        serviceRecordId =
+            Convert.ToInt32(ViewBag.ServiceRecordId);
+    }
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-wrench-adjustable-circle-fill"></i>
+            Servis Yönetimi
+        </div>
+
+        <h1>Servis İşlemleri</h1>
+
+        <p>
+            Servis kayıtlarına eklenen işçilikleri, atanan ustaları,
+            ücretleri ve işlem durumlarını yönetin.
+        </p>
+
+    </div>
+
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+
+        @if (serviceRecordId.HasValue && serviceRecordId.Value > 0)
+        {
+            <a asp-controller="ServiceRecord"
+               asp-action="Detail"
+               asp-route-id="@serviceRecordId.Value"
+               class="btn-app-secondary">
+
+                <i class="bi bi-arrow-left"></i>
+                Servis Kaydına Dön
+
+            </a>
+        }
+
+        <a asp-action="CreateMultiple"
+           asp-route-serviceRecordId="@serviceRecordId"
+           class="btn-app-primary">
+
+            <i class="bi bi-ui-checks-grid"></i>
+            Yeni İşlem Ekle
+
+        </a>
+
+    </div>
+
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+
+        <i class="bi bi-check-circle-fill me-2"></i>
+        @TempData["Success"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @TempData["Error"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+
+    </div>
+}
+
+<div class="row g-4 mb-4">
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-primary">
+
+            <div class="dashboard-alert-icon icon-primary">
+
+                <i class="bi bi-list-check"></i>
+
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>@Model.Count</strong>
+
+                <span>Toplam işlem</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-success">
+
+            <div class="dashboard-alert-icon icon-success">
+
+                <i class="bi bi-cash-stack"></i>
+
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>
+                    @Model.Sum(x => x.CustomerLaborPrice).ToString("N2") ₺
+                </strong>
+
+                <span>Müşteri işçilik toplamı</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-warning">
+
+            <div class="dashboard-alert-icon icon-warning">
+
+                <i class="bi bi-person-check-fill"></i>
+
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>
+                    @Model.Sum(x => x.MechanicPayment).ToString("N2") ₺
+                </strong>
+
+                <span>Usta hakediş toplamı</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-primary">
+
+            <div class="dashboard-alert-icon icon-primary">
+
+                <i class="bi bi-graph-up-arrow"></i>
+
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>
+                    @Model.Sum(x => x.LaborGrossMargin).ToString("N2") ₺
+                </strong>
+
+                <span>Brüt işçilik farkı</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="app-card">
+
+    <div class="app-card-header">
+
+        <div class="d-flex align-items-center gap-3">
+
+            <div class="chart-header-icon icon-primary">
+
+                <i class="bi bi-tools"></i>
+
+            </div>
+
+            <div class="app-card-title">
+
+                <h5>İşlem Listesi</h5>
+
+                <span>
+                    Servis işlemleri ve finansal bilgileri
+                </span>
+
+            </div>
+
+        </div>
+
+        <span class="app-badge app-badge-primary">
+
+            <i class="bi bi-database"></i>
+
+            @Model.Count kayıt
+
+        </span>
+
+    </div>
+
+    <div class="app-card-body p-0">
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+
+                <table class="table app-table align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Servis / Araç</th>
+
+                            <th>İşlem</th>
+
+                            <th>Usta</th>
+
+                            <th>İşçilik</th>
+
+                            <th>Parça</th>
+
+                            <th>Müşteri Toplamı</th>
+
+                            <th>Durum</th>
+
+                            <th class="text-end">
+                                İşlemler
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <td>
+
+                                    <div class="customer-identity">
+
+                                        <div class="customer-avatar">
+
+                                            <i class="bi bi-car-front-fill"></i>
+
+                                        </div>
+
+                                        <div>
+
+                                            <div class="customer-name">
+
+                                                @item.VehiclePlate
+
+                                            </div>
+
+                                            <span class="customer-subtitle">
+
+                                                Servis #@item.ServiceRecordId
+
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    <div class="fw-semibold">
+
+                                        @item.OperationTypeName
+
+                                    </div>
+
+                                    <small class="text-muted">
+
+                                        @item.SpecialtyName
+
+                                    </small>
+
+                                </td>
+
+                                <td>
+
+                                    <div class="fw-semibold">
+
+                                        @item.MechanicFullName
+
+                                    </div>
+
+                                    <small class="text-muted">
+
+                                        Hakediş:
+                                        @item.MechanicPayment.ToString("N2") ₺
+
+                                    </small>
+
+                                </td>
+
+                                <td>
+
+                                    <div class="fw-semibold text-success">
+
+                                        @item.CustomerLaborPrice.ToString("N2") ₺
+
+                                    </div>
+
+                                    <small class="text-muted">
+
+                                        @item.LaborHours.ToString("N2") saat
+
+                                    </small>
+
+                                </td>
+
+                                <td>
+
+                                    @item.PartsTotal.ToString("N2") ₺
+
+                                </td>
+
+                                <td>
+
+                                    <strong>
+
+                                        @item.CustomerTotal.ToString("N2") ₺
+
+                                    </strong>
+
+                                </td>
+
+                                <td>
+
+                                    @{
+                                        var statusText = item.Status switch
+                                        {
+                                            ServiceOperationStatus.Waiting =>
+                                            "Bekliyor",
+
+                                            ServiceOperationStatus.InProgress =>
+                                            "İşleme Alındı",
+
+                                            ServiceOperationStatus.WaitingForPart =>
+                                            "Parça Bekleniyor",
+
+                                            ServiceOperationStatus.Completed =>
+                                            "Tamamlandı",
+
+                                            ServiceOperationStatus.QualityControl =>
+                                            "Kalite Kontrol",
+
+                                            ServiceOperationStatus.ReadyForDelivery =>
+                                            "Teslime Hazır",
+
+                                            ServiceOperationStatus.Cancelled =>
+                                            "İptal Edildi",
+
+                                            _ => item.Status.ToString()
+                                        };
+
+                                        var statusClass = item.Status switch
+                                        {
+                                            ServiceOperationStatus.Waiting =>
+                                            "app-badge-warning",
+
+                                            ServiceOperationStatus.InProgress =>
+                                            "app-badge-primary",
+
+                                            ServiceOperationStatus.WaitingForPart =>
+                                            "app-badge-warning",
+
+                                            ServiceOperationStatus.Completed =>
+                                            "app-badge-success",
+
+                                            ServiceOperationStatus.QualityControl =>
+                                            "app-badge-primary",
+
+                                            ServiceOperationStatus.ReadyForDelivery =>
+                                            "app-badge-success",
+
+                                            ServiceOperationStatus.Cancelled =>
+                                            "app-badge-danger",
+
+                                            _ => "app-badge-primary"
+                                        };
+                                    }
+
+                                    <span class="app-badge @statusClass">
+
+                                        @statusText
+
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <div class="table-actions justify-content-end">
+
+                                        <a asp-action="Detail"
+                                           asp-route-id="@item.ServiceOperationId"
+                                           class="table-action-btn action-detail"
+                                           title="Detay">
+
+                                            <i class="bi bi-eye-fill"></i>
+
+                                        </a>
+
+                                        <a asp-action="UpdateStatus"
+                                           asp-route-id="@item.ServiceOperationId"
+                                           class="table-action-btn action-edit"
+                                           title="Durum Güncelle">
+
+                                            <i class="bi bi-arrow-repeat"></i>
+
+                                        </a>
+
+                                        <button type="button"
+                                                class="table-action-btn action-delete deleteBtn"
+                                                data-id="@item.ServiceOperationId"
+                                                data-name="@item.OperationTypeName"
+                                                data-service-record-id="@item.ServiceRecordId"
+                                                title="Sil">
+
+                                            <i class="bi bi-trash3-fill"></i>
+
+                                        </button>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <div class="dashboard-empty-state">
+
+                <i class="bi bi-tools"></i>
+
+                <h6>Servis işlemi bulunamadı</h6>
+
+                <span>
+                    Henüz bu servis kaydına herhangi bir işlem eklenmemiştir.
+                </span>
+
+                <a asp-action="CreateMultiple"
+                   asp-route-serviceRecordId="@serviceRecordId"
+                   class="btn-app-primary mt-3">
+
+                    <i class="bi bi-plus-circle-fill"></i>
+                    İşlem Ekle
+
+                </a>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+<form id="deleteForm"
+      asp-action="Delete"
+      method="post"
+      class="d-none">
+
+    @Html.AntiForgeryToken()
+
+    <input type="hidden"
+           name="id"
+           id="deleteOperationId" />
+
+    <input type="hidden"
+           name="serviceRecordId"
+           id="deleteServiceRecordId" />
+
+</form>
+
+@section Scripts
+{
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const deleteButtons =
+                document.querySelectorAll(".deleteBtn");
+
+            const deleteForm =
+                document.getElementById("deleteForm");
+
+            const deleteOperationId =
+                document.getElementById("deleteOperationId");
+
+            const deleteServiceRecordId =
+                document.getElementById("deleteServiceRecordId");
+
+            if (!deleteForm ||
+                !deleteOperationId ||
+                !deleteServiceRecordId) {
+
+                return;
+            }
+
+            deleteButtons.forEach(function (button) {
+
+                button.addEventListener("click", function () {
+
+                    const id = this.dataset.id;
+
+                    const name = this.dataset.name;
+
+                    const serviceRecordId =
+                        this.dataset.serviceRecordId;
+
+                    Swal.fire({
+
+                        title: "Servis işlemi silinsin mi?",
+
+                        html:
+                            "<strong>" +
+                            escapeHtml(name) +
+                            "</strong> işlemi silinecek.",
+
+                        icon: "warning",
+
+                        showCancelButton: true,
+
+                        reverseButtons: true,
+
+                        focusCancel: true,
+
+                        confirmButtonColor: "#dc2626",
+
+                        cancelButtonColor: "#64748b",
+
+                        confirmButtonText:
+                            '<i class="bi bi-trash3-fill me-1"></i> Evet, sil',
+
+                        cancelButtonText:
+                            '<i class="bi bi-x-circle me-1"></i> İptal'
+
+                    }).then(function (result) {
+
+                        if (result.isConfirmed) {
+
+                            deleteOperationId.value = id;
+
+                            deleteServiceRecordId.value =
+                                serviceRecordId;
+
+                            deleteForm.submit();
+
+                        }
+
+                    });
+
+                });
+
+            });
+
+        });
+
+        function escapeHtml(value) {
+
+            const element =
+                document.createElement("div");
+
+            element.textContent = value || "";
+
+            return element.innerHTML;
+
+        }
+
+    </script>
+}

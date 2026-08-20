@@ -1,0 +1,108 @@
+﻿@model AutoService.Dto.ModelDtos.UpdateModelDto
+
+@{
+    ViewData["Title"] = "Model Güncelle";
+}
+
+<div class="container-fluid">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-7">
+
+            <div class="card shadow-sm border-0 rounded-4">
+
+                <div class="card-header bg-white border-0 pt-4 px-4">
+
+                    <h3 class="fw-bold">
+                        Model Güncelle
+                    </h3>
+
+                </div>
+
+                <div class="card-body px-4 pb-4">
+
+                    <form asp-action="Update" method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input asp-for="ModelId"
+                               type="hidden" />
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger">
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label asp-for="BrandId"
+                                   class="form-label fw-semibold">
+
+                                Marka
+
+                            </label>
+
+                            <select asp-for="BrandId"
+                                    asp-items="ViewBag.Brands"
+                                    class="form-select">
+
+                                <option value="">
+                                    Marka seçiniz
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="BrandId"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                        <div class="mb-4">
+
+                            <label asp-for="ModelName"
+                                   class="form-label fw-semibold">
+
+                                Model Adı
+
+                            </label>
+
+                            <input asp-for="ModelName"
+                                   class="form-control" />
+
+                            <span asp-validation-for="ModelName"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-warning">
+
+                            <i class="bi bi-pencil-square me-1"></i>
+                            Güncelle
+
+                        </button>
+
+                        <a asp-action="Index"
+                           class="btn btn-secondary">
+
+                            İptal
+
+                        </a>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,1658 @@
+﻿@model AutoService.Dto.ServiceOperationDtos.CreateServiceOperationBatchDto
+
+@{
+    ViewData["Title"] = "Servis İşlemi Ekle";
+
+    int? returnServiceRecordId = null;
+
+    if (ViewBag.ReturnServiceRecordId != null &&
+        Convert.ToInt32(ViewBag.ReturnServiceRecordId) > 0)
+    {
+        returnServiceRecordId =
+            Convert.ToInt32(ViewBag.ReturnServiceRecordId);
+    }
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-wrench-adjustable-circle-fill"></i>
+            Servis İşlemleri
+        </div>
+
+        <h1>Servis İşlemi Ekle</h1>
+
+        <p>
+            Aynı servis kaydına farklı uzmanlık alanlarından birden fazla işlem ve usta atayın.
+        </p>
+
+    </div>
+
+    <a asp-action="Index"
+       asp-route-serviceRecordId="@returnServiceRecordId"
+       class="btn-app-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+        İşlem Listesine Dön
+
+    </a>
+
+</div>
+
+<div class="app-card">
+
+    <div class="app-card-header">
+
+        <div class="d-flex align-items-center gap-3">
+
+            <div class="chart-header-icon icon-primary">
+                <i class="bi bi-ui-checks-grid"></i>
+            </div>
+
+            <div class="app-card-title">
+
+                <h5>İşlem Formu</h5>
+
+                <span>
+                    İşlem türüne uygun usta ve stoklu yedek parçalar otomatik filtrelenir
+                </span>
+
+            </div>
+
+        </div>
+
+        <button type="button"
+                id="addOperationButton"
+                class="btn-app-primary">
+
+            <i class="bi bi-plus-circle-fill"></i>
+            Yeni İşlem Satırı
+
+        </button>
+
+    </div>
+
+    <div class="app-card-body">
+
+        <form asp-action="CreateMultiple"
+              method="post"
+              id="multipleOperationForm">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="All"
+                 class="alert alert-danger">
+            </div>
+
+            <div class="mb-4">
+
+                <label asp-for="ServiceRecordId"
+                       class="app-form-label">
+
+                    <i class="bi bi-clipboard2-pulse-fill"></i>
+                    Servis Kaydı
+                    <span>*</span>
+
+                </label>
+
+                <div class="app-select-wrapper">
+
+                    <i class="bi bi-hash"></i>
+
+                    <select asp-for="ServiceRecordId"
+                            asp-items="ViewBag.ServiceRecords"
+                            class="app-form-control app-form-select">
+
+                        <option value="">
+                            Servis kaydı seçiniz
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <span asp-validation-for="ServiceRecordId"
+                      class="app-validation-message">
+                </span>
+
+            </div>
+
+            <div id="operationRows">
+
+                @for (var i = 0; i < Model.Operations.Count; i++)
+                {
+                    <div class="app-card mb-4 operation-row"
+                         data-index="@i">
+
+                        <div class="app-card-header">
+
+                            <div class="d-flex align-items-center gap-3">
+
+                                <div class="chart-header-icon icon-warning">
+                                    <i class="bi bi-tools"></i>
+                                </div>
+
+                                <div class="app-card-title">
+
+                                    <h5>
+                                        İşlem <span class="operation-number">@(i + 1)</span>
+                                    </h5>
+
+                                    <span>
+                                        İşlem türü, usta ve açıklama bilgileri
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <button type="button"
+                                    class="table-action-btn action-delete remove-operation-button"
+                                    title="Satırı kaldır">
+
+                                <i class="bi bi-trash3-fill"></i>
+
+                            </button>
+
+                        </div>
+
+                        <div class="app-card-body">
+
+                            <div class="row g-4">
+
+                                <div class="col-md-6">
+
+                                    <div class="app-form-group">
+
+                                        <label class="app-form-label">
+
+                                            <i class="bi bi-list-check"></i>
+                                            İşlem Türü
+                                            <span>*</span>
+
+                                        </label>
+
+                                        <div class="app-select-wrapper">
+
+                                            <i class="bi bi-wrench-adjustable"></i>
+
+                                            <select asp-for="Operations[i].ServiceOperationTypeId"
+                                                    asp-items="ViewBag.OperationTypes"
+                                                    class="app-form-control app-form-select operation-type-select">
+
+                                                <option value="">
+                                                    İşlem türü seçiniz
+                                                </option>
+
+                                            </select>
+
+                                        </div>
+
+                                        <span asp-validation-for="Operations[i].ServiceOperationTypeId"
+                                              class="app-validation-message">
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <div class="app-form-group">
+
+                                        <label class="app-form-label">
+
+                                            <i class="bi bi-person-workspace"></i>
+                                            Atanacak Usta
+                                            <span>*</span>
+
+                                        </label>
+
+                                        <div class="app-select-wrapper">
+
+                                            <i class="bi bi-person-gear"></i>
+
+                                            <select asp-for="Operations[i].MechanicId"
+                                                    class="app-form-control app-form-select mechanic-select"
+                                                    data-selected-value="@Model.Operations[i].MechanicId"
+                                                    disabled>
+
+                                                <option value="">
+                                                    Önce işlem türü seçiniz
+                                                </option>
+
+                                            </select>
+
+                                        </div>
+
+                                        <span asp-validation-for="Operations[i].MechanicId"
+                                              class="app-validation-message">
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <div class="app-form-group">
+
+                                        <label class="app-form-label">
+
+                                            <i class="bi bi-exclamation-diamond-fill"></i>
+                                            Tespit Edilen Problem
+                                            <span>*</span>
+
+                                        </label>
+
+                                        <textarea asp-for="Operations[i].ProblemDescription"
+                                                  rows="4"
+                                                  class="app-form-control"
+                                                  placeholder="Bu işleme ait tespit edilen problemi yazınız...">
+                                                        </textarea>
+
+                                        <span asp-validation-for="Operations[i].ProblemDescription"
+                                              class="app-validation-message">
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <div class="app-form-group">
+
+                                        <label class="app-form-label">
+
+                                            <i class="bi bi-card-text"></i>
+                                            Yapılacak İşlem Açıklaması
+
+                                        </label>
+
+                                        <textarea asp-for="Operations[i].WorkDescription"
+                                                  rows="4"
+                                                  class="app-form-control"
+                                                  placeholder="Planlanan veya yapılan işlem açıklaması...">
+                                                        </textarea>
+
+                                        <span asp-validation-for="Operations[i].WorkDescription"
+                                              class="app-validation-message">
+                                        </span>
+
+                                    </div>
+
+                                </div>
+                                <div class="col-12">
+
+                                    <div class="app-card border">
+
+                                        <div class="app-card-header">
+
+                                            <div class="d-flex align-items-center gap-3">
+
+                                                <div class="chart-header-icon icon-warning">
+                                                    <i class="bi bi-box-seam-fill"></i>
+                                                </div>
+
+                                                <div class="app-card-title">
+
+                                                    <h5>Kullanılacak Parçalar</h5>
+
+                                                    <span>
+                                                        İşlem türüne uygun stoklu parçaları seçin; fiyat ve toplam otomatik hesaplansın
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+
+                                            <button type="button"
+                                                    class="btn-app-secondary add-part-button">
+
+                                                <i class="bi bi-plus-circle-fill"></i>
+                                                Parça Ekle
+
+                                            </button>
+
+                                        </div>
+
+                                        <div class="app-card-body">
+
+                                            <div class="part-rows">
+
+                                                @for (var partIndex = 0;
+                                                                                            partIndex < Model.Operations[i].Parts.Count;
+                                                                                            partIndex++)
+                                                {
+                                                    <div class="row g-3 align-items-end mb-3 part-row">
+
+                                                        <div class="col-md-7">
+
+                                                            <label class="app-form-label">
+                                                                Yedek Parça
+                                                            </label>
+
+                                                            <select asp-for="Operations[i].Parts[partIndex].SparePartId"
+                                                                    class="app-form-control app-form-select spare-part-select"
+                                                                    data-selected-value="@Model.Operations[i].Parts[partIndex].SparePartId"
+                                                                    disabled>
+
+                                                                <option value="">
+                                                                    Önce işlem türü seçiniz
+                                                                </option>
+
+                                                            </select>
+
+                                                            <span asp-validation-for="Operations[i].Parts[partIndex].SparePartId"
+                                                                  class="app-validation-message">
+                                                            </span>
+
+                                                        </div>
+
+                                                        <div class="col-md-2">
+
+                                                            <label class="app-form-label">
+                                                                Adet
+                                                            </label>
+
+                                                            <input asp-for="Operations[i].Parts[partIndex].Quantity"
+                                                                   type="number"
+                                                                   min="1"
+                                                                   class="app-form-control part-quantity" />
+
+                                                            <span asp-validation-for="Operations[i].Parts[partIndex].Quantity"
+                                                                  class="app-validation-message">
+                                                            </span>
+
+                                                        </div>
+
+                                                        <div class="col-md-2">
+
+                                                            <label class="app-form-label">
+                                                                Birim Fiyat
+                                                            </label>
+
+                                                            <div class="part-unit-price">
+                                                                0,00 ₺
+                                                            </div>
+
+                                                        </div>
+
+                                                        <div class="col-md-2">
+
+                                                            <label class="app-form-label">
+                                                                Toplam
+                                                            </label>
+
+                                                            <div class="part-total">
+                                                                0,00 ₺
+                                                            </div>
+
+                                                        </div>
+
+                                                        <div class="col-md-1">
+
+                                                            <button type="button"
+                                                                    class="table-action-btn action-delete remove-part-button"
+                                                                    title="Parça satırını kaldır">
+
+                                                                <i class="bi bi-trash3-fill"></i>
+
+                                                            </button>
+
+                                                        </div>
+
+                                                    </div>
+                                                }
+
+                                            </div>
+
+                                            <div class="d-flex justify-content-end mt-3">
+
+                                                <div class="service-detail-form-notice mb-0">
+
+                                                    <i class="bi bi-calculator-fill"></i>
+
+                                                    <div>
+
+                                                        <strong>Parça Toplamı</strong>
+
+                                                        <span class="operation-parts-total">
+                                                            0,00 ₺
+                                                        </span>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                                <div class="col-12">
+
+                                    <div class="service-detail-form-notice operation-summary">
+
+                                        <i class="bi bi-info-circle-fill"></i>
+
+                                        <div>
+
+                                            <strong>Otomatik fiyat bilgisi</strong>
+
+                                            <span class="operation-info-text">
+                                                İşlem türü seçildiğinde süre, müşteri işçilik bedeli,
+                                                usta hakedişi ve brüt fark burada gösterilir.
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+            <div class="app-form-actions">
+
+                <a asp-action="Index"
+                   asp-route-serviceRecordId="@returnServiceRecordId"
+                   class="btn-app-secondary">
+
+                    <i class="bi bi-x-circle"></i>
+                    Vazgeç
+
+                </a>
+
+                <button type="submit"
+                        class="btn-app-primary">
+
+                    <i class="bi bi-check-circle-fill"></i>
+                    Tüm İşlemleri Kaydet
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<style>
+    .operation-row {
+        border: 1px solid #e7edf6;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, .05);
+        overflow: hidden;
+    }
+
+        .operation-row > .app-card-header {
+            background: linear-gradient(135deg, #f8fbff 0%, #f4f7ff 100%);
+        }
+
+        .operation-row .app-card.border {
+            border: 1px solid #e4eaf3 !important;
+            border-radius: 16px;
+            background: #fbfcff;
+            box-shadow: none;
+        }
+
+            .operation-row .app-card.border > .app-card-header {
+                background: #f7f9fd;
+                border-bottom: 1px solid #e8edf5;
+            }
+
+    .part-row {
+        display: grid;
+        grid-template-columns: minmax(280px, 1fr) 120px 160px 160px 48px;
+        gap: 16px;
+        align-items: end;
+        padding: 18px;
+        border: 1px solid #e6ebf3;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 5px 16px rgba(15, 23, 42, .035);
+    }
+
+        .part-row > [class*="col-"] {
+            width: auto;
+            max-width: none;
+            padding: 0;
+        }
+
+        .part-row:last-child {
+            margin-bottom: 0 !important;
+        }
+
+        .part-row .app-form-label {
+            display: block;
+            min-height: 22px;
+            margin-bottom: 8px;
+            white-space: nowrap;
+        }
+
+        .part-row .app-form-control,
+        .part-row .form-control {
+            width: 100%;
+            min-height: 46px;
+        }
+
+    .part-unit-price,
+    .part-total {
+        display: flex;
+        align-items: center;
+        min-height: 46px;
+        padding: 10px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+        font-weight: 750;
+    }
+
+    .part-unit-price {
+        color: #475569;
+    }
+
+    .part-total {
+        color: #047857;
+        background: #ecfdf5;
+        border-color: #d1fae5;
+    }
+
+    .part-row .remove-part-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 46px;
+        margin: 0 auto;
+        border-radius: 12px;
+    }
+
+    .operation-parts-total {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #0f766e;
+    }
+
+    .operation-summary .operation-info-text {
+        line-height: 1.7;
+    }
+
+    .operation-summary .price-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin: 4px 6px 0 0;
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: #eef4ff;
+        color: #244a88;
+        font-size: .84rem;
+        font-weight: 700;
+    }
+
+    .spare-part-select:disabled,
+    .mechanic-select:disabled {
+        cursor: not-allowed;
+        opacity: .72;
+    }
+
+    @@media (max-width: 1100px) {
+        .part-row {
+            grid-template-columns: minmax(240px, 1fr) 110px 145px 145px 46px;
+            gap: 12px;
+        }
+    }
+
+    @@media (max-width: 767.98px) {
+        .part-row {
+            grid-template-columns: 1fr 1fr;
+            padding: 14px;
+        }
+
+            .part-row > [class*="col-"]:first-child {
+                grid-column: 1 / -1;
+            }
+
+            .part-row > [class*="col-"]:last-child {
+                grid-column: 1 / -1;
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            .part-row .remove-part-button {
+                margin: 0;
+            }
+    }
+</style>
+
+<template id="operationRowTemplate">
+
+    <div class="app-card mb-4 operation-row"
+         data-index="__index__">
+
+        <div class="app-card-header">
+
+            <div class="d-flex align-items-center gap-3">
+
+                <div class="chart-header-icon icon-warning">
+                    <i class="bi bi-tools"></i>
+                </div>
+
+                <div class="app-card-title">
+
+                    <h5>
+                        İşlem <span class="operation-number">__number__</span>
+                    </h5>
+
+                    <span>
+                        İşlem türü, usta ve açıklama bilgileri
+                    </span>
+
+                </div>
+
+            </div>
+
+            <button type="button"
+                    class="table-action-btn action-delete remove-operation-button"
+                    title="Satırı kaldır">
+
+                <i class="bi bi-trash3-fill"></i>
+
+            </button>
+
+        </div>
+
+        <div class="app-card-body">
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+
+                    <label class="app-form-label">
+                        İşlem Türü
+                        <span>*</span>
+                    </label>
+
+                    <select name="Operations[__index__].ServiceOperationTypeId"
+                            class="app-form-control app-form-select operation-type-select">
+
+                        <option value="">
+                            İşlem türü seçiniz
+                        </option>
+
+                        @foreach (var item in ViewBag.OperationTypes)
+                        {
+                            <option value="@item.Value">
+                                @item.Text
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label class="app-form-label">
+                        Atanacak Usta
+                        <span>*</span>
+                    </label>
+
+                    <select name="Operations[__index__].MechanicId"
+                            class="app-form-control app-form-select mechanic-select"
+                            disabled>
+
+                        <option value="">
+                            Önce işlem türü seçiniz
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label class="app-form-label">
+                        Tespit Edilen Problem
+                        <span>*</span>
+                    </label>
+
+                    <textarea name="Operations[__index__].ProblemDescription"
+                              rows="4"
+                              class="app-form-control"
+                              placeholder="Tespit edilen problemi yazınız..."></textarea>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label class="app-form-label">
+                        Yapılacak İşlem Açıklaması
+                    </label>
+
+                    <textarea name="Operations[__index__].WorkDescription"
+                              rows="4"
+                              class="app-form-control"
+                              placeholder="Planlanan işlem açıklaması..."></textarea>
+
+                </div>
+                <div class="col-12">
+
+                    <div class="app-card border">
+
+                        <div class="app-card-header">
+
+                            <div class="app-card-title">
+
+                                <h5>Kullanılacak Parçalar</h5>
+
+                                <span>
+                                    İşlem türüne uygun stoklu parçaları seçin
+                                </span>
+
+                            </div>
+
+                            <button type="button"
+                                    class="btn-app-secondary add-part-button">
+
+                                <i class="bi bi-plus-circle-fill"></i>
+                                Parça Ekle
+
+                            </button>
+
+                        </div>
+
+                        <div class="app-card-body">
+
+                            <div class="part-rows">
+
+                                <div class="row g-3 align-items-end mb-3 part-row">
+
+                                    <div class="col-md-7">
+
+                                        <label class="app-form-label">
+                                            Yedek Parça
+                                        </label>
+
+                                        <select name="Operations[__index__].Parts[0].SparePartId"
+                                                class="app-form-control app-form-select spare-part-select"
+                                                disabled>
+
+                                            <option value="">
+                                                Önce işlem türü seçiniz
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="col-md-2">
+
+                                        <label class="app-form-label">
+                                            Adet
+                                        </label>
+
+                                        <input name="Operations[__index__].Parts[0].Quantity"
+                                               type="number"
+                                               min="1"
+                                               value="1"
+                                               class="app-form-control part-quantity" />
+
+                                    </div>
+
+                                    <div class="col-md-2">
+
+                                        <label class="app-form-label">
+                                            Birim Fiyat
+                                        </label>
+
+                                        <div class="part-unit-price">
+                                            0,00 ₺
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-2">
+
+                                        <label class="app-form-label">
+                                            Toplam
+                                        </label>
+
+                                        <div class="part-total">
+                                            0,00 ₺
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-1">
+
+                                        <button type="button"
+                                                class="table-action-btn action-delete remove-part-button">
+
+                                            <i class="bi bi-trash3-fill"></i>
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-3">
+
+                                <strong class="operation-parts-total">
+                                    0,00 ₺
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="col-12">
+
+                    <div class="service-detail-form-notice operation-summary">
+
+                        <i class="bi bi-info-circle-fill"></i>
+
+                        <div>
+
+                            <strong>Otomatik fiyat bilgisi</strong>
+
+                            <span class="operation-info-text">
+                                İşlem türü seçildiğinde fiyat bilgileri gösterilir.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</template>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const rowsContainer = document.getElementById("operationRows");
+            const addOperationButton = document.getElementById("addOperationButton");
+            const operationTemplate = document.getElementById("operationRowTemplate");
+            const multipleOperationForm = document.getElementById("multipleOperationForm");
+
+            if (!rowsContainer ||
+                !addOperationButton ||
+                !operationTemplate ||
+                !multipleOperationForm) {
+                return;
+            }
+
+            rowsContainer
+                .querySelectorAll(".operation-row")
+                .forEach(bindOperationRow);
+
+            addOperationButton.addEventListener("click", function () {
+
+                const operationIndex =
+                    rowsContainer.querySelectorAll(".operation-row").length;
+
+                const html = operationTemplate.innerHTML
+                    .replaceAll("__index__", operationIndex)
+                    .replaceAll("__number__", operationIndex + 1);
+
+                rowsContainer.insertAdjacentHTML("beforeend", html);
+
+                const newOperationRow = rowsContainer.lastElementChild;
+
+                bindOperationRow(newOperationRow);
+                renumberAllRows();
+
+                newOperationRow.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+            });
+
+            multipleOperationForm.addEventListener("submit", function () {
+
+                renumberAllRows();
+
+                rowsContainer
+                    .querySelectorAll(".mechanic-select, .spare-part-select")
+                    .forEach(function (select) {
+                        if (select.value) {
+                            select.disabled = false;
+                        }
+                    });
+            });
+
+            function bindOperationRow(operationRow) {
+
+                if (!operationRow || operationRow.dataset.bound === "true") {
+                    return;
+                }
+
+                operationRow.dataset.bound = "true";
+
+                const operationTypeSelect =
+                    operationRow.querySelector(".operation-type-select");
+
+                const removeOperationButton =
+                    operationRow.querySelector(".remove-operation-button");
+
+                const addPartButton =
+                    operationRow.querySelector(".add-part-button");
+
+                if (operationTypeSelect) {
+                    operationTypeSelect.addEventListener("change", async function () {
+
+                        const operationTypeId = this.value;
+
+                        clearOperationSelections(operationRow);
+
+                        await Promise.all([
+                            loadOperationInformation(
+                                operationRow,
+                                operationTypeId,
+                                false
+                            ),
+                            loadSparePartsByOperationType(
+                                operationRow,
+                                operationTypeId,
+                                false
+                            )
+                        ]);
+                    });
+                }
+
+                if (removeOperationButton) {
+                    removeOperationButton.addEventListener("click", function () {
+
+                        const allRows =
+                            rowsContainer.querySelectorAll(".operation-row");
+
+                        if (allRows.length === 1) {
+                            showWarning(
+                                "İşlem silinemedi",
+                                "Formda en az bir servis işlemi bulunmalıdır."
+                            );
+                            return;
+                        }
+
+                        operationRow.remove();
+                        renumberAllRows();
+                    });
+                }
+
+                if (addPartButton) {
+                    addPartButton.addEventListener("click", function () {
+                        addPartRow(operationRow);
+                    });
+                }
+
+                operationRow
+                    .querySelectorAll(".part-row")
+                    .forEach(function (partRow) {
+                        bindPartRow(partRow, operationRow);
+                    });
+
+                calculateOperationPartsTotal(operationRow);
+
+                if (operationTypeSelect && operationTypeSelect.value) {
+                    Promise.all([
+                        loadOperationInformation(
+                            operationRow,
+                            operationTypeSelect.value,
+                            true
+                        ),
+                        loadSparePartsByOperationType(
+                            operationRow,
+                            operationTypeSelect.value,
+                            true
+                        )
+                    ]);
+                }
+                else {
+                    setPartSelectsWaiting(operationRow);
+                }
+            }
+
+            function clearOperationSelections(operationRow) {
+
+                const mechanicSelect =
+                    operationRow.querySelector(".mechanic-select");
+
+                if (mechanicSelect) {
+                    mechanicSelect.dataset.selectedValue = "";
+                    mechanicSelect.value = "";
+                }
+
+                operationRow
+                    .querySelectorAll(".spare-part-select")
+                    .forEach(function (select) {
+                        select.dataset.selectedValue = "";
+                        select.value = "";
+                    });
+
+                operationRow
+                    .querySelectorAll(".part-quantity")
+                    .forEach(function (input) {
+                        input.value = "1";
+                    });
+
+                operationRow
+                    .querySelectorAll(".part-total")
+                    .forEach(function (total) {
+                        total.dataset.total = "0";
+                        total.textContent = formatCurrency(0);
+                    });
+
+                calculateOperationPartsTotal(operationRow);
+            }
+
+            async function loadOperationInformation(
+                operationRow,
+                operationTypeId,
+                preserveSelection) {
+
+                const mechanicSelect =
+                    operationRow.querySelector(".mechanic-select");
+
+                const infoText =
+                    operationRow.querySelector(".operation-info-text");
+
+                if (!mechanicSelect || !infoText) {
+                    return;
+                }
+
+                const selectedMechanicId = preserveSelection
+                    ? (mechanicSelect.dataset.selectedValue || mechanicSelect.value)
+                    : "";
+
+                mechanicSelect.innerHTML =
+                    '<option value="">Ustalar yükleniyor...</option>';
+                mechanicSelect.disabled = true;
+
+                if (!operationTypeId) {
+                    mechanicSelect.innerHTML =
+                        '<option value="">Önce işlem türü seçiniz</option>';
+                    infoText.textContent =
+                        "İşlem türü seçildiğinde süre ve fiyat bilgileri gösterilir.";
+                    return;
+                }
+
+                infoText.textContent = "İşlem bilgileri yükleniyor...";
+
+                try {
+                    const infoResponse = await fetch(
+                        '@Url.Action("GetOperationTypeInfo", "ServiceOperation")'
+                        + "?operationTypeId="
+                        + encodeURIComponent(operationTypeId)
+                    );
+
+                    if (!infoResponse.ok) {
+                        throw new Error("İşlem türü bilgileri alınamadı.");
+                    }
+
+                    const info = await infoResponse.json();
+
+                    infoText.innerHTML =
+                        '<span class="price-chip"><i class="bi bi-clock"></i>'
+                        + formatNumber(info.durationHours) + ' saat</span>'
+                        + '<span class="price-chip"><i class="bi bi-cash"></i>İşçilik: '
+                        + formatCurrency(info.customerLaborPrice) + '</span>'
+                        + '<span class="price-chip"><i class="bi bi-person-check"></i>Usta: '
+                        + formatCurrency(info.mechanicPayment) + '</span>'
+                        + '<span class="price-chip"><i class="bi bi-graph-up"></i>Brüt fark: '
+                        + formatCurrency(info.laborGrossMargin) + '</span>';
+
+                    const mechanicsResponse = await fetch(
+                        '@Url.Action("GetMechanicsByOperationType", "ServiceOperation")'
+                        + "?operationTypeId="
+                        + encodeURIComponent(operationTypeId)
+                    );
+
+                    if (!mechanicsResponse.ok) {
+                        throw new Error("Usta bilgileri alınamadı.");
+                    }
+
+                    const mechanics = await mechanicsResponse.json();
+
+                    mechanicSelect.innerHTML =
+                        '<option value="">Usta seçiniz</option>';
+
+                    if (!mechanics.length) {
+                        mechanicSelect.innerHTML =
+                            '<option value="">Uygun aktif usta bulunamadı</option>';
+                        return;
+                    }
+
+                    mechanics.forEach(function (mechanic) {
+                        const option = document.createElement("option");
+                        option.value = mechanic.id;
+                        option.textContent =
+                            mechanic.name + " - " + mechanic.specialty;
+                        mechanicSelect.appendChild(option);
+                    });
+
+                    if (selectedMechanicId &&
+                        Array.from(mechanicSelect.options)
+                            .some(option => option.value === String(selectedMechanicId))) {
+                        mechanicSelect.value = String(selectedMechanicId);
+                    }
+
+                    mechanicSelect.dataset.selectedValue = "";
+                    mechanicSelect.disabled = false;
+                }
+                catch (error) {
+                    mechanicSelect.innerHTML =
+                        '<option value="">Bilgiler yüklenemedi</option>';
+                    infoText.textContent = "İşlem bilgileri alınamadı.";
+                    console.error(error);
+                    showError("Bilgiler alınamadı", error.message);
+                }
+            }
+
+            async function loadSparePartsByOperationType(
+                operationRow,
+                operationTypeId,
+                preserveSelection) {
+
+                const selects =
+                    operationRow.querySelectorAll(".spare-part-select");
+
+                selects.forEach(function (select) {
+                    select.dataset.pendingValue = preserveSelection
+                        ? (select.dataset.selectedValue || select.value)
+                        : "";
+                    select.innerHTML =
+                        '<option value="">Parçalar yükleniyor...</option>';
+                    select.disabled = true;
+                });
+
+                if (!operationTypeId) {
+                    setPartSelectsWaiting(operationRow);
+                    return;
+                }
+
+                try {
+                    const response = await fetch(
+                        '@Url.Action("GetSparePartsByOperationType", "ServiceOperation")'
+                        + "?operationTypeId="
+                        + encodeURIComponent(operationTypeId)
+                    );
+
+                    if (!response.ok) {
+                        throw new Error("Uygun yedek parçalar alınamadı.");
+                    }
+
+                    const spareParts = await response.json();
+
+                    selects.forEach(function (select) {
+
+                        const pendingValue = select.dataset.pendingValue || "";
+
+                        select.innerHTML =
+                            '<option value="">Yedek parça seçiniz</option>';
+
+                        if (!spareParts.length) {
+                            select.innerHTML =
+                                '<option value="">Bu işleme uygun stoklu parça bulunamadı</option>';
+                            select.disabled = true;
+                            return;
+                        }
+
+                        spareParts.forEach(function (part) {
+                            const option = document.createElement("option");
+                            option.value = part.id;
+                            option.textContent = part.text;
+                            option.dataset.price = part.price;
+                            option.dataset.stock = part.stock;
+                            select.appendChild(option);
+                        });
+
+                        if (pendingValue &&
+                            Array.from(select.options)
+                                .some(option => option.value === String(pendingValue))) {
+                            select.value = String(pendingValue);
+                        }
+
+                        select.dataset.pendingValue = "";
+                        select.dataset.selectedValue = "";
+                        select.disabled = false;
+                    });
+
+                    operationRow
+                        .querySelectorAll(".part-row")
+                        .forEach(function (partRow) {
+                            calculatePartRow(partRow, operationRow, false);
+                        });
+                }
+                catch (error) {
+                    selects.forEach(function (select) {
+                        select.innerHTML =
+                            '<option value="">Parça listesi yüklenemedi</option>';
+                        select.disabled = true;
+                    });
+                    console.error(error);
+                    showError("Parçalar yüklenemedi", error.message);
+                }
+            }
+
+            function setPartSelectsWaiting(operationRow) {
+                operationRow
+                    .querySelectorAll(".spare-part-select")
+                    .forEach(function (select) {
+                        select.innerHTML =
+                            '<option value="">Önce işlem türü seçiniz</option>';
+                        select.disabled = true;
+                    });
+            }
+
+            function addPartRow(operationRow) {
+
+                const operationTypeSelect =
+                    operationRow.querySelector(".operation-type-select");
+
+                if (!operationTypeSelect || !operationTypeSelect.value) {
+                    showWarning(
+                        "Önce işlem türünü seçin",
+                        "Uygun parçaların getirilebilmesi için önce işlem türü seçilmelidir."
+                    );
+                    return;
+                }
+
+                const partRowsContainer =
+                    operationRow.querySelector(".part-rows");
+
+                const firstPartRow =
+                    partRowsContainer?.querySelector(".part-row");
+
+                if (!partRowsContainer || !firstPartRow) {
+                    return;
+                }
+
+                const newPartRow = firstPartRow.cloneNode(true);
+                newPartRow.dataset.bound = "false";
+
+                const sparePartSelect =
+                    newPartRow.querySelector(".spare-part-select");
+                const quantityInput =
+                    newPartRow.querySelector(".part-quantity");
+                const unitPriceElement =
+                    newPartRow.querySelector(".part-unit-price");
+
+                const totalElement =
+                    newPartRow.querySelector(".part-total");
+
+                if (sparePartSelect) {
+                    sparePartSelect.value = "";
+                    sparePartSelect.dataset.selectedValue = "";
+                    sparePartSelect.disabled = false;
+                }
+
+                if (quantityInput) {
+                    quantityInput.value = "1";
+                }
+
+                if (totalElement) {
+                    unitPriceElement.textContent = formatCurrency(0);
+                    totalElement.dataset.total = "0";
+                    totalElement.textContent = formatCurrency(0);
+                }
+
+                newPartRow
+                    .querySelectorAll(".field-validation-error")
+                    .forEach(function (element) {
+                        element.textContent = "";
+                        element.classList.remove("field-validation-error");
+                        element.classList.add("field-validation-valid");
+                    });
+
+                partRowsContainer.appendChild(newPartRow);
+                bindPartRow(newPartRow, operationRow);
+                renumberAllRows();
+            }
+
+            function bindPartRow(partRow, operationRow) {
+
+                if (!partRow || partRow.dataset.bound === "true") {
+                    return;
+                }
+
+                partRow.dataset.bound = "true";
+
+                const sparePartSelect =
+                    partRow.querySelector(".spare-part-select");
+                const quantityInput =
+                    partRow.querySelector(".part-quantity");
+                const removePartButton =
+                    partRow.querySelector(".remove-part-button");
+
+                sparePartSelect?.addEventListener("change", function () {
+                    validateDuplicatePart(operationRow, partRow);
+                    calculatePartRow(partRow, operationRow, true);
+                });
+
+                quantityInput?.addEventListener("input", function () {
+                    calculatePartRow(partRow, operationRow, false);
+                });
+
+                quantityInput?.addEventListener("change", function () {
+                    calculatePartRow(partRow, operationRow, true);
+                });
+
+                removePartButton?.addEventListener("click", function () {
+
+                    const partRows =
+                        operationRow.querySelectorAll(".part-row");
+
+                    if (partRows.length === 1) {
+                        if (sparePartSelect) {
+                            sparePartSelect.value = "";
+                        }
+                        if (quantityInput) {
+                            quantityInput.value = "1";
+                        }
+                        calculatePartRow(partRow, operationRow, false);
+                        return;
+                    }
+
+                    partRow.remove();
+                    renumberAllRows();
+                    calculateOperationPartsTotal(operationRow);
+                });
+
+                calculatePartRow(partRow, operationRow, false);
+            }
+
+            function calculatePartRow(
+                partRow,
+                operationRow,
+                showStockMessage) {
+
+                const select = partRow.querySelector(".spare-part-select");
+                const quantityInput = partRow.querySelector(".part-quantity");
+                const unitPriceElement =
+                    partRow.querySelector(".part-unit-price");
+                const totalElement = partRow.querySelector(".part-total");
+
+                if (!select ||
+                    !quantityInput ||
+                    !unitPriceElement ||
+                    !totalElement) {
+                    return;
+                }
+
+                const selectedOption = select.options[select.selectedIndex];
+
+                if (!selectedOption || !selectedOption.value) {
+                    unitPriceElement.textContent = formatCurrency(0);
+                    totalElement.dataset.total = "0";
+                    totalElement.textContent = formatCurrency(0);
+                    calculateOperationPartsTotal(operationRow);
+                    return;
+                }
+
+                const unitPrice = parseDecimal(selectedOption.dataset.price);
+                const stockQuantity =
+                    parseInt(selectedOption.dataset.stock || "0", 10);
+
+                unitPriceElement.textContent =
+                    formatCurrency(unitPrice);
+
+                let quantity = parseInt(quantityInput.value || "1", 10);
+
+                if (Number.isNaN(quantity) || quantity < 1) {
+                    quantity = 1;
+                    quantityInput.value = "1";
+                }
+
+                if (quantity > stockQuantity) {
+                    quantity = Math.max(stockQuantity, 1);
+                    quantityInput.value = quantity;
+
+                    if (showStockMessage) {
+                        showWarning(
+                            "Stok yetersiz",
+                            "Bu parçadan en fazla "
+                            + stockQuantity
+                            + " adet kullanabilirsiniz."
+                        );
+                    }
+                }
+
+                const totalPrice = unitPrice * quantity;
+                totalElement.dataset.total = totalPrice.toString();
+                totalElement.textContent = formatCurrency(totalPrice);
+
+                calculateOperationPartsTotal(operationRow);
+            }
+
+            function calculateOperationPartsTotal(operationRow) {
+
+                const totalElement =
+                    operationRow.querySelector(".operation-parts-total");
+
+                if (!totalElement) {
+                    return;
+                }
+
+                let total = 0;
+
+                operationRow
+                    .querySelectorAll(".part-total")
+                    .forEach(function (element) {
+                        total += parseDecimal(element.dataset.total);
+                    });
+
+                totalElement.textContent = formatCurrency(total);
+            }
+
+            function validateDuplicatePart(operationRow, currentPartRow) {
+
+                const currentSelect =
+                    currentPartRow.querySelector(".spare-part-select");
+
+                if (!currentSelect || !currentSelect.value) {
+                    return;
+                }
+
+                const duplicateExists = Array.from(
+                    operationRow.querySelectorAll(".part-row")
+                ).some(function (partRow) {
+
+                    if (partRow === currentPartRow) {
+                        return false;
+                    }
+
+                    const select = partRow.querySelector(".spare-part-select");
+                    return select && select.value === currentSelect.value;
+                });
+
+                if (duplicateExists) {
+                    showWarning(
+                        "Parça zaten seçildi",
+                        "Aynı parçayı tekrar eklemek yerine mevcut satırdaki adedi artırın."
+                    );
+                    currentSelect.value = "";
+                    calculatePartRow(currentPartRow, operationRow, false);
+                }
+            }
+
+            function renumberAllRows() {
+
+                rowsContainer
+                    .querySelectorAll(".operation-row")
+                    .forEach(function (operationRow, operationIndex) {
+
+                        operationRow.dataset.index = operationIndex;
+
+                        const number =
+                            operationRow.querySelector(".operation-number");
+
+                        if (number) {
+                            number.textContent = operationIndex + 1;
+                        }
+
+                        operationRow
+                            .querySelectorAll("[name^='Operations[']")
+                            .forEach(function (element) {
+                                element.name = element.name.replace(
+                                    /Operations\[\d+\]/,
+                                    "Operations[" + operationIndex + "]"
+                                );
+
+                                if (element.id) {
+                                    element.id = element.id.replace(
+                                        /Operations_\d+__/,
+                                        "Operations_" + operationIndex + "__"
+                                    );
+                                }
+                            });
+
+                        operationRow
+                            .querySelectorAll("[data-valmsg-for^='Operations[']")
+                            .forEach(function (element) {
+                                const value = element.getAttribute("data-valmsg-for");
+                                if (value) {
+                                    element.setAttribute(
+                                        "data-valmsg-for",
+                                        value.replace(
+                                            /Operations\[\d+\]/,
+                                            "Operations[" + operationIndex + "]"
+                                        )
+                                    );
+                                }
+                            });
+
+                        operationRow
+                            .querySelectorAll(".part-row")
+                            .forEach(function (partRow, partIndex) {
+
+                                partRow
+                                    .querySelectorAll("[name*='.Parts[']")
+                                    .forEach(function (element) {
+                                        element.name = element.name.replace(
+                                            /\.Parts\[\d+\]/,
+                                            ".Parts[" + partIndex + "]"
+                                        );
+                                    });
+
+                                partRow
+                                    .querySelectorAll("[data-valmsg-for*='.Parts[']")
+                                    .forEach(function (element) {
+                                        const value =
+                                            element.getAttribute("data-valmsg-for");
+                                        if (value) {
+                                            element.setAttribute(
+                                                "data-valmsg-for",
+                                                value.replace(
+                                                    /\.Parts\[\d+\]/,
+                                                    ".Parts[" + partIndex + "]"
+                                                )
+                                            );
+                                        }
+                                    });
+                            });
+                    });
+            }
+
+            function parseDecimal(value) {
+
+                if (value === null ||
+                    value === undefined ||
+                    value === "") {
+                    return 0;
+                }
+
+                const raw = value.toString().trim();
+
+                // JSON sayı değerleri noktalı ondalıkla gelir.
+                if (/^-?\d+(\.\d+)?$/.test(raw)) {
+                    const directNumber = Number(raw);
+                    return Number.isNaN(directNumber) ? 0 : directNumber;
+                }
+
+                const normalized = raw
+                    .replace(/\s/g, "")
+                    .replace(/\./g, "")
+                    .replace(",", ".");
+
+                const number = Number(normalized);
+                return Number.isNaN(number) ? 0 : number;
+            }
+
+            function formatNumber(value) {
+                return new Intl.NumberFormat("tr-TR", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2
+                }).format(value || 0);
+            }
+
+            function formatCurrency(value) {
+                return new Intl.NumberFormat("tr-TR", {
+                    style: "currency",
+                    currency: "TRY"
+                }).format(value || 0);
+            }
+
+            function showWarning(title, text) {
+                if (typeof Swal !== "undefined") {
+                    Swal.fire({
+                        title: title,
+                        text: text,
+                        icon: "warning",
+                        confirmButtonText: "Tamam"
+                    });
+                    return;
+                }
+                alert(text);
+            }
+
+            function showError(title, text) {
+                if (typeof Swal !== "undefined") {
+                    Swal.fire({
+                        title: title,
+                        text: text,
+                        icon: "error",
+                        confirmButtonText: "Tamam"
+                    });
+                    return;
+                }
+                alert(text);
+            }
+
+            renumberAllRows();
+        });
+    </script>
+}

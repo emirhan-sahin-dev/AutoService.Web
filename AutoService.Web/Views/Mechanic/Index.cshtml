@@ -1,0 +1,761 @@
+﻿@using AutoService.Web.Security
+@model List<AutoService.Dto.MechanicDtos.ResultMechanicDto>
+
+@{
+    ViewData["Title"] = "Ustalar";
+
+    var keyword = ViewBag.Keyword as string;
+
+    var currentPage = ViewBag.CurrentPage != null
+        ? Convert.ToInt32(ViewBag.CurrentPage)
+        : 1;
+
+    var totalPage = ViewBag.TotalPage != null
+        ? Convert.ToInt32(ViewBag.TotalPage)
+        : 1;
+
+    var totalCount = ViewBag.TotalCount != null
+        ? Convert.ToInt32(ViewBag.TotalCount)
+        : Model.Count;
+
+    var specialtyCount = Model
+        .Where(x => !string.IsNullOrWhiteSpace(x.Specialty))
+        .Select(x => x.Specialty)
+        .Distinct()
+        .Count();
+
+    var phoneCount = Model.Count(x =>
+        !string.IsNullOrWhiteSpace(x.Phone));
+
+    var emailCount = Model.Count(x =>
+        !string.IsNullOrWhiteSpace(x.Email));
+
+    var canManageMechanics =
+        User.IsInRole(AppRoles.Admin) ||
+        User.IsInRole(AppRoles.ServiceAdvisor);
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+
+            <i class="bi bi-person-badge-fill"></i>
+
+            Personel Yönetimi
+
+        </div>
+
+        <h1>Ustalar</h1>
+
+        <p>
+            Servis personellerini, uzmanlık alanlarını ve iletişim bilgilerini yönetin.
+        </p>
+
+    </div>
+
+    @if (canManageMechanics)
+    {
+        <a asp-action="Create"
+           class="btn-app-primary">
+
+            <i class="bi bi-person-plus-fill"></i>
+
+            Yeni Usta
+
+        </a>
+    }
+
+</div>
+
+<!-- ÖZET KARTLARI -->
+<div class="row g-4 mb-4">
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-primary">
+
+            <div class="dashboard-alert-icon icon-primary">
+
+                <i class="bi bi-people-fill"></i>
+
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>@totalCount</strong>
+
+                <span>
+                    Arama sonucundaki usta
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-success">
+
+            <div class="dashboard-alert-icon icon-success">
+
+                <i class="bi bi-tools"></i>
+
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>@specialtyCount</strong>
+
+                <span>
+                    Bu sayfadaki uzmanlık alanı
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-warning">
+
+            <div class="dashboard-alert-icon icon-warning">
+
+                <i class="bi bi-telephone-fill"></i>
+
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>@phoneCount</strong>
+
+                <span>
+                    Telefon bilgisi bulunan
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-danger">
+
+            <div class="dashboard-alert-icon icon-danger">
+
+                <i class="bi bi-envelope-fill"></i>
+
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>@emailCount</strong>
+
+                <span>
+                    E-posta bilgisi bulunan
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- USTA LİSTESİ -->
+<div class="app-card">
+
+    <div class="app-card-header">
+
+        <div class="d-flex align-items-center gap-3">
+
+            <div class="chart-header-icon icon-primary">
+
+                <i class="bi bi-person-workspace"></i>
+
+            </div>
+
+            <div class="app-card-title">
+
+                <h5>Usta Listesi</h5>
+
+                <span>
+                    Ad, uzmanlık, telefon veya e-posta ile arama yapın
+                </span>
+
+            </div>
+
+        </div>
+
+        <span class="app-badge app-badge-primary">
+
+            <i class="bi bi-database"></i>
+
+            @totalCount kayıt
+
+        </span>
+
+    </div>
+
+    <!-- ARAMA -->
+    <div class="app-card-body">
+
+        <form method="get"
+              asp-action="Index"
+              class="customer-filter-form">
+
+            <div class="customer-search-box">
+
+                <i class="bi bi-search"></i>
+
+                <input type="text"
+                       name="keyword"
+                       value="@keyword"
+                       placeholder="Usta adı, uzmanlık, telefon veya e-posta ile ara..."
+                       autocomplete="off" />
+
+            </div>
+
+            <button type="submit"
+                    class="btn-app-primary">
+
+                <i class="bi bi-search"></i>
+
+                Ara
+
+            </button>
+
+            @if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                <a asp-action="Index"
+                   class="btn-app-secondary">
+
+                    <i class="bi bi-x-circle"></i>
+
+                    Temizle
+
+                </a>
+            }
+
+        </form>
+
+    </div>
+
+    <!-- TABLO -->
+    <div class="app-card-body p-0">
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+
+                <table class="table app-table align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Usta</th>
+
+                            <th>Uzmanlık</th>
+
+                            <th>Telefon</th>
+
+                            <th>E-posta</th>
+
+                            <th>İşe Başlama</th>
+
+                            <th class="text-end">
+                                İşlemler
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model)
+                        {
+                            var initials = "";
+
+                            if (!string.IsNullOrWhiteSpace(item.FullName))
+                            {
+                                var nameParts = item.FullName
+                                .Split(
+                                ' ',
+                                StringSplitOptions.RemoveEmptyEntries
+                                );
+
+                                if (nameParts.Length > 0)
+                                {
+                                    initials += nameParts[0][0];
+                                }
+
+                                if (nameParts.Length > 1)
+                                {
+                                    initials += nameParts[^1][0];
+                                }
+                            }
+
+                            if (string.IsNullOrWhiteSpace(initials))
+                            {
+                                initials = "U";
+                            }
+
+                            <tr>
+
+                                <td>
+
+                                    <div class="mechanic-identity">
+
+                                        <div class="mechanic-avatar">
+                                            @initials.ToUpper()
+                                        </div>
+
+                                        <div>
+
+                                            <div class="mechanic-name">
+                                                @item.FullName
+                                            </div>
+
+                                            <span class="mechanic-subtitle">
+
+                                                <i class="bi bi-shield-check"></i>
+
+                                                Servis personeli
+
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    @if (!string.IsNullOrWhiteSpace(item.Specialty))
+                                    {
+                                        <span class="mechanic-specialty">
+
+                                            <i class="bi bi-wrench-adjustable"></i>
+
+                                            @item.Specialty
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="customer-empty-value">
+
+                                            <i class="bi bi-dash-circle"></i>
+
+                                            Uzmanlık belirtilmemiş
+
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td>
+
+                                    @if (!string.IsNullOrWhiteSpace(item.Phone))
+                                    {
+                                        <a href="tel:@item.Phone"
+                                           class="mechanic-contact">
+
+                                            <i class="bi bi-telephone-fill"></i>
+
+                                            @item.Phone
+
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="customer-empty-value">
+
+                                            <i class="bi bi-dash-circle"></i>
+
+                                            Telefon yok
+
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td>
+
+                                    @if (!string.IsNullOrWhiteSpace(item.Email))
+                                    {
+                                        <a href="mailto:@item.Email"
+                                           class="mechanic-email"
+                                           title="@item.Email">
+
+                                            <i class="bi bi-envelope-fill"></i>
+
+                                            <span>@item.Email</span>
+
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="customer-empty-value">
+
+                                            <i class="bi bi-dash-circle"></i>
+
+                                            E-posta yok
+
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td>
+
+                                    <div class="table-actions justify-content-end">
+
+                                        <a asp-action="Detail"
+                                           asp-route-id="@item.MechanicId"
+                                           class="table-action-btn action-detail"
+                                           title="Detay">
+
+                                            <i class="bi bi-eye-fill"></i>
+
+                                        </a>
+
+                                        @if (canManageMechanics)
+                                        {
+                                            <a asp-action="Update"
+                                               asp-route-id="@item.MechanicId"
+                                               class="table-action-btn action-edit"
+                                               title="Düzenle">
+
+                                                <i class="bi bi-pencil-square"></i>
+
+                                            </a>
+
+                                            <button type="button"
+                                                    class="table-action-btn action-delete deleteBtn"
+                                                    title="Sil"
+                                                    data-id="@item.MechanicId"
+                                                    data-name="@item.FullName">
+
+                                                <i class="bi bi-trash3-fill"></i>
+
+                                            </button>
+                                        }
+
+                                    </div>
+
+                                    @if (canManageMechanics)
+                                    {
+                                        <form id="delete-@item.MechanicId"
+                                              asp-action="Delete"
+                                              asp-route-id="@item.MechanicId"
+                                              method="post"
+                                              class="d-none">
+
+                                            @Html.AntiForgeryToken()
+
+                                        </form>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <div class="dashboard-empty-state customer-empty-state">
+
+                <i class="bi bi-person-workspace"></i>
+
+                <h6>Usta bulunamadı</h6>
+
+                @if (!string.IsNullOrWhiteSpace(keyword))
+                {
+                    <span>
+                        “@keyword” aramasına uygun usta bulunamadı.
+                    </span>
+
+                    <a asp-action="Index"
+                       class="btn-app-secondary mt-3">
+
+                        <i class="bi bi-arrow-counterclockwise"></i>
+
+                        Tüm ustaları göster
+
+                    </a>
+                }
+                else
+                {
+                    <span>
+                        Sistemde henüz kayıtlı usta bulunmuyor.
+                    </span>
+
+                    @if (canManageMechanics)
+                    {
+                        <a asp-action="Create"
+                           class="btn-app-primary mt-3">
+
+                            <i class="bi bi-person-plus-fill"></i>
+
+                            İlk ustayı ekle
+
+                        </a>
+                    }
+                }
+
+            </div>
+        }
+
+    </div>
+
+    <!-- SAYFALAMA -->
+    @if (totalPage > 1)
+    {
+        <div class="app-card-footer customer-pagination-footer">
+
+            <div class="pagination-info">
+
+                <i class="bi bi-file-earmark-text"></i>
+
+                <span>
+                    Sayfa @currentPage / @totalPage
+                </span>
+
+            </div>
+
+            <nav aria-label="Usta sayfaları">
+
+                <ul class="pagination app-pagination mb-0">
+
+                    <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="1"
+                           asp-route-keyword="@keyword"
+                           title="İlk sayfa">
+
+                            <i class="bi bi-chevron-double-left"></i>
+
+                        </a>
+
+                    </li>
+
+                    <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(currentPage - 1)"
+                           asp-route-keyword="@keyword"
+                           title="Önceki sayfa">
+
+                            <i class="bi bi-chevron-left"></i>
+
+                        </a>
+
+                    </li>
+
+                    @{
+                        var startPage = Math.Max(1, currentPage - 2);
+                        var endPage = Math.Min(totalPage, currentPage + 2);
+                    }
+
+                    @if (startPage > 1)
+                    {
+                        <li class="page-item">
+
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="1"
+                               asp-route-keyword="@keyword">
+                                1
+                            </a>
+
+                        </li>
+
+                        @if (startPage > 2)
+                        {
+                            <li class="page-item disabled">
+
+                                <span class="page-link">
+                                    …
+                                </span>
+
+                            </li>
+                        }
+                    }
+
+                    @for (var i = startPage; i <= endPage; i++)
+                    {
+                        <li class="page-item @(currentPage == i ? "active" : "")">
+
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@i"
+                               asp-route-keyword="@keyword">
+                                @i
+                            </a>
+
+                        </li>
+                    }
+
+                    @if (endPage < totalPage)
+                    {
+                        @if (endPage < totalPage - 1)
+                        {
+                            <li class="page-item disabled">
+
+                                <span class="page-link">
+                                    …
+                                </span>
+
+                            </li>
+                        }
+
+                        <li class="page-item">
+
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@totalPage"
+                               asp-route-keyword="@keyword">
+                                @totalPage
+                            </a>
+
+                        </li>
+                    }
+
+                    <li class="page-item @(currentPage >= totalPage ? "disabled" : "")">
+
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(currentPage + 1)"
+                           asp-route-keyword="@keyword"
+                           title="Sonraki sayfa">
+
+                            <i class="bi bi-chevron-right"></i>
+
+                        </a>
+
+                    </li>
+
+                    <li class="page-item @(currentPage >= totalPage ? "disabled" : "")">
+
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@totalPage"
+                           asp-route-keyword="@keyword"
+                           title="Son sayfa">
+
+                            <i class="bi bi-chevron-double-right"></i>
+
+                        </a>
+
+                    </li>
+
+                </ul>
+
+            </nav>
+
+        </div>
+    }
+
+</div>
+
+@section Scripts
+{
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const deleteButtons =
+                document.querySelectorAll(".deleteBtn");
+
+            deleteButtons.forEach(function (button) {
+
+                button.addEventListener("click", function () {
+
+                    const id = this.dataset.id;
+                    const name = this.dataset.name;
+
+                    Swal.fire({
+
+                        title: "Usta silinsin mi?",
+
+                        html:
+                            "<strong>" +
+                            escapeHtml(name) +
+                            "</strong> adlı usta sistemden silinecek." +
+                            "<br><small>Bu işlem geri alınamaz.</small>",
+
+                        icon: "warning",
+
+                        showCancelButton: true,
+
+                        reverseButtons: true,
+
+                        focusCancel: true,
+
+                        confirmButtonColor: "#dc2626",
+
+                        cancelButtonColor: "#64748b",
+
+                        confirmButtonText:
+                            '<i class="bi bi-trash3-fill me-1"></i> Evet, sil',
+
+                        cancelButtonText:
+                            '<i class="bi bi-x-circle me-1"></i> İptal'
+
+                    }).then(function (result) {
+
+                        if (result.isConfirmed) {
+
+                            const form =
+                                document.getElementById(
+                                    "delete-" + id
+                                );
+
+                            if (form) {
+                                form.submit();
+                            }
+
+                        }
+
+                    });
+
+                });
+
+            });
+
+        });
+
+        function escapeHtml(value) {
+
+            const element =
+                document.createElement("div");
+
+            element.textContent = value || "";
+
+            return element.innerHTML;
+
+        }
+
+    </script>
+}

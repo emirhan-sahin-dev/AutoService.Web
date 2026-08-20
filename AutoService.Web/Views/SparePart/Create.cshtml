@@ -1,0 +1,328 @@
+﻿@model AutoService.Dto.SparePartDtos.CreateSparePartDto
+
+@{
+    ViewData["Title"] = "Yeni Yedek Parça";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-box-seam-fill"></i>
+            Yedek Parça Yönetimi
+        </div>
+
+        <h1>Yeni Yedek Parça</h1>
+
+        <p>
+            Serviste kullanılacak yeni parçanın stok ve fiyat bilgilerini oluşturun.
+        </p>
+
+    </div>
+
+    <a asp-action="Index"
+       class="btn-app-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+        Parça Listesi
+
+    </a>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-xl-8">
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-success">
+                        <i class="bi bi-box-seam-fill"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Parça Bilgileri</h5>
+
+                        <span>
+                            Parçanın adı, kodu, fiyatı ve stok miktarını girin
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <form asp-action="Create"
+                      method="post"
+                      class="app-form">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger">
+                    </div>
+
+                    <div class="spare-part-form-visual">
+
+                        <div class="spare-part-form-icon">
+                            <i class="bi bi-gear-wide-connected"></i>
+                        </div>
+
+                        <div>
+
+                            <strong>Yeni stok kartı oluşturuluyor</strong>
+
+                            <span>
+                                Girilen parça bilgileri servis işlemlerinde
+                                ve stok takibinde kullanılacaktır.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="PartName"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-box-fill"></i>
+                                    Parça Adı
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-box-seam"></i>
+
+                                    <input asp-for="PartName"
+                                           class="app-form-control"
+                                           placeholder="Örn: Yağ Filtresi"
+                                           autocomplete="off" />
+
+                                </div>
+
+                                <span asp-validation-for="PartName"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="PartCode"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-upc-scan"></i>
+                                    Parça Kodu
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-upc"></i>
+
+                                    <input asp-for="PartCode"
+                                           class="app-form-control spare-part-code-input"
+                                           placeholder="Örn: YF-001"
+                                           autocomplete="off" />
+
+                                </div>
+
+                                <span asp-validation-for="PartCode"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="UnitPrice"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-tag-fill"></i>
+                                    Birim Fiyat
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-currency-exchange"></i>
+
+                                    <input asp-for="UnitPrice"
+                                           class="app-form-control"
+                                           placeholder="0,00" />
+
+                                </div>
+
+                                <span asp-validation-for="UnitPrice"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="StockQuantity"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-boxes"></i>
+                                    Stok Miktarı
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-123"></i>
+
+                                    <input asp-for="StockQuantity"
+                                           type="number"
+                                           min="0"
+                                           class="app-form-control"
+                                           placeholder="Örn: 25" />
+
+                                </div>
+
+                                <span asp-validation-for="StockQuantity"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="spare-part-stock-notice">
+
+                        <i class="bi bi-info-circle-fill"></i>
+
+                        <div>
+
+                            <strong>Stok takibi</strong>
+
+                            <span>
+                                Parça servis kaydında kullanıldığında stok miktarı
+                                sistemdeki iş akışına göre güncellenecektir.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="app-form-actions">
+
+                        <a asp-action="Index"
+                           class="btn-app-secondary">
+
+                            <i class="bi bi-x-circle"></i>
+                            Vazgeç
+
+                        </a>
+
+                        <button type="submit"
+                                class="btn-app-primary">
+
+                            <i class="bi bi-check-circle-fill"></i>
+                            Parçayı Kaydet
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4">
+
+        <div class="app-card form-info-card">
+
+            <div class="form-info-icon">
+                <i class="bi bi-box-seam-fill"></i>
+            </div>
+
+            <h5>Yedek Parça Kaydı</h5>
+
+            <p>
+                Parça kartları servis maliyetlerinde ve stok yönetiminde
+                kullanılacaktır.
+            </p>
+
+            <ul class="form-info-list">
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Açıklayıcı bir parça adı girin
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Benzersiz parça kodu kullanın
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Güncel birim fiyatı yazın
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Mevcut stok miktarını kontrol edin
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        $(document).ready(function () {
+
+            $(".spare-part-code-input").on("input", function () {
+                this.value = this.value.toUpperCase();
+            });
+
+        });
+
+    </script>
+}

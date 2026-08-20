@@ -1,0 +1,451 @@
+﻿@model List<AutoService.Dto.AppointmentDtos.ResultAppointmentDto>
+
+@using AutoService.Entity.Enums
+
+@{
+    ViewData["Title"] = "Randevular";
+
+    string GetStatusText(AppointmentStatus status)
+    {
+        return status switch
+        {
+            AppointmentStatus.Waiting => "Bekliyor",
+            AppointmentStatus.Confirmed => "Onaylandı",
+            AppointmentStatus.Arrived => "Servise Geldi",
+            AppointmentStatus.Completed => "Tamamlandı",
+            AppointmentStatus.Cancelled => "İptal Edildi",
+            _ => status.ToString()
+        };
+    }
+
+    string GetStatusClass(AppointmentStatus status)
+    {
+        return status switch
+        {
+            AppointmentStatus.Waiting => "app-badge-warning",
+            AppointmentStatus.Confirmed => "app-badge-primary",
+            AppointmentStatus.Arrived => "app-badge-info",
+            AppointmentStatus.Completed => "app-badge-success",
+            AppointmentStatus.Cancelled => "app-badge-danger",
+            _ => "app-badge-secondary"
+        };
+    }
+
+    string GetStatusIcon(AppointmentStatus status)
+    {
+        return status switch
+        {
+            AppointmentStatus.Waiting => "bi-clock-fill",
+            AppointmentStatus.Confirmed => "bi-check-circle-fill",
+            AppointmentStatus.Arrived => "bi-car-front-fill",
+            AppointmentStatus.Completed => "bi-check2-circle",
+            AppointmentStatus.Cancelled => "bi-x-circle-fill",
+            _ => "bi-circle-fill"
+        };
+    }
+
+    var today = DateTime.Today;
+    var waitingCount = Model.Count(x => x.Status == AppointmentStatus.Waiting);
+    var confirmedCount = Model.Count(x => x.Status == AppointmentStatus.Confirmed);
+    var todayCount = Model.Count(x => x.AppointmentDate.Date == today);
+    var convertedCount = Model.Count(x => x.IsConvertedToService);
+}
+
+<style>
+    .appointment-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .appointment-summary-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 17px;
+        background: #fff;
+        padding: 18px;
+    }
+
+    .appointment-summary-icon {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 13px;
+        margin-bottom: 14px;
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 20px;
+    }
+
+    .appointment-summary-card.warning .appointment-summary-icon {
+        background: #fff7ed;
+        color: #ea580c;
+    }
+
+    .appointment-summary-card.success .appointment-summary-icon {
+        background: #ecfdf3;
+        color: #16a34a;
+    }
+
+    .appointment-summary-card.info .appointment-summary-icon {
+        background: #ecfeff;
+        color: #0891b2;
+    }
+
+    .appointment-summary-label {
+        display: block;
+        color: #667085;
+        font-size: 12px;
+        margin-bottom: 5px;
+        font-weight: 700;
+    }
+
+    .appointment-summary-value {
+        display: block;
+        font-size: 25px;
+        font-weight: 950;
+        color: #172033;
+    }
+
+    .appointment-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .appointment-table th {
+            padding: 13px 14px;
+            background: #f8fafc;
+            color: #667085;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .35px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        .appointment-table td {
+            padding: 14px;
+            border-bottom: 1px solid #edf1f5;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .appointment-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .appointment-table .text-center {
+            text-align: center;
+        }
+
+        .appointment-table .text-end {
+            text-align: right;
+        }
+
+    .appointment-main {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .appointment-avatar {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: #eff6ff;
+        color: #2563eb;
+        font-weight: 900;
+        flex: 0 0 auto;
+    }
+
+    .appointment-main strong {
+        display: block;
+        color: #172033;
+        font-size: 13px;
+    }
+
+    .appointment-subtext {
+        display: block;
+        margin-top: 3px;
+        color: #667085;
+        font-size: 11px;
+    }
+
+    .appointment-request {
+        max-width: 330px;
+        color: #475467;
+        line-height: 1.45;
+    }
+
+    .appointment-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 7px;
+        flex-wrap: wrap;
+    }
+
+    .appointment-empty {
+        padding: 46px 20px;
+        text-align: center;
+        color: #667085;
+    }
+
+        .appointment-empty i {
+            display: block;
+            font-size: 42px;
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+
+    @@media (max-width: 992px) {
+        .appointment-summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .appointment-summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="page-header">
+    <div>
+        <div class="page-header-label">
+            <i class="bi bi-calendar2-week-fill"></i>
+            Randevu Yönetimi
+        </div>
+
+        <h1>Servis Randevuları</h1>
+
+        <p>
+            Müşteri ve araç randevularını planlayın, takip edin ve servis sürecine dönüştürün.
+        </p>
+    </div>
+
+    <a asp-action="Create"
+       class="btn-app-primary">
+        <i class="bi bi-calendar-plus-fill"></i>
+        Yeni Randevu
+    </a>
+</div>
+
+<div class="appointment-summary-grid">
+    <div class="appointment-summary-card">
+        <div class="appointment-summary-icon">
+            <i class="bi bi-calendar2-week-fill"></i>
+        </div>
+        <span class="appointment-summary-label">Toplam Randevu</span>
+        <strong class="appointment-summary-value">@Model.Count</strong>
+    </div>
+
+    <div class="appointment-summary-card warning">
+        <div class="appointment-summary-icon">
+            <i class="bi bi-clock-history"></i>
+        </div>
+        <span class="appointment-summary-label">Bekleyen</span>
+        <strong class="appointment-summary-value">@waitingCount</strong>
+    </div>
+
+    <div class="appointment-summary-card info">
+        <div class="appointment-summary-icon">
+            <i class="bi bi-calendar-day-fill"></i>
+        </div>
+        <span class="appointment-summary-label">Bugünkü Randevu</span>
+        <strong class="appointment-summary-value">@todayCount</strong>
+    </div>
+
+    <div class="appointment-summary-card success">
+        <div class="appointment-summary-icon">
+            <i class="bi bi-arrow-repeat"></i>
+        </div>
+        <span class="appointment-summary-label">Servise Dönüştürülen</span>
+        <strong class="appointment-summary-value">@convertedCount</strong>
+    </div>
+</div>
+
+<div class="app-card">
+    <div class="app-card-header">
+        <div class="d-flex align-items-center gap-3">
+            <div class="chart-header-icon icon-primary">
+                <i class="bi bi-list-check"></i>
+            </div>
+
+            <div class="app-card-title">
+                <h5>Randevu Listesi</h5>
+                <span>Tarih sırasına göre aktif ve geçmiş randevular</span>
+            </div>
+        </div>
+
+        <span class="app-badge app-badge-primary">
+            @Model.Count kayıt
+        </span>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="appointment-table">
+                <thead>
+                    <tr>
+                        <th>Müşteri / Araç</th>
+                        <th>Randevu Tarihi</th>
+                        <th>Talep</th>
+                        <th>Durum</th>
+                        <th>Servis Kaydı</th>
+                        <th class="text-end">İşlemler</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var appointment in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="appointment-main">
+                                    <div class="appointment-avatar">
+                                        <i class="bi bi-car-front-fill"></i>
+                                    </div>
+
+                                    <div>
+                                        <strong>@appointment.CustomerName</strong>
+                                        <span class="appointment-subtext">
+                                            @appointment.Plate · @appointment.BrandName @appointment.ModelName
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <strong>@appointment.AppointmentDate.ToString("dd.MM.yyyy")</strong>
+                                <span class="appointment-subtext">
+                                    @appointment.AppointmentDate.ToString("HH:mm")
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="appointment-request">
+                                    @appointment.CustomerRequest
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="app-badge @GetStatusClass(appointment.Status)">
+                                    <i class="bi @GetStatusIcon(appointment.Status)"></i>
+                                    @GetStatusText(appointment.Status)
+                                </span>
+                            </td>
+
+                            <td>
+                                @if (appointment.IsConvertedToService)
+                                {
+                                    <a asp-controller="ServiceRecord"
+                                       asp-action="Detail"
+                                       asp-route-id="@appointment.ServiceRecordId"
+                                       class="app-badge app-badge-success">
+                                        <i class="bi bi-wrench-adjustable-circle-fill"></i>
+                                        Servis #@appointment.ServiceRecordId
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="app-badge app-badge-secondary">
+                                        <i class="bi bi-dash-circle"></i>
+                                        Oluşturulmadı
+                                    </span>
+                                }
+                            </td>
+
+                            <td class="text-end">
+                                <div class="appointment-actions">
+                                    <a asp-action="Detail"
+                                       asp-route-id="@appointment.AppointmentId"
+                                       class="table-action-btn action-view"
+                                       title="Detay">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
+
+                                    @if (!appointment.IsConvertedToService)
+                                    {
+                                        <a asp-action="Update"
+                                           asp-route-id="@appointment.AppointmentId"
+                                           class="table-action-btn action-edit"
+                                           title="Güncelle">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </a>
+
+                                        <form asp-action="Delete"
+                                              method="post"
+                                              class="d-inline appointment-delete-form">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@appointment.AppointmentId" />
+
+                                            <button type="submit"
+                                                    class="table-action-btn action-delete"
+                                                    title="Sil">
+                                                <i class="bi bi-trash3-fill"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="appointment-empty">
+            <i class="bi bi-calendar2-x"></i>
+            <strong>Henüz randevu bulunmuyor.</strong>
+            <div>İlk randevuyu oluşturmak için “Yeni Randevu” butonunu kullanın.</div>
+        </div>
+    }
+</div>
+
+@section Scripts
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document
+                .querySelectorAll(".appointment-delete-form")
+                .forEach(function (form) {
+                    form.addEventListener("submit", function (event) {
+                        if (typeof Swal !== "undefined") {
+                            event.preventDefault();
+
+                            Swal.fire({
+                                title: "Randevu silinsin mi?",
+                                text: "Bu işlem geri alınamaz.",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonText: "Evet, sil",
+                                cancelButtonText: "Vazgeç"
+                            }).then(function (result) {
+                                if (result.isConfirmed) {
+                                    form.submit();
+                                }
+                            });
+
+                            return;
+                        }
+
+                        if (!confirm("Randevu silinsin mi?")) {
+                            event.preventDefault();
+                        }
+                    });
+                });
+        });
+    </script>
+}

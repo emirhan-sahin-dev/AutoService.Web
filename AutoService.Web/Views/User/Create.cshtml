@@ -1,0 +1,237 @@
+﻿@model AutoService.Dto.UserDtos.CreateUserDto
+
+@{
+    ViewData["Title"] = "Yeni Kullanıcı";
+}
+
+<div class="container-fluid mt-4">
+
+    <div class="row justify-content-center">
+
+        <div class="col-xl-8 col-lg-10">
+
+            <div class="card shadow border-0 rounded-4">
+
+                <div class="card-header bg-primary text-white">
+
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-plus-fill"></i>
+                        Yeni Kullanıcı Ekle
+                    </h4>
+
+                </div>
+
+                <div class="card-body p-4">
+
+                    <form asp-action="Create"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger">
+                        </div>
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+
+                                <label asp-for="FullName"
+                                       class="form-label fw-semibold">
+                                    Ad Soyad
+                                </label>
+
+                                <input asp-for="FullName"
+                                       class="form-control"
+                                       placeholder="Örnek: Emirhan Şahin" />
+
+                                <span asp-validation-for="FullName"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label asp-for="Username"
+                                       class="form-label fw-semibold">
+                                    Kullanıcı Adı
+                                </label>
+
+                                <input asp-for="Username"
+                                       class="form-control"
+                                       placeholder="Örnek: emirhan" />
+
+                                <span asp-validation-for="Username"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label asp-for="Email"
+                                       class="form-label fw-semibold">
+                                    E-Posta
+                                </label>
+
+                                <input asp-for="Email"
+                                       type="email"
+                                       class="form-control"
+                                       placeholder="ornek@mail.com" />
+
+                                <span asp-validation-for="Email"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label asp-for="Password"
+                                       class="form-label fw-semibold">
+                                    Şifre
+                                </label>
+
+                                <div class="input-group">
+
+                                    <input asp-for="Password"
+                                           type="password"
+                                           class="form-control"
+                                           id="passwordInput"
+                                           placeholder="Şifre giriniz" />
+
+                                    <button type="button"
+                                            class="btn btn-outline-secondary"
+                                            id="togglePassword">
+
+                                        <i class="bi bi-eye-fill"
+                                           id="passwordIcon">
+                                        </i>
+
+                                    </button>
+
+                                </div>
+
+                                <span asp-validation-for="Password"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label asp-for="RoleId"
+                                       class="form-label fw-semibold">
+                                    Rol
+                                </label>
+
+                                <select asp-for="RoleId"
+                                        asp-items="ViewBag.Roles"
+                                        class="form-select">
+
+                                    <option value="">
+                                        Rol seçiniz
+                                    </option>
+
+                                </select>
+
+                                <span asp-validation-for="RoleId"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Hesap Durumu
+                                </label>
+
+                                <div class="form-check form-switch mt-2">
+
+                                    <input asp-for="IsActive"
+                                           class="form-check-input"
+                                           type="checkbox"
+                                           role="switch" />
+
+                                    <label asp-for="IsActive"
+                                           class="form-check-label">
+
+                                        Kullanıcı aktif olsun
+
+                                    </label>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-flex justify-content-end gap-2">
+
+                            <a asp-action="Index"
+                               class="btn btn-secondary">
+
+                                <i class="bi bi-arrow-left"></i>
+                                Listeye Dön
+
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+
+                                <i class="bi bi-check-circle-fill"></i>
+                                Kullanıcıyı Kaydet
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const toggleButton =
+                document.getElementById("togglePassword");
+
+            const passwordInput =
+                document.getElementById("passwordInput");
+
+            const passwordIcon =
+                document.getElementById("passwordIcon");
+
+            toggleButton.addEventListener("click", function () {
+
+                const isPassword =
+                    passwordInput.type === "password";
+
+                passwordInput.type =
+                    isPassword ? "text" : "password";
+
+                passwordIcon.className =
+                    isPassword
+                        ? "bi bi-eye-slash-fill"
+                        : "bi bi-eye-fill";
+            });
+
+        });
+    </script>
+}

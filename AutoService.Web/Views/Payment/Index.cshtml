@@ -1,0 +1,699 @@
+﻿@model AutoService.Dto.PaymentDtos.PaymentPageDto
+
+@using AutoService.Entity.Enums
+
+@{
+    ViewData["Title"] = "Ödeme Yönetimi";
+
+    string GetPaymentMethodText(PaymentMethod method)
+    {
+        return method switch
+        {
+            PaymentMethod.Cash => "Nakit",
+            PaymentMethod.CreditCard => "Kredi Kartı",
+            PaymentMethod.BankTransfer => "Havale / EFT",
+            PaymentMethod.Other => "Diğer",
+            _ => method.ToString()
+        };
+    }
+
+    string GetPaymentIcon(PaymentMethod method)
+    {
+        return method switch
+        {
+            PaymentMethod.Cash => "bi-cash-stack",
+            PaymentMethod.CreditCard => "bi-credit-card-fill",
+            PaymentMethod.BankTransfer => "bi-bank2",
+            PaymentMethod.Other => "bi-wallet2",
+            _ => "bi-wallet2"
+        };
+    }
+
+    var paidRate = Model.ServiceTotal > 0
+        ? Math.Min(100, (Model.TotalPaid / Model.ServiceTotal) * 100)
+        : 0;
+}
+
+<style>
+    .payment-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .payment-summary-card {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 20px;
+        background: #fff;
+    }
+
+        .payment-summary-card::after {
+            content: "";
+            position: absolute;
+            right: -34px;
+            bottom: -44px;
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, .06);
+        }
+
+        .payment-summary-card.success::after {
+            background: rgba(34, 197, 94, .07);
+        }
+
+        .payment-summary-card.warning::after {
+            background: rgba(245, 158, 11, .08);
+        }
+
+    .payment-summary-icon {
+        width: 46px;
+        height: 46px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        margin-bottom: 16px;
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 21px;
+    }
+
+    .payment-summary-card.success .payment-summary-icon {
+        background: #ecfdf3;
+        color: #16a34a;
+    }
+
+    .payment-summary-card.warning .payment-summary-icon {
+        background: #fff7ed;
+        color: #ea580c;
+    }
+
+    .payment-summary-label {
+        display: block;
+        color: #667085;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .payment-summary-value {
+        display: block;
+        color: #172033;
+        font-size: 25px;
+        font-weight: 950;
+        line-height: 1.15;
+    }
+
+    .payment-progress-wrap {
+        margin-top: 20px;
+        padding: 16px 18px;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        background: #f8fafc;
+    }
+
+    .payment-progress-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 10px;
+        font-size: 12px;
+        font-weight: 800;
+        color: #475467;
+    }
+
+    .payment-progress {
+        height: 10px;
+        border-radius: 999px;
+        background: #e2e8f0;
+        overflow: hidden;
+    }
+
+    .payment-progress-bar {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #2563eb, #22c55e);
+        transition: width .25s ease;
+    }
+
+    .payment-layout {
+        display: grid;
+        grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+        gap: 24px;
+        align-items: start;
+    }
+
+    .payment-method-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+        font-size: 11px;
+        font-weight: 850;
+    }
+
+    .payment-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .payment-table th {
+            padding: 12px 14px;
+            background: #f8fafc;
+            color: #667085;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .35px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        .payment-table td {
+            padding: 14px;
+            border-bottom: 1px solid #edf1f5;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .payment-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .payment-table .text-end {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .payment-table .text-center {
+            text-align: center;
+        }
+
+    .payment-amount {
+        font-weight: 900;
+        color: #15803d;
+        white-space: nowrap;
+    }
+
+    .payment-description {
+        display: block;
+        color: #667085;
+        font-size: 11px;
+        margin-top: 3px;
+        line-height: 1.4;
+    }
+
+    .payment-empty {
+        padding: 42px 18px;
+        text-align: center;
+        color: #667085;
+    }
+
+        .payment-empty i {
+            display: block;
+            font-size: 38px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+
+    .payment-paid-banner {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px;
+        border-radius: 14px;
+        border: 1px solid #bbf7d0;
+        background: #ecfdf3;
+        color: #166534;
+    }
+
+        .payment-paid-banner i {
+            font-size: 26px;
+        }
+
+        .payment-paid-banner strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .payment-paid-banner span {
+            display: block;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+    @@media (max-width: 992px) {
+        .payment-summary-grid,
+        .payment-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="page-header">
+    <div>
+        <div class="page-header-label">
+            <i class="bi bi-credit-card-fill"></i>
+            Ödeme Yönetimi
+        </div>
+
+        <h1>Servis Ödemeleri</h1>
+
+        <p>
+            Servis kaydına ait tahsilatları, kalan borcu ve ödeme geçmişini yönetin.
+        </p>
+    </div>
+
+    <a asp-controller="ServiceRecord"
+       asp-action="Detail"
+       asp-route-id="@Model.ServiceRecordId"
+       class="btn-app-secondary">
+        <i class="bi bi-arrow-left"></i>
+        Servis Kaydına Dön
+    </a>
+</div>
+
+<div class="app-card mb-4">
+    <div class="app-card-header">
+        <div class="d-flex align-items-center gap-3">
+            <div class="chart-header-icon icon-primary">
+                <i class="bi bi-car-front-fill"></i>
+            </div>
+
+            <div class="app-card-title">
+                <h5>@Model.Plate</h5>
+                <span>@Model.CustomerName · Servis #@Model.ServiceRecordId</span>
+            </div>
+        </div>
+
+        @if (Model.IsFullyPaid)
+        {
+            <span class="app-badge app-badge-success">
+                <i class="bi bi-check-circle-fill"></i>
+                Borç Kapandı
+            </span>
+        }
+        else
+        {
+            <span class="app-badge app-badge-warning">
+                <i class="bi bi-hourglass-split"></i>
+                Ödeme Bekleniyor
+            </span>
+        }
+    </div>
+
+    <div class="app-card-body">
+        <div class="payment-summary-grid">
+            <div class="payment-summary-card">
+                <div class="payment-summary-icon">
+                    <i class="bi bi-receipt-cutoff"></i>
+                </div>
+
+                <span class="payment-summary-label">Servis Toplamı</span>
+                <strong class="payment-summary-value">
+                    @Model.ServiceTotal.ToString("N2") ₺
+                </strong>
+            </div>
+
+            <div class="payment-summary-card success">
+                <div class="payment-summary-icon">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+
+                <span class="payment-summary-label">Toplam Ödenen</span>
+                <strong class="payment-summary-value">
+                    @Model.TotalPaid.ToString("N2") ₺
+                </strong>
+            </div>
+
+            <div class="payment-summary-card warning">
+                <div class="payment-summary-icon">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+
+                <span class="payment-summary-label">Kalan Borç</span>
+                <strong class="payment-summary-value">
+                    @Model.RemainingAmount.ToString("N2") ₺
+                </strong>
+            </div>
+        </div>
+
+        <div class="payment-progress-wrap">
+            <div class="payment-progress-head">
+                <span>Ödeme İlerlemesi</span>
+                <strong>%@paidRate.ToString("N0")</strong>
+            </div>
+
+            <div class="payment-progress">
+                <div class="payment-progress-bar"
+                     style="width: @paidRate.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="payment-layout">
+
+    <div class="app-card">
+        <div class="app-card-header">
+            <div class="d-flex align-items-center gap-3">
+                <div class="chart-header-icon icon-success">
+                    <i class="bi bi-plus-circle-fill"></i>
+                </div>
+
+                <div class="app-card-title">
+                    <h5>Yeni Ödeme Al</h5>
+                    <span>Tahsilat yöntemini ve tutarını girin</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-card-body">
+
+            @if (Model.IsFullyPaid)
+            {
+                <div class="payment-paid-banner">
+                    <i class="bi bi-check-circle-fill"></i>
+
+                    <div>
+                        <strong>Bu servis kaydının borcu tamamen ödenmiş.</strong>
+                        <span>Yeni ödeme eklenemez.</span>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <form asp-action="Add"
+                      method="post"
+                      class="app-form">
+
+                    @Html.AntiForgeryToken()
+
+                    <input asp-for="ServiceRecordId"
+                           type="hidden" />
+
+                    <input asp-for="NewPayment.ServiceRecordId"
+                           type="hidden" />
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger">
+                    </div>
+
+                    <div class="row g-4">
+
+                        <div class="col-12">
+                            <div class="app-form-group">
+                                <label asp-for="NewPayment.Amount"
+                                       class="app-form-label">
+                                    <i class="bi bi-cash-coin"></i>
+                                    Ödeme Tutarı
+                                    <span>*</span>
+                                </label>
+
+                                <div class="app-input-wrapper">
+                                    <i class="bi bi-currency-lira"></i>
+
+                                    <input asp-for="NewPayment.Amount"
+                                           type="number"
+                                           min="0.01"
+                                           max="@Model.RemainingAmount.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                           step="0.01"
+                                           class="app-form-control" />
+                                </div>
+
+                                <span asp-validation-for="NewPayment.Amount"
+                                      class="app-validation-message">
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="app-form-group">
+                                <label asp-for="NewPayment.PaymentMethod"
+                                       class="app-form-label">
+                                    <i class="bi bi-wallet2"></i>
+                                    Ödeme Yöntemi
+                                    <span>*</span>
+                                </label>
+
+                                <div class="app-select-wrapper">
+                                    <i class="bi bi-credit-card"></i>
+
+                                    <select asp-for="NewPayment.PaymentMethod"
+                                            asp-items="ViewBag.PaymentMethods"
+                                            class="app-form-control app-form-select">
+                                        <option value="">Ödeme yöntemi seçiniz</option>
+                                    </select>
+                                </div>
+
+                                <span asp-validation-for="NewPayment.PaymentMethod"
+                                      class="app-validation-message">
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="app-form-group">
+                                <label asp-for="NewPayment.PaymentDate"
+                                       class="app-form-label">
+                                    <i class="bi bi-calendar-check-fill"></i>
+                                    Ödeme Tarihi
+                                    <span>*</span>
+                                </label>
+
+                                <div class="app-input-wrapper">
+                                    <i class="bi bi-calendar3"></i>
+
+                                    <input asp-for="NewPayment.PaymentDate"
+                                           type="datetime-local"
+                                           class="app-form-control" />
+                                </div>
+
+                                <span asp-validation-for="NewPayment.PaymentDate"
+                                      class="app-validation-message">
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="app-form-group">
+                                <label asp-for="NewPayment.TransactionReference"
+                                       class="app-form-label">
+                                    <i class="bi bi-hash"></i>
+                                    İşlem Referansı
+                                </label>
+
+                                <div class="app-input-wrapper">
+                                    <i class="bi bi-receipt"></i>
+
+                                    <input asp-for="NewPayment.TransactionReference"
+                                           class="app-form-control"
+                                           placeholder="POS slip no, banka referansı vb." />
+                                </div>
+
+                                <span asp-validation-for="NewPayment.TransactionReference"
+                                      class="app-validation-message">
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="app-form-group">
+                                <label asp-for="NewPayment.Description"
+                                       class="app-form-label">
+                                    <i class="bi bi-card-text"></i>
+                                    Açıklama
+                                </label>
+
+                                <div class="app-textarea-wrapper">
+                                    <i class="bi bi-chat-left-text"></i>
+
+                                    <textarea asp-for="NewPayment.Description"
+                                              rows="4"
+                                              class="app-form-control"
+                                              placeholder="Ödemeyle ilgili not ekleyin"></textarea>
+                                </div>
+
+                                <span asp-validation-for="NewPayment.Description"
+                                      class="app-validation-message">
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="app-form-actions">
+                        <button type="submit"
+                                class="btn-app-primary w-100">
+                            <i class="bi bi-check-circle-fill"></i>
+                            Ödemeyi Kaydet
+                        </button>
+                    </div>
+
+                </form>
+            }
+
+        </div>
+    </div>
+
+    <div class="app-card">
+        <div class="app-card-header">
+            <div class="d-flex align-items-center gap-3">
+                <div class="chart-header-icon icon-primary">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+
+                <div class="app-card-title">
+                    <h5>Ödeme Geçmişi</h5>
+                    <span>Servis kaydına ait tahsilatlar</span>
+                </div>
+            </div>
+
+            <span class="app-badge app-badge-primary">
+                @Model.Payments.Count kayıt
+            </span>
+        </div>
+
+        @if (Model.Payments.Any())
+        {
+            <div class="table-responsive">
+                <table class="payment-table">
+                    <thead>
+                        <tr>
+                            <th>Tarih</th>
+                            <th>Yöntem</th>
+                            <th>Referans / Açıklama</th>
+                            <th class="text-end">Tutar</th>
+                            <th class="text-center">İşlem</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var payment in Model.Payments)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>
+                                        @payment.PaymentDate.ToString("dd.MM.yyyy")
+                                    </strong>
+
+                                    <span class="payment-description">
+                                        @payment.PaymentDate.ToString("HH:mm")
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="payment-method-chip">
+                                        <i class="bi @GetPaymentIcon(payment.PaymentMethod)"></i>
+                                        @GetPaymentMethodText(payment.PaymentMethod)
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        @(string.IsNullOrWhiteSpace(payment.TransactionReference)
+                                                                        ? "-"
+                                                                        : payment.TransactionReference)
+                            </strong>
+
+                            @if (!string.IsNullOrWhiteSpace(payment.Description))
+                                    {
+                                        <span class="payment-description">
+                                            @payment.Description
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="text-end">
+                                    <span class="payment-amount">
+                                        @payment.Amount.ToString("N2") ₺
+                                    </span>
+                                </td>
+
+                                <td class="text-center">
+                                    <form asp-action="Delete"
+                                          method="post"
+                                          class="d-inline payment-delete-form">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="paymentId"
+                                               value="@payment.PaymentId" />
+
+                                        <input type="hidden"
+                                               name="serviceRecordId"
+                                               value="@Model.ServiceRecordId" />
+
+                                        <button type="submit"
+                                                class="table-action-btn action-delete"
+                                                title="Ödemeyi sil">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="payment-empty">
+                <i class="bi bi-wallet2"></i>
+                <strong>Henüz ödeme kaydı bulunmuyor.</strong>
+                <div>İlk tahsilatı sol taraftaki formdan ekleyebilirsiniz.</div>
+            </div>
+        }
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document
+                .querySelectorAll(".payment-delete-form")
+                .forEach(function (form) {
+                    form.addEventListener("submit", function (event) {
+                        if (typeof Swal !== "undefined") {
+                            event.preventDefault();
+
+                            Swal.fire({
+                                title: "Ödeme silinsin mi?",
+                                text: "Silinen ödeme kalan borca tekrar eklenecek.",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonText: "Evet, sil",
+                                cancelButtonText: "Vazgeç"
+                            }).then(function (result) {
+                                if (result.isConfirmed) {
+                                    form.submit();
+                                }
+                            });
+
+                            return;
+                        }
+
+                        if (!confirm("Ödeme kaydı silinsin mi?")) {
+                            event.preventDefault();
+                        }
+                    });
+                });
+        });
+    </script>
+}

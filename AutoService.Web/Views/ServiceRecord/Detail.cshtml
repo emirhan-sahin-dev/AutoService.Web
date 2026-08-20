@@ -1,0 +1,760 @@
+﻿@model AutoService.Dto.ServiceRecordDtos.ServiceRecordDetailDto
+
+@using AutoService.Entity.Enums
+
+@{
+    ViewData["Title"] = "Servis Kaydı Detayı";
+
+    var isDelivered = Model.ActualDeliveryDate.HasValue;
+
+    var statusText = Model.Status switch
+    {
+        _ => Model.Status.ToString()
+    };
+
+    var statusClass = isDelivered
+        ? "service-status-completed"
+        : "service-status-active";
+
+    var fuelText = Model.FuelLevel switch
+    {
+        FuelLevel.Bos => "Boş",
+        FuelLevel.Ceyrek => "1/4",
+        FuelLevel.Yarım => "1/2",
+        FuelLevel.UcCeyrek => "3/4",
+        FuelLevel.Dolu => "Dolu",
+        _ => "-"
+    };
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-wrench-adjustable-circle-fill"></i>
+            Servis Yönetimi
+        </div>
+
+        <h1>Servis Kaydı Detayı</h1>
+
+        <p>
+            Aracın servis kabul, teslim, işlem ve finansal bilgilerini görüntüleyin.
+        </p>
+
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+        @if (Model.IsCreatedFromAppointment)
+        {
+            <a asp-controller="Appointment"
+               asp-action="Detail"
+               asp-route-id="@Model.AppointmentId"
+               class="btn-app-info">
+
+                <i class="bi bi-calendar2-check-fill"></i>
+
+                Randevuya Git
+
+            </a>
+        }
+        <a asp-action="Update"
+           asp-route-id="@Model.ServiceRecordId"
+           class="btn-app-warning">
+
+            <i class="bi bi-pencil-square"></i>
+            Güncelle
+
+        </a>
+
+        <a asp-controller="ServiceOperation"
+           asp-action="Index"
+           asp-route-serviceRecordId="@Model.ServiceRecordId"
+           class="btn-app-primary">
+
+            <i class="bi bi-wrench-adjustable-circle-fill"></i>
+            Servis İşlemleri
+
+        </a>
+
+        <a asp-controller="ServiceOperation"
+           asp-action="CreateMultiple"
+           asp-route-serviceRecordId="@Model.ServiceRecordId"
+           class="btn-app-secondary">
+
+            <i class="bi bi-ui-checks-grid"></i>
+            Birden Fazla İşlem Ekle
+
+        </a>
+        <a asp-action="AcceptanceForm"
+           asp-route-id="@Model.ServiceRecordId"
+           class="btn-app-secondary">
+
+            <i class="bi bi-file-earmark-text-fill"></i>
+            Servis Kabul Formu
+
+        </a>
+        <a asp-action="ExitReceipt"
+           asp-route-id="@Model.ServiceRecordId"
+           class="btn-app-primary">
+
+            <i class="bi bi-receipt-cutoff"></i>
+            Servis Çıkış Fişi
+
+        </a>
+        <a asp-controller="Payment"
+           asp-action="Index"
+           asp-route-serviceRecordId="@Model.ServiceRecordId"
+           class="btn-app-primary">
+
+            <i class="bi bi-credit-card-fill"></i>
+            Ödemeler
+
+        </a>
+
+        <a asp-action="Index"
+           class="btn-app-secondary">
+
+            <i class="bi bi-arrow-left"></i>
+            Geri Dön
+
+        </a>
+
+    </div>
+
+</div>
+
+<div class="row g-4">
+
+    <!-- SOL PROFİL KARTI -->
+    <div class="col-xl-4">
+
+        <div class="app-card service-detail-profile">
+
+            <div class="service-detail-profile-cover">
+
+                <div class="service-detail-profile-icon">
+                    <i class="bi bi-car-front-fill"></i>
+                </div>
+
+            </div>
+
+            <div class="service-detail-profile-content">
+
+                <span class="vehicle-detail-plate">
+                    @Model.Plate
+                </span>
+
+                <h4>@Model.CustomerName</h4>
+
+                <span class="service-status-badge @statusClass">
+
+                    @if (isDelivered)
+                    {
+                        <i class="bi bi-check-circle-fill"></i>
+                    }
+                    else
+                    {
+                        <i class="bi bi-clock-fill"></i>
+                    }
+
+                    @statusText
+
+                </span>
+
+                <div class="service-detail-profile-stats">
+
+                    <div>
+
+                        <strong>
+                            @Model.Mileage.ToString("N0")
+                        </strong>
+
+                        <span>Kilometre</span>
+
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            @Model.TotalPrice.ToString("N2") ₺
+                        </strong>
+
+                        <span>Genel Toplam</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- İŞLEM ÖZETİ -->
+        <div class="app-card mt-4">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-primary">
+                        <i class="bi bi-bar-chart-fill"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>İşlem Özeti</h5>
+
+                        <span>
+                            Servise bağlı işlem ve parça sayıları
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <div class="detail-info-grid">
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-primary">
+                            <i class="bi bi-tools"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Toplam İşlem</span>
+
+                            <strong>
+                                @Model.TotalOperationCount
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-warning">
+                            <i class="bi bi-box-seam-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Kullanılan Parça</span>
+
+                            <strong>
+                                @Model.TotalPartCount adet
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- SAĞ İÇERİK -->
+    <div class="col-xl-8">
+
+        <!-- GENEL BİLGİLER -->
+        <div class="app-card mb-4">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-primary">
+                        <i class="bi bi-card-list"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Genel Servis Bilgileri</h5>
+
+                        <span>
+                            Tarih, araç, müşteri ve kilometre bilgileri
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <span class="app-badge app-badge-primary">
+
+                    <i class="bi bi-hash"></i>
+                    @Model.ServiceRecordId
+
+                </span>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <div class="detail-info-grid">
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-primary">
+                            <i class="bi bi-credit-card-2-front-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Plaka</span>
+                            <strong>@Model.Plate</strong>
+                            @if (Model.IsCreatedFromAppointment)
+                            {
+                                <span class="app-badge app-badge-info mt-2">
+
+                                    <i class="bi bi-calendar2-check-fill"></i>
+
+                                    Bu servis kaydı randevudan oluşturuldu.
+
+                                </span>
+                            }
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-success">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Müşteri</span>
+                            <strong>@Model.CustomerName</strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-primary">
+                            <i class="bi bi-calendar-plus-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Giriş Tarihi</span>
+
+                            <strong>
+                                @Model.CheckInDate.ToString("dd.MM.yyyy HH:mm")
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-warning">
+                            <i class="bi bi-calendar-event-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Tahmini Teslim Tarihi</span>
+
+                            <strong>
+                                @(Model.EstimatedDeliveryDate.HasValue
+                                                                ? Model.EstimatedDeliveryDate.Value
+                                                                .ToString("dd.MM.yyyy HH:mm")
+                                                                : "Belirtilmedi")
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-success">
+                            <i class="bi bi-calendar-check-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Gerçek Teslim Tarihi</span>
+
+                            <strong>
+                                @(Model.ActualDeliveryDate.HasValue
+                                                                ? Model.ActualDeliveryDate.Value
+                                                                .ToString("dd.MM.yyyy HH:mm")
+                                                                : "Araç henüz teslim edilmedi")
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-danger">
+                            <i class="bi bi-speedometer2"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Kilometre</span>
+
+                            <strong>
+                                @Model.Mileage.ToString("N0") KM
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item detail-info-full">
+
+                        <div class="detail-info-icon icon-primary">
+                            <i class="bi bi-activity"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Servis Durumu</span>
+
+                            <strong>
+                                @statusText
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SERVİS KABUL ÖZETİ -->
+        <div class="app-card mb-4">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-success">
+                        <i class="bi bi-clipboard2-check-fill"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Servis Kabul Özeti</h5>
+
+                        <span>
+                            Araç teslim, onay ve kabul sırasında kaydedilen bilgiler
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <a asp-action="AcceptanceForm"
+                   asp-route-id="@Model.ServiceRecordId"
+                   class="btn-app-secondary">
+
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                    Kabul Formunu Aç
+
+                </a>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <div class="detail-info-grid">
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-success">
+                            <i class="bi bi-fuel-pump-fill"></i>
+                        </div>
+
+                        <div>
+                            <span>Yakıt Seviyesi</span>
+                            <strong>@fuelText</strong>
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-primary">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </div>
+
+                        <div>
+                            <span>Servis Danışmanı</span>
+                            <strong>
+                                @(string.IsNullOrWhiteSpace(Model.AdvisorName)
+                                                                ? "Belirtilmedi"
+                                                                : Model.AdvisorName)
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-primary">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+
+                        <div>
+                            <span>Aracı Teslim Eden</span>
+                            <strong>
+                                @(string.IsNullOrWhiteSpace(Model.VehicleDeliveredBy)
+                                                                ? Model.CustomerName
+                                                                : Model.VehicleDeliveredBy)
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-warning">
+                            <i class="bi bi-telephone-fill"></i>
+                        </div>
+
+                        <div>
+                            <span>Teslim Eden Telefon</span>
+                            <strong>
+                                @(string.IsNullOrWhiteSpace(Model.VehicleDeliveredByPhone)
+                                                                ? "Belirtilmedi"
+                                                                : Model.VehicleDeliveredByPhone)
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-success">
+                            <i class="bi bi-cash-coin"></i>
+                        </div>
+
+                        <div>
+                            <span>Ön Onay Limiti</span>
+                            <strong>@Model.PreApprovalLimit.ToString("N2") ₺</strong>
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon @(Model.RequiresApprovalForExtraWork ? "icon-danger" : "icon-success")">
+                            <i class="bi @(Model.RequiresApprovalForExtraWork ? "bi-shield-exclamation" : "bi-shield-check")"></i>
+                        </div>
+
+                        <div>
+                            <span>Ek İşlem Onayı</span>
+                            <strong>
+                                @(Model.RequiresApprovalForExtraWork
+                                                                ? "Müşteri onayı zorunlu"
+                                                                : "Limit dahilinde ayrıca onay gerekmiyor")
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item detail-info-full">
+
+                        <div class="detail-info-icon @(Model.ReturnOldPartsToCustomer ? "icon-success" : "icon-warning")">
+                            <i class="bi bi-recycle"></i>
+                        </div>
+
+                        <div>
+                            <span>Eski Parçaların Teslimi</span>
+                            <strong>
+                                @(Model.ReturnOldPartsToCustomer
+                                                                ? "Değiştirilen eski parçalar müşteriye verilecek"
+                                                                : "Eski parçaların teslimi talep edilmedi")
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="service-note-list mt-4">
+
+                    <div class="service-note-card service-note-description">
+
+                        <div class="service-note-icon">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+
+                        <div>
+                            <span>Araç Üzerindeki Mevcut Hasarlar</span>
+
+                            <p>
+                                @(string.IsNullOrWhiteSpace(Model.ExistingDamages)
+                                                                ? "Mevcut hasar bilgisi girilmemiş."
+                                                                : Model.ExistingDamages)
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="service-note-card service-note-description">
+
+                        <div class="service-note-icon">
+                            <i class="bi bi-box-seam-fill"></i>
+                        </div>
+
+                        <div>
+                            <span>Teslim Edilen Eşyalar</span>
+
+                            <p>
+                                @(string.IsNullOrWhiteSpace(Model.DeliveredItems)
+                                                                ? "Teslim edilen eşya bilgisi girilmemiş."
+                                                                : Model.DeliveredItems)
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="service-note-card service-note-description">
+
+                        <div class="service-note-icon">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+
+                        <div>
+                            <span>Müşteri Özel Notu</span>
+
+                            <p>
+                                @(string.IsNullOrWhiteSpace(Model.CustomerNotes)
+                                                                ? "Müşteri özel notu bulunmuyor."
+                                                                : Model.CustomerNotes)
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SERVİS AÇIKLAMALARI -->
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-warning">
+                        <i class="bi bi-journal-text"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Servis Açıklamaları</h5>
+
+                        <span>
+                            Müşteri şikâyeti ve servis kabul açıklaması
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <div class="service-note-list">
+
+                    <div class="service-note-card service-note-complaint">
+
+                        <div class="service-note-icon">
+                            <i class="bi bi-person-exclamation"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Müşteri Şikâyeti</span>
+
+                            <p>
+                                @(string.IsNullOrWhiteSpace(Model.CustomerComplaint)
+                                                                ? "Müşteri şikâyeti belirtilmemiş."
+                                                                : Model.CustomerComplaint)
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="service-note-card service-note-description">
+
+                        <div class="service-note-icon">
+                            <i class="bi bi-card-text"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Servis Kabul Açıklaması</span>
+
+                            <p>
+                                @(string.IsNullOrWhiteSpace(Model.Description)
+                                                                ? "Servis kabul açıklaması belirtilmemiş."
+                                                                : Model.Description)
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-footer">
+
+                <a asp-action="Index"
+                   class="btn-app-secondary">
+
+                    <i class="bi bi-arrow-left"></i>
+                    Servis Listesine Dön
+
+                </a>
+
+                <a asp-controller="ServiceOperation"
+                   asp-action="Index"
+                   asp-route-serviceRecordId="@Model.ServiceRecordId"
+                   class="btn-app-primary">
+
+                    <i class="bi bi-wrench-adjustable-circle-fill"></i>
+                    Servis İşlemlerini Gör
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

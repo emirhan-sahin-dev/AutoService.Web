@@ -1,0 +1,15 @@
+﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+
+<script>
+    // Türkçe sayı desteği
+    $.validator.methods.number = function (value, element) {
+        if (this.optional(element))
+            return true;
+
+        value = value.replace(/\./g, '').replace(',', '.');
+
+        return !isNaN(value);
+    };
+</script>
+
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>

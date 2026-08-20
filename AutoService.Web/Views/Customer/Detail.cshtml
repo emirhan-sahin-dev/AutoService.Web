@@ -1,0 +1,290 @@
+﻿@model AutoService.Dto.CustomerDtos.CustomerDetailDto
+
+@{
+    ViewData["Title"] = "Müşteri Detayı";
+
+    var initials = "";
+
+    if (!string.IsNullOrWhiteSpace(Model.FullName))
+    {
+        var nameParts = Model.FullName.Split(
+            ' ',
+            StringSplitOptions.RemoveEmptyEntries
+        );
+
+        if (nameParts.Length > 0)
+        {
+            initials += nameParts[0][0];
+        }
+
+        if (nameParts.Length > 1)
+        {
+            initials += nameParts[^1][0];
+        }
+    }
+
+    if (string.IsNullOrWhiteSpace(initials))
+    {
+        initials = "M";
+    }
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-person-lines-fill"></i>
+            Müşteri Yönetimi
+        </div>
+
+        <h1>Müşteri Detayı</h1>
+
+        <p>
+            Müşterinin kayıtlı iletişim ve araç bilgilerini görüntüleyin.
+        </p>
+
+    </div>
+
+    <div class="d-flex gap-2">
+
+        <a asp-action="Update"
+           asp-route-id="@Model.CustomerId"
+           class="btn-app-primary">
+
+            <i class="bi bi-pencil-square"></i>
+
+            Düzenle
+
+        </a>
+
+        <a asp-action="Index"
+           class="btn-app-secondary">
+
+            <i class="bi bi-arrow-left"></i>
+
+            Geri Dön
+
+        </a>
+
+    </div>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-xl-4">
+
+        <div class="app-card customer-profile-card">
+
+            <div class="customer-profile-cover"></div>
+
+            <div class="customer-profile-content">
+
+                <div class="customer-profile-avatar">
+                    @initials.ToUpper()
+                </div>
+
+                <h4>@Model.FullName</h4>
+
+                <span class="customer-profile-role">
+                    <i class="bi bi-shield-check"></i>
+                    Kayıtlı müşteri
+                </span>
+
+                <div class="customer-profile-stats">
+
+                    <div>
+
+                        <strong>@Model.VehicleCount</strong>
+
+                        <span>Kayıtlı Araç</span>
+
+                    </div>
+
+                    <div>
+
+                        <strong>#@Model.CustomerId</strong>
+
+                        <span>Müşteri No</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-8">
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-primary">
+                        <i class="bi bi-person-vcard-fill"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Müşteri Bilgileri</h5>
+
+                        <span>
+                            Müşteriye ait iletişim ve adres bilgileri
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <div class="detail-info-grid">
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-primary">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Ad Soyad</span>
+
+                            <strong>@Model.FullName</strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-success">
+                            <i class="bi bi-telephone-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Telefon</span>
+
+                            @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                            {
+                                <a href="tel:@Model.Phone">
+                                    @Model.Phone
+                                </a>
+                            }
+                            else
+                            {
+                                <strong>Belirtilmemiş</strong>
+                            }
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-warning">
+                            <i class="bi bi-envelope-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>E-posta</span>
+
+                            @if (!string.IsNullOrWhiteSpace(Model.Email))
+                            {
+                                <a href="mailto:@Model.Email">
+                                    @Model.Email
+                                </a>
+                            }
+                            else
+                            {
+                                <strong>Belirtilmemiş</strong>
+                            }
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-danger">
+                            <i class="bi bi-car-front-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Kayıtlı Araç Sayısı</span>
+
+                            <strong>
+                                @Model.VehicleCount araç
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item detail-info-full">
+
+                        <div class="detail-info-icon icon-primary">
+                            <i class="bi bi-geo-alt-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Adres</span>
+
+                            @if (!string.IsNullOrWhiteSpace(Model.Address))
+                            {
+                                <strong>@Model.Address</strong>
+                            }
+                            else
+                            {
+                                <strong>Adres bilgisi belirtilmemiş</strong>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-footer">
+
+                <a asp-action="Index"
+                   class="btn-app-secondary">
+
+                    <i class="bi bi-arrow-left"></i>
+
+                    Müşteri Listesine Dön
+
+                </a>
+
+                <a asp-controller="Vehicle"
+                   asp-action="Index"
+                   asp-route-keyword="@Model.FullName"
+                   class="btn-app-primary">
+
+                    <i class="bi bi-car-front-fill"></i>
+
+                    Araçları Görüntüle
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

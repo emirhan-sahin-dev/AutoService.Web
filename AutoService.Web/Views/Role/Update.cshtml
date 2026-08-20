@@ -1,0 +1,229 @@
+﻿@model AutoService.Dto.RoleDtos.UpdateRoleDto
+
+@{
+    ViewData["Title"] = "Rol Güncelle";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-pencil-square"></i>
+            Sistem Yönetimi
+        </div>
+
+        <h1>Rol Güncelle</h1>
+
+        <p>
+            Seçili rolün adını güncelleyin.
+        </p>
+
+    </div>
+
+    <a asp-action="Index"
+       class="btn-app-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+        Rol Listesine Dön
+
+    </a>
+
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+        @TempData["Error"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+
+    </div>
+}
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-8 col-lg-10">
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-warning">
+
+                        <i class="bi bi-pencil-square"></i>
+
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Rol Bilgilerini Güncelle</h5>
+
+                        <span>
+                            Rol adını düzenleyip değişiklikleri kaydedin
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <span class="app-badge app-badge-primary">
+
+                    <i class="bi bi-hash"></i>
+                    Rol ID: @Model.RoleId
+
+                </span>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <form asp-action="Update"
+                      method="post"
+                      id="updateRoleForm">
+
+                    @Html.AntiForgeryToken()
+
+                    <input asp-for="RoleId"
+                           type="hidden" />
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger">
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label asp-for="RoleName"
+                               class="form-label fw-semibold">
+
+                            Rol Adı
+
+                        </label>
+
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+
+                                <i class="bi bi-shield-lock-fill"></i>
+
+                            </span>
+
+                            <input asp-for="RoleName"
+                                   class="form-control"
+                                   placeholder="Rol adını girin"
+                                   autocomplete="off"
+                                   maxlength="50" />
+
+                        </div>
+
+                        <span asp-validation-for="RoleName"
+                              class="text-danger small">
+                        </span>
+
+                        <div class="form-text">
+                            Rol adı 2 ile 50 karakter arasında olmalıdır.
+                        </div>
+
+                    </div>
+
+                    <div class="alert alert-warning">
+
+                        <div class="d-flex align-items-start gap-3">
+
+                            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+
+                            <div>
+
+                                <strong>Dikkat</strong>
+
+                                <div class="mt-1">
+
+                                    Rol adını değiştirmeniz, bu role bağlı
+                                    kullanıcıların yetki adını da etkileyebilir.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+
+                        <a asp-action="Index"
+                           class="btn-app-secondary">
+
+                            <i class="bi bi-x-circle"></i>
+                            Vazgeç
+
+                        </a>
+
+                        <button type="submit"
+                                class="btn-app-primary">
+
+                            <i class="bi bi-check-circle-fill"></i>
+                            Değişiklikleri Kaydet
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const form =
+                document.getElementById("updateRoleForm");
+
+            if (!form) {
+                return;
+            }
+
+            form.addEventListener("submit", function () {
+
+                if (!form.checkValidity()) {
+                    return;
+                }
+
+                const submitButton =
+                    form.querySelector('button[type="submit"]');
+
+                if (!submitButton) {
+                    return;
+                }
+
+                submitButton.disabled = true;
+
+                submitButton.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2"></span>' +
+                    'Güncelleniyor...';
+
+            });
+
+        });
+
+    </script>
+}

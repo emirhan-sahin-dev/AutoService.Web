@@ -1,0 +1,292 @@
+﻿@model AutoService.Dto.CustomerDtos.UpdateCustomerDto
+
+@{
+    ViewData["Title"] = "Müşteri Güncelle";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-pencil-square"></i>
+            Müşteri Yönetimi
+        </div>
+
+        <h1>Müşteri Güncelle</h1>
+
+        <p>
+            Müşterinin iletişim ve adres bilgilerini güncelleyin.
+        </p>
+
+    </div>
+
+    <a asp-action="Index"
+       class="btn-app-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+
+        Müşteri Listesi
+
+    </a>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-xl-8">
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-warning">
+                        <i class="bi bi-person-gear"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Müşteri Bilgilerini Düzenle</h5>
+
+                        <span>
+                            Kayıtlı müşteri bilgilerini değiştirin
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <span class="app-badge app-badge-warning">
+                    <i class="bi bi-hash"></i>
+                    @Model.CustomerId
+                </span>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <form asp-action="Update"
+                      method="post"
+                      class="app-form">
+
+                    <input asp-for="CustomerId"
+                           type="hidden" />
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger">
+                    </div>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="FullName"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-person-fill"></i>
+
+                                    Ad Soyad
+
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-person"></i>
+
+                                    <input asp-for="FullName"
+                                           class="app-form-control"
+                                           placeholder="Müşteri adı ve soyadı"
+                                           autocomplete="name" />
+
+                                </div>
+
+                                <span asp-validation-for="FullName"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="Phone"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-telephone-fill"></i>
+
+                                    Telefon
+
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-telephone"></i>
+
+                                    <input asp-for="Phone"
+                                           type="tel"
+                                           class="app-form-control"
+                                           placeholder="05XX XXX XX XX"
+                                           autocomplete="tel" />
+
+                                </div>
+
+                                <span asp-validation-for="Phone"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-12">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="Email"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-envelope-fill"></i>
+
+                                    E-posta
+
+                                </label>
+
+                                <div class="app-input-wrapper">
+
+                                    <i class="bi bi-envelope"></i>
+
+                                    <input asp-for="Email"
+                                           type="email"
+                                           class="app-form-control"
+                                           placeholder="ornek@email.com"
+                                           autocomplete="email" />
+
+                                </div>
+
+                                <span asp-validation-for="Email"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-12">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="Address"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-geo-alt-fill"></i>
+
+                                    Adres
+
+                                </label>
+
+                                <div class="app-textarea-wrapper">
+
+                                    <i class="bi bi-geo-alt"></i>
+
+                                    <textarea asp-for="Address"
+                                              rows="5"
+                                              class="app-form-control"
+                                              placeholder="Müşterinin açık adresini girin"></textarea>
+
+                                </div>
+
+                                <span asp-validation-for="Address"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="app-form-actions">
+
+                        <a asp-action="Index"
+                           class="btn-app-secondary">
+
+                            <i class="bi bi-x-circle"></i>
+
+                            Vazgeç
+
+                        </a>
+
+                        <button type="submit"
+                                class="btn-app-warning">
+
+                            <i class="bi bi-check-circle-fill"></i>
+
+                            Değişiklikleri Kaydet
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4">
+
+        <div class="app-card form-info-card form-info-warning">
+
+            <div class="form-info-icon">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+
+            <h5>Güncelleme Uyarısı</h5>
+
+            <p>
+                Burada yaptığınız değişiklikler müşterinin sistemdeki
+                mevcut bilgilerini güncelleyecektir.
+            </p>
+
+            <ul class="form-info-list">
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Bilgilerin doğruluğunu kontrol edin
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Telefon ve e-postayı güncel tutun
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Kaydetmeden önce alanları inceleyin
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,212 @@
+@model AutoService.Dto.ReportDtos.ReportDashboardDto
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Raporlar";
+    var partRevenue = Model.TotalRevenue - Model.TotalLaborCost;
+    var deliveryRate = Model.TotalServiceCount == 0 ? 0 : Math.Round((decimal)Model.DeliveredVehicleCount / Model.TotalServiceCount * 100, 1);
+    var periodText = Model.StartDate.HasValue || Model.EndDate.HasValue
+        ? $"{Model.StartDate?.ToString("dd.MM.yyyy") ?? "İlk kayıt"} - {Model.EndDate?.ToString("dd.MM.yyyy") ?? "Bugün"}"
+        : "Tüm zamanlar";
+
+    var monthlyLabels = Model.MonthlyRevenues.Select(x => $"{x.MonthName} {x.Year}").ToList();
+    var monthlyRevenue = Model.MonthlyRevenues.Select(x => x.TotalRevenue).ToList();
+    var monthlyLabor = Model.MonthlyRevenues.Select(x => x.LaborRevenue).ToList();
+    var monthlyParts = Model.MonthlyRevenues.Select(x => x.PartRevenue).ToList();
+    var mechanicLabels = Model.MechanicPerformances.Take(7).Select(x => x.MechanicName).ToList();
+    var mechanicServices = Model.MechanicPerformances.Take(7).Select(x => x.TotalServiceCount).ToList();
+}
+
+<div class="report-pro">
+    <section class="report-hero">
+        <div>
+            <span class="report-eyebrow"><i class="bi bi-stars"></i> Yönetim raporlama merkezi</span>
+            <h1>Servis performansını tek ekrandan yönetin.</h1>
+            <p>Gelir, servis, teknisyen ve stok verilerini filtreleyin; PDF veya Excel olarak dışa aktarın.</p>
+            <div class="report-period"><i class="bi bi-calendar3"></i> @periodText</div>
+        </div>
+        <div class="report-export-actions no-print">
+            <a asp-action="ExportPdf" asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")" asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")" class="report-btn report-btn-pdf">
+                <i class="bi bi-file-earmark-pdf-fill"></i><span>PDF İndir</span>
+            </a>
+            <a asp-action="ExportExcel" asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")" asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")" class="report-btn report-btn-excel">
+                <i class="bi bi-file-earmark-excel-fill"></i><span>Excel İndir</span>
+            </a>
+            <button type="button" class="report-btn report-btn-print" onclick="window.print()">
+                <i class="bi bi-printer-fill"></i><span>Yazdır</span>
+            </button>
+        </div>
+    </section>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show no-print" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <section class="report-filter no-print">
+        <form asp-action="Index" method="get">
+            <div class="report-filter-title">
+                <div><i class="bi bi-funnel-fill"></i></div>
+                <span><strong>Rapor filtresi</strong><small>Servis giriş tarihine göre sonuçları daraltın.</small></span>
+            </div>
+            <div class="report-filter-grid">
+                <label>
+                    <span>Başlangıç tarihi</span>
+                    <input asp-for="StartDate" type="date" />
+                </label>
+                <label>
+                    <span>Bitiş tarihi</span>
+                    <input asp-for="EndDate" type="date" />
+                </label>
+                <div class="report-filter-buttons">
+                    <a asp-action="Index" class="report-filter-clear"><i class="bi bi-arrow-counterclockwise"></i> Temizle</a>
+                    <button type="submit"><i class="bi bi-search"></i> Raporu Getir</button>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <section class="report-kpis">
+        <article class="report-kpi kpi-blue"><div class="kpi-icon"><i class="bi bi-clipboard2-data-fill"></i></div><div><span>Toplam Servis</span><strong>@Model.TotalServiceCount.ToString("N0")</strong><small>@Model.ActiveServiceCount aktif servis</small></div></article>
+        <article class="report-kpi kpi-indigo"><div class="kpi-icon"><i class="bi bi-cash-stack"></i></div><div><span>Toplam Gelir</span><strong>@Model.TotalRevenue.ToString("C0")</strong><small>Seçili dönem cirosu</small></div></article>
+        <article class="report-kpi kpi-cyan"><div class="kpi-icon"><i class="bi bi-wrench-adjustable-circle-fill"></i></div><div><span>İşçilik Geliri</span><strong>@Model.TotalLaborCost.ToString("C0")</strong><small>Toplam gelirin işçilik payı</small></div></article>
+        <article class="report-kpi kpi-emerald"><div class="kpi-icon"><i class="bi bi-gear-wide-connected"></i></div><div><span>Parça Geliri</span><strong>@partRevenue.ToString("C0")</strong><small>@Model.TotalUsedPartQuantity parça kullanıldı</small></div></article>
+        <article class="report-kpi kpi-violet"><div class="kpi-icon"><i class="bi bi-check2-circle"></i></div><div><span>Teslim Oranı</span><strong>%@deliveryRate</strong><small>@Model.DeliveredVehicleCount araç teslim edildi</small></div></article>
+        <article class="report-kpi kpi-rose"><div class="kpi-icon"><i class="bi bi-exclamation-triangle-fill"></i></div><div><span>Kritik Stok</span><strong>@Model.LowStockPartCount</strong><small>10 adet ve altındaki parçalar</small></div></article>
+    </section>
+
+    <section class="report-grid report-grid-main">
+        <article class="report-panel report-panel-wide">
+            <header><div><span class="panel-icon blue"><i class="bi bi-graph-up-arrow"></i></span><div><h2>Aylık Gelir Analizi</h2><p>Toplam, işçilik ve parça gelirlerinin dönemsel dağılımı.</p></div></div></header>
+            @if (Model.MonthlyRevenues.Any())
+            {
+                <div class="report-chart"><canvas id="monthlyRevenueChart"></canvas></div>
+            }
+            else
+            {
+                <div class="report-empty"><i class="bi bi-bar-chart"></i><strong>Grafik için veri bulunamadı</strong><span>Farklı bir tarih aralığı seçin.</span></div>
+            }
+        </article>
+        <article class="report-panel">
+            <header><div><span class="panel-icon violet"><i class="bi bi-pie-chart-fill"></i></span><div><h2>Servis Durumu</h2><p>Aktif ve teslim edilmiş servisler.</p></div></div></header>
+            @if (Model.TotalServiceCount > 0)
+            {
+                <div class="report-chart report-chart-donut"><canvas id="serviceStatusChart"></canvas></div>
+                <div class="status-legend"><span><i class="dot delivered"></i>Teslim Edilen <strong>@Model.DeliveredVehicleCount</strong></span><span><i class="dot active"></i>Aktif Servis <strong>@Model.ActiveServiceCount</strong></span></div>
+            }
+            else
+            {
+                <div class="report-empty"><i class="bi bi-pie-chart"></i><strong>Servis verisi bulunamadı</strong></div>
+            }
+        </article>
+    </section>
+
+    <section class="report-grid report-grid-equal">
+        <article class="report-panel">
+            <header><div><span class="panel-icon emerald"><i class="bi bi-people-fill"></i></span><div><h2>Teknisyen Performansı</h2><p>Servis sayısına göre ilk 7 teknisyen.</p></div></div></header>
+            @if (Model.MechanicPerformances.Any())
+            {
+                <div class="report-chart"><canvas id="mechanicChart"></canvas></div>
+            }
+            else
+            {
+                <div class="report-empty"><i class="bi bi-person-workspace"></i><strong>Teknisyen verisi bulunamadı</strong></div>
+            }
+        </article>
+        <article class="report-panel report-insight">
+            <header><div><span class="panel-icon amber"><i class="bi bi-lightbulb-fill"></i></span><div><h2>Yönetici Özeti</h2><p>Seçili dönemin hızlı değerlendirmesi.</p></div></div></header>
+            <div class="insight-list">
+                <div><i class="bi bi-check-circle-fill"></i><span><strong>%@deliveryRate teslim oranı</strong><small>@Model.DeliveredVehicleCount servis başarıyla tamamlandı.</small></span></div>
+                <div><i class="bi bi-currency-exchange"></i><span><strong>@partRevenue.ToString("C0") parça geliri</strong><small>Toplam cironun @(Model.TotalRevenue == 0 ? 0 : Math.Round(partRevenue / Model.TotalRevenue * 100, 1))%'ini oluşturuyor.</small></span></div>
+                <div><i class="bi bi-box-seam-fill"></i><span><strong>@Model.LowStockPartCount kritik stok kalemi</strong><small>Stok yenileme planına alınması önerilir.</small></span></div>
+            </div>
+        </article>
+    </section>
+
+    <section class="report-panel report-table-panel">
+        <header><div><span class="panel-icon blue"><i class="bi bi-table"></i></span><div><h2>Aylık Gelir Tablosu</h2><p>Raporun detaylı dönemsel dökümü.</p></div></div><span class="table-count">@Model.MonthlyRevenues.Count kayıt</span></header>
+        <div class="table-responsive">
+            <table class="report-table">
+                <thead><tr><th>Dönem</th><th>Servis</th><th>Toplam Gelir</th><th>İşçilik</th><th>Parça</th><th>Gelir Payı</th></tr></thead>
+                <tbody>
+                @if (Model.MonthlyRevenues.Any())
+                {
+                    foreach (var item in Model.MonthlyRevenues)
+                    {
+                        var share = Model.TotalRevenue == 0 ? 0 : Math.Round(item.TotalRevenue / Model.TotalRevenue * 100, 1);
+                        <tr><td><strong>@item.MonthName @item.Year</strong></td><td>@item.ServiceCount</td><td class="money">@item.TotalRevenue.ToString("C2")</td><td>@item.LaborRevenue.ToString("C2")</td><td>@item.PartRevenue.ToString("C2")</td><td><span class="share-badge">%@share</span></td></tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6"><div class="table-empty">Bu tarih aralığında aylık gelir kaydı bulunamadı.</div></td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="report-grid report-grid-equal">
+        <article class="report-panel report-table-panel">
+            <header><div><span class="panel-icon violet"><i class="bi bi-person-badge-fill"></i></span><div><h2>Teknisyen Sıralaması</h2><p>Servis ve gelir performansı.</p></div></div></header>
+            <div class="table-responsive"><table class="report-table compact"><thead><tr><th>Teknisyen</th><th>Servis</th><th>Teslim</th><th>Gelir</th></tr></thead><tbody>
+                @foreach (var item in Model.MechanicPerformances.Take(10))
+                { <tr><td><strong>@item.MechanicName</strong><small>@item.Specialty</small></td><td>@item.TotalServiceCount</td><td>@item.DeliveredServiceCount</td><td class="money">@item.TotalRevenue.ToString("C0")</td></tr> }
+                @if (!Model.MechanicPerformances.Any()) { <tr><td colspan="4"><div class="table-empty">Teknisyen performans kaydı yok.</div></td></tr> }
+            </tbody></table></div>
+        </article>
+        <article class="report-panel report-table-panel">
+            <header><div><span class="panel-icon emerald"><i class="bi bi-tools"></i></span><div><h2>En Çok Kullanılan Parçalar</h2><p>Kullanım miktarı ve gelir etkisi.</p></div></div></header>
+            <div class="table-responsive"><table class="report-table compact"><thead><tr><th>Parça</th><th>Adet</th><th>Kullanım</th><th>Gelir</th></tr></thead><tbody>
+                @foreach (var item in Model.MostUsedParts)
+                { <tr><td><strong>@item.PartName</strong><small>@item.PartCode</small></td><td>@item.TotalQuantity</td><td>@item.UsageCount</td><td class="money">@item.TotalRevenue.ToString("C0")</td></tr> }
+                @if (!Model.MostUsedParts.Any()) { <tr><td colspan="4"><div class="table-empty">Parça kullanım kaydı yok.</div></td></tr> }
+            </tbody></table></div>
+        </article>
+    </section>
+
+    <section class="report-panel report-table-panel">
+        <header><div><span class="panel-icon rose"><i class="bi bi-box-seam-fill"></i></span><div><h2>Kritik Stok Takibi</h2><p>Stok miktarı 10 ve altında olan parçalar.</p></div></div><span class="table-count danger">@Model.LowStockParts.Count uyarı</span></header>
+        <div class="table-responsive"><table class="report-table"><thead><tr><th>Parça</th><th>Kod</th><th>Stok</th><th>Birim Fiyat</th><th>Durum</th></tr></thead><tbody>
+            @foreach (var item in Model.LowStockParts)
+            { <tr><td><strong>@item.PartName</strong></td><td><code>@item.PartCode</code></td><td><span class="stock-count @(item.StockQuantity <= 0 ? "out" : item.StockQuantity <= 5 ? "critical" : "low")">@item.StockQuantity</span></td><td>@item.UnitPrice.ToString("C2")</td><td><span class="stock-status @(item.StockQuantity <= 0 ? "out" : item.StockQuantity <= 5 ? "critical" : "low")">@item.StockStatus</span></td></tr> }
+            @if (!Model.LowStockParts.Any()) { <tr><td colspan="5"><div class="table-empty success"><i class="bi bi-check-circle-fill"></i> Kritik stokta parça bulunmuyor.</div></td></tr> }
+        </tbody></table></div>
+    </section>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        Chart.defaults.font.family = 'Inter, sans-serif';
+        Chart.defaults.color = '#64748b';
+        const gridColor = 'rgba(148, 163, 184, .16)';
+        const monthlyLabels = @Html.Raw(JsonSerializer.Serialize(monthlyLabels));
+        const monthlyRevenue = @Html.Raw(JsonSerializer.Serialize(monthlyRevenue));
+        const monthlyLabor = @Html.Raw(JsonSerializer.Serialize(monthlyLabor));
+        const monthlyParts = @Html.Raw(JsonSerializer.Serialize(monthlyParts));
+        const mechanicLabels = @Html.Raw(JsonSerializer.Serialize(mechanicLabels));
+        const mechanicServices = @Html.Raw(JsonSerializer.Serialize(mechanicServices));
+
+        const money = value => new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(value);
+        const commonOptions = { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, plugins: { legend: { labels: { usePointStyle: true, boxWidth: 8, padding: 18 } }, tooltip: { padding: 12, cornerRadius: 10 } }, scales: { x: { grid: { display: false }, ticks: { maxRotation: 0 } }, y: { beginAtZero: true, grid: { color: gridColor }, ticks: { callback: value => money(value) } } } };
+
+        const monthlyCanvas = document.getElementById('monthlyRevenueChart');
+        if (monthlyCanvas) new Chart(monthlyCanvas, { type: 'line', data: { labels: monthlyLabels, datasets: [
+            { label: 'Toplam Gelir', data: monthlyRevenue, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,.12)', fill: true, tension: .38, borderWidth: 3, pointRadius: 4 },
+            { label: 'İşçilik', data: monthlyLabor, borderColor: '#7c3aed', backgroundColor: 'rgba(124,58,237,.08)', tension: .38, borderWidth: 2, pointRadius: 3 },
+            { label: 'Parça', data: monthlyParts, borderColor: '#059669', backgroundColor: 'rgba(5,150,105,.08)', tension: .38, borderWidth: 2, pointRadius: 3 }
+        ]}, options: commonOptions });
+
+        const statusCanvas = document.getElementById('serviceStatusChart');
+        if (statusCanvas) new Chart(statusCanvas, { type: 'doughnut', data: { labels: ['Teslim Edilen', 'Aktif Servis'], datasets: [{ data: [@Model.DeliveredVehicleCount, @Model.ActiveServiceCount], backgroundColor: ['#2563eb', '#f59e0b'], borderWidth: 0, hoverOffset: 8 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false }, tooltip: { padding: 12, cornerRadius: 10 } } } });
+
+        const mechanicCanvas = document.getElementById('mechanicChart');
+        if (mechanicCanvas) new Chart(mechanicCanvas, { type: 'bar', data: { labels: mechanicLabels, datasets: [{ label: 'Servis Sayısı', data: mechanicServices, backgroundColor: '#10b981', borderRadius: 8, borderSkipped: false, maxBarThickness: 34 }] }, options: { ...commonOptions, indexAxis: 'y', scales: { x: { beginAtZero: true, grid: { color: gridColor }, ticks: { precision: 0 } }, y: { grid: { display: false } } } } });
+    });
+</script>
+}

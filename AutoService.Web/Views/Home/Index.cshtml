@@ -1,0 +1,2074 @@
+﻿@model AutoService.Dto.DashboardDtos.DashboardDto
+
+@{
+    ViewData["Title"] = "Dashboard";
+
+    var mechanicName =
+        string.IsNullOrWhiteSpace(Model.MostActiveMechanic)
+            ? "Henüz veri yok"
+            : Model.MostActiveMechanic;
+
+    var popularBrand =
+        string.IsNullOrWhiteSpace(Model.MostPopularBrand)
+            ? "Henüz veri yok"
+            : Model.MostPopularBrand;
+}
+
+<!-- DASHBOARD HERO -->
+<section class="dashboard-hero">
+
+    <div class="dashboard-hero-content">
+
+        <span class="dashboard-hero-label">
+            <i class="bi bi-stars"></i>
+            AutoService ERP Yönetim Merkezi
+        </span>
+
+        <h1>
+            Hoş geldiniz,
+            <span>Emirhan</span>
+        </h1>
+
+        <p>
+            Servis operasyonlarını, gelirleri, stokları ve personel
+            performansını tek ekrandan yönetin.
+        </p>
+
+    </div>
+
+    <div class="dashboard-date-card">
+
+        <div class="dashboard-date-icon">
+            <i class="bi bi-calendar2-week-fill"></i>
+        </div>
+
+        <div class="dashboard-date-content">
+
+            <span>Bugünün tarihi</span>
+
+            <strong>
+                @DateTime.Now.ToString(
+                "dd MMMM yyyy dddd",
+                                new System.Globalization.CultureInfo("tr-TR")
+                                )
+            </strong>
+
+            <div class="dashboard-clock"
+                 id="dashboardClock">
+                @DateTime.Now.ToString("HH:mm:ss")
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- OPERASYON ÖZETLERİ -->
+<div class="row g-4 mb-4">
+
+    <div class="col-xl-4 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-primary">
+
+            <div class="dashboard-alert-icon icon-primary">
+                <i class="bi bi-wrench-adjustable-circle"></i>
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>
+                    @Model.ActiveServiceCount
+                </strong>
+
+                <span>
+                    Şu anda işlemi devam eden servis kaydı
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-warning">
+
+            <div class="dashboard-alert-icon icon-warning">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>
+                    @Model.CriticalStockCount
+                </strong>
+
+                <span>
+                    Yenilenmesi gereken kritik stok kalemi
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4 col-md-12">
+
+        <div class="dashboard-alert dashboard-alert-success">
+
+            <div class="dashboard-alert-icon icon-success">
+                <i class="bi bi-truck-front-fill"></i>
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>
+                    @Model.WaitingDelivery
+                </strong>
+
+                <span>
+                    Teslim edilmek üzere bekleyen araç
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- KPI KARTLARI -->
+<div class="row g-4 mb-4">
+
+    <!-- Toplam Müşteri -->
+    <div class="col-xl-3 col-lg-4 col-md-6">
+
+        <div class="dashboard-card bg-gradient-blue">
+
+            <div class="dashboard-card-content">
+
+                <div>
+
+                    <span class="dashboard-card-title">
+                        Toplam Müşteri
+                    </span>
+
+                    <h2 class="dashboard-card-value counter"
+                        data-target="@Model.TotalCustomers">
+                        @Model.TotalCustomers
+                    </h2>
+
+                    <span class="dashboard-card-description">
+                        Sistemde kayıtlı müşteri
+                    </span>
+
+                </div>
+
+                <div class="dashboard-card-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+
+            </div>
+
+            <div class="dashboard-card-footer">
+
+                <i class="bi bi-person-plus-fill"></i>
+
+                <span>
+                    Bu ay +@Model.NewCustomersThisMonth yeni kayıt
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Toplam Araç -->
+    <div class="col-xl-3 col-lg-4 col-md-6">
+
+        <div class="dashboard-card bg-gradient-green">
+
+            <div class="dashboard-card-content">
+
+                <div>
+
+                    <span class="dashboard-card-title">
+                        Toplam Araç
+                    </span>
+
+                    <h2 class="dashboard-card-value counter"
+                        data-target="@Model.TotalVehicles">
+                        @Model.TotalVehicles
+                    </h2>
+
+                    <span class="dashboard-card-description">
+                        Güncel araç envanteri
+                    </span>
+
+                </div>
+
+                <div class="dashboard-card-icon">
+                    <i class="bi bi-car-front-fill"></i>
+                </div>
+
+            </div>
+
+            <div class="dashboard-card-footer">
+
+                <i class="bi bi-database-check"></i>
+
+                <span>
+                    Tüm kayıtlı araçlar
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Toplam Usta -->
+    <div class="col-xl-3 col-lg-4 col-md-6">
+
+        <div class="dashboard-card bg-gradient-orange">
+
+            <div class="dashboard-card-content">
+
+                <div>
+
+                    <span class="dashboard-card-title">
+                        Toplam Usta
+                    </span>
+
+                    <h2 class="dashboard-card-value counter"
+                        data-target="@Model.TotalMechanics">
+                        @Model.TotalMechanics
+                    </h2>
+
+                    <span class="dashboard-card-description">
+                        Aktif servis personeli
+                    </span>
+
+                </div>
+
+                <div class="dashboard-card-icon">
+                    <i class="bi bi-person-workspace"></i>
+                </div>
+
+            </div>
+
+            <div class="dashboard-card-footer">
+
+                <i class="bi bi-award-fill"></i>
+
+                <span>
+                    Ayın lideri: @mechanicName
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Toplam Servis -->
+    <div class="col-xl-3 col-lg-4 col-md-6">
+
+        <div class="dashboard-card bg-gradient-red">
+
+            <div class="dashboard-card-content">
+
+                <div>
+
+                    <span class="dashboard-card-title">
+                        Toplam Servis
+                    </span>
+
+                    <h2 class="dashboard-card-value counter"
+                        data-target="@Model.TotalServiceRecords">
+                        @Model.TotalServiceRecords
+                    </h2>
+
+                    <span class="dashboard-card-description">
+                        Açılan tüm servis kayıtları
+                    </span>
+
+                </div>
+
+                <div class="dashboard-card-icon">
+                    <i class="bi bi-tools"></i>
+                </div>
+
+            </div>
+
+            <div class="dashboard-card-footer">
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                <span>
+                    Bu ay @Model.CompletedServicesThisMonth tamamlandı
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Toplam Ciro -->
+    <div class="col-xl-3 col-lg-4 col-md-6">
+
+        <div class="dashboard-card bg-gradient-purple">
+
+            <div class="dashboard-card-content">
+
+                <div>
+
+                    <span class="dashboard-card-title">
+                        Toplam Ciro
+                    </span>
+
+                    <h2 class="dashboard-card-value">
+                        @Model.TotalRevenue.ToString("N0") ₺
+                    </h2>
+
+                    <span class="dashboard-card-description">
+                        Tüm zamanların geliri
+                    </span>
+
+                </div>
+
+                <div class="dashboard-card-icon">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+
+            </div>
+
+            <div class="dashboard-card-footer">
+
+                @if (Model.RevenueChangePercentage > 0)
+                {
+                    <span class="kpi-change kpi-change-positive">
+                        <i class="bi bi-arrow-up-short"></i>
+                        %@Model.RevenueChangePercentage.ToString("N1")
+                    </span>
+
+                    <span>Geçen aya göre artış</span>
+                }
+                else if (Model.RevenueChangePercentage < 0)
+                {
+                    <span class="kpi-change kpi-change-negative">
+                        <i class="bi bi-arrow-down-short"></i>
+                        %@Math.Abs(
+                                            Model.RevenueChangePercentage
+                                            ).ToString("N1")
+                </span>
+
+                    <span>Geçen aya göre düşüş</span>
+                                }
+                else
+                {
+                    <span class="kpi-change kpi-change-neutral">
+                        <i class="bi bi-dash"></i>
+                        %0
+                    </span>
+
+                    <span>Değişim bulunmuyor</span>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Aktif Servis -->
+    <div class="col-xl-3 col-lg-4 col-md-6">
+
+        <div class="dashboard-card bg-gradient-dark">
+
+            <div class="dashboard-card-content">
+
+                <div>
+
+                    <span class="dashboard-card-title">
+                        Aktif Servis
+                    </span>
+
+                    <h2 class="dashboard-card-value counter"
+                        data-target="@Model.ActiveServiceCount">
+                        @Model.ActiveServiceCount
+                    </h2>
+
+                    <span class="dashboard-card-description">
+                        İşlemi devam eden araçlar
+                    </span>
+
+                </div>
+
+                <div class="dashboard-card-icon">
+                    <i class="bi bi-wrench-adjustable"></i>
+                </div>
+
+            </div>
+
+            <div class="dashboard-card-footer">
+
+                <i class="bi bi-broadcast-pin"></i>
+
+                <span>
+                    Canlı operasyon durumu
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Bugünkü Servis -->
+    <div class="col-xl-3 col-lg-4 col-md-6">
+
+        <div class="dashboard-card bg-gradient-blue">
+
+            <div class="dashboard-card-content">
+
+                <div>
+
+                    <span class="dashboard-card-title">
+                        Bugünkü Servis
+                    </span>
+
+                    <h2 class="dashboard-card-value counter"
+                        data-target="@Model.TodayServiceCount">
+                        @Model.TodayServiceCount
+                    </h2>
+
+                    <span class="dashboard-card-description">
+                        Bugün giriş yapan araçlar
+                    </span>
+
+                </div>
+
+                <div class="dashboard-card-icon">
+                    <i class="bi bi-calendar2-check-fill"></i>
+                </div>
+
+            </div>
+
+            <div class="dashboard-card-footer">
+
+                <i class="bi bi-calendar-event"></i>
+
+                <span>
+                    Günlük servis hareketi
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Kritik Stok -->
+    <div class="col-xl-3 col-lg-4 col-md-6">
+
+        <div class="dashboard-card
+             @(Model.CriticalStockCount > 0
+                             ? "bg-gradient-red"
+                             : "bg-gradient-green")">
+
+            <div class="dashboard-card-content">
+
+                <div>
+
+                    <span class="dashboard-card-title">
+                        Kritik Stok
+                    </span>
+
+                    <h2 class="dashboard-card-value counter"
+                        data-target="@Model.CriticalStockCount">
+                        @Model.CriticalStockCount
+                    </h2>
+
+                    <span class="dashboard-card-description">
+                        Kontrol gereken parçalar
+                    </span>
+
+                </div>
+
+                <div class="dashboard-card-icon">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+
+            </div>
+
+            <div class="dashboard-card-footer">
+
+                @if (Model.CriticalStockCount > 0)
+                {
+                    <i class="bi bi-exclamation-circle-fill"></i>
+
+                    <span>
+                        Stok yenilemesi gerekiyor
+                    </span>
+                }
+                else
+                {
+                    <i class="bi bi-check-circle-fill"></i>
+
+                    <span>
+                        Stok seviyeleri normal
+                    </span>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- GRAFİKLER -->
+<div class="row g-4 mb-4">
+
+    <!-- Aylık Ciro -->
+    <div class="col-xl-8 col-lg-7">
+
+        <div class="app-card h-100">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-primary">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>
+                            Aylık Ciro Analizi
+                        </h5>
+
+                        <span>
+                            Servis gelirlerinin aylara göre değişimi
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <span class="app-badge app-badge-primary">
+                    <i class="bi bi-calendar3"></i>
+                    Aylık görünüm
+                </span>
+
+            </div>
+
+            <div class="app-card-body">
+
+                @if (Model.MonthlyRevenues != null &&
+                                Model.MonthlyRevenues.Any())
+                {
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                }
+                else
+                {
+                    <div class="dashboard-empty-state">
+
+                        <i class="bi bi-bar-chart-line"></i>
+
+                        <h6>
+                            Henüz ciro verisi bulunmuyor
+                        </h6>
+
+                        <span>
+                            Servis kayıtları ve ücret bilgileri eklendiğinde
+                            aylık gelir grafiği burada oluşacaktır.
+                        </span>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Marka Dağılımı -->
+    <div class="col-xl-4 col-lg-5">
+
+        <div class="app-card h-100">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-success">
+                        <i class="bi bi-pie-chart-fill"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>
+                            Araç Marka Dağılımı
+                        </h5>
+
+                        <span>
+                            Kayıtlı araçların marka oranları
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                @if (Model.BrandDistributions != null &&
+                                Model.BrandDistributions.Any())
+                {
+                    <div class="donut-chart-container">
+                        <canvas id="brandChart"></canvas>
+                    </div>
+
+                    <div class="text-center mt-3">
+
+                        <span class="text-muted small">
+                            Toplam kayıtlı araç:
+                        </span>
+
+                        <strong class="ms-1">
+                            @Model.TotalVehicles
+                        </strong>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="dashboard-empty-state">
+
+                        <i class="bi bi-car-front"></i>
+
+                        <h6>
+                            Henüz araç verisi bulunmuyor
+                        </h6>
+
+                        <span>
+                            Araç kayıtları oluşturulduğunda marka dağılımı
+                            burada görüntülenecektir.
+                        </span>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- PERFORMANS KARTLARI -->
+<div class="row g-4 mb-4">
+
+    <!-- En Yoğun Usta -->
+    <div class="col-xl-6">
+
+        <div class="app-card h-100">
+
+            <div class="app-card-body">
+
+                <div class="d-flex justify-content-between align-items-start gap-3">
+
+                    <div>
+
+                        <span class="app-badge app-badge-primary mb-3">
+                            <i class="bi bi-calendar-check"></i>
+                            Bu Ayın Performansı
+                        </span>
+
+                        <h5 class="fw-bold mb-1">
+                            En Yoğun Usta
+                        </h5>
+
+                        <p class="text-muted mb-4">
+                            Bu ay en fazla servis kaydı bulunan çalışan
+                        </p>
+
+                    </div>
+
+                    <div class="dashboard-card-icon bg-gradient-blue">
+                        <i class="bi bi-award-fill"></i>
+                    </div>
+
+                </div>
+
+                <div class="d-flex justify-content-between align-items-end gap-3">
+
+                    <div>
+
+                        <span class="text-muted small">
+                            Performans lideri
+                        </span>
+
+                        <h2 class="fw-bold mb-1 mt-1">
+                            @mechanicName
+                        </h2>
+
+                        <span class="text-muted">
+                            Aktif servis personeli
+                        </span>
+
+                    </div>
+
+                    <div class="text-end">
+
+                        <h2 class="fw-bold text-primary mb-0">
+                            @Model.MostActiveMechanicServiceCount
+                        </h2>
+
+                        <small class="text-muted">
+                            servis kaydı
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <div class="progress mt-4"
+                     style="height: 8px;">
+
+                    <div class="progress-bar"
+                         role="progressbar"
+                         aria-valuenow="@Model.MostActiveMechanicServiceCount"
+                         aria-valuemin="0"
+                         aria-valuemax="100"
+                         style="width: @(Math.Min(
+                                                      Model.MostActiveMechanicServiceCount * 10,
+                                                      100
+                                                  ))%">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- En Çok Gelen Marka -->
+    <div class="col-xl-6">
+
+        <div class="app-card h-100">
+
+            <div class="app-card-body">
+
+                <div class="d-flex justify-content-between align-items-start gap-3">
+
+                    <div>
+
+                        <span class="app-badge app-badge-success mb-3">
+                            <i class="bi bi-car-front-fill"></i>
+                            Araç Analizi
+                        </span>
+
+                        <h5 class="fw-bold mb-1">
+                            En Çok Gelen Marka
+                        </h5>
+
+                        <p class="text-muted mb-4">
+                            Bu ay en fazla servis kaydı açılan araç markası
+                        </p>
+
+                    </div>
+
+                    <div class="dashboard-card-icon bg-gradient-green">
+                        <i class="bi bi-car-front-fill"></i>
+                    </div>
+
+                </div>
+
+                <div class="d-flex justify-content-between align-items-end gap-3">
+
+                    <div>
+
+                        <span class="text-muted small">
+                            En popüler marka
+                        </span>
+
+                        <h2 class="fw-bold mb-1 mt-1">
+                            @popularBrand
+                        </h2>
+
+                        <span class="text-muted">
+                            Aylık servis yoğunluğu
+                        </span>
+
+                    </div>
+
+                    <div class="text-end">
+
+                        <h2 class="fw-bold text-success mb-0">
+                            @Model.MostPopularBrandServiceCount
+                        </h2>
+
+                        <small class="text-muted">
+                            servis kaydı
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <div class="progress mt-4"
+                     style="height: 8px;">
+
+                    <div class="progress-bar bg-success"
+                         role="progressbar"
+                         aria-valuenow="@Model.MostPopularBrandServiceCount"
+                         aria-valuemin="0"
+                         aria-valuemax="100"
+                         style="width: @(Math.Min(
+                                                      Model.MostPopularBrandServiceCount * 10,
+                                                      100
+                                                  ))%">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- SERVİS ANALİZİ VE CANLI TAKİP -->
+<div class="row g-4 mb-4">
+
+    <!-- Servis Durum Analizi -->
+    <div class="col-xl-4 col-lg-5">
+
+        <div class="app-card h-100">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-warning">
+                        <i class="bi bi-bar-chart-fill"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>
+                            Servis Durum Analizi
+                        </h5>
+
+                        <span>
+                            Kayıtların işlem durumuna göre dağılımı
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                @if (Model.ServiceStatusCharts != null &&
+                                Model.ServiceStatusCharts.Any())
+                {
+                    <div class="status-chart-container">
+                        <canvas id="serviceStatusChart"></canvas>
+                    </div>
+                }
+                else
+                {
+                    <div class="dashboard-empty-state">
+
+                        <i class="bi bi-clipboard-data"></i>
+
+                        <h6>
+                            Servis verisi bulunmuyor
+                        </h6>
+
+                        <span>
+                            Yeni servis kayıtları eklendiğinde durum analizi
+                            burada görüntülenecektir.
+                        </span>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Canlı Servis Takibi -->
+    <div class="col-xl-8 col-lg-7">
+
+        <div class="app-card h-100">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-primary">
+                        <i class="bi bi-broadcast-pin"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>
+                            Canlı Servis Takibi
+                        </h5>
+
+                        <span>
+                            Son açılan servis kayıtları ve güncel durumları
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <a asp-controller="ServiceRecord"
+                   asp-action="Index"
+                   class="btn-app-secondary">
+
+                    Tümünü Gör
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+            <div class="app-card-body p-0">
+
+                @if (Model.RecentServices != null &&
+                                Model.RecentServices.Any())
+                {
+                    <div class="table-responsive">
+
+                        <table class="table dashboard-live-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Plaka
+                                    </th>
+
+                                    <th>
+                                        Müşteri
+                                    </th>
+
+                                    <th>
+                                        Giriş Tarihi
+                                    </th>
+
+                                    <th>
+                                        Durum
+                                    </th>
+
+                                    <th class="text-end">
+                                        Tutar
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var item in Model.RecentServices)
+                                {
+                                    var statusClass =
+                                    item.Status switch
+                                    {
+                                        "Completed" => "status-completed",
+                                        "InProgress" => "status-progress",
+                                        "Waiting" => "status-waiting",
+                                        "Cancelled" => "status-cancelled",
+                                        _ => "status-default"
+                                    };
+
+                                    var statusText =
+                                    item.Status switch
+                                    {
+                                        "Completed" => "Tamamlandı",
+                                        "InProgress" => "Devam Ediyor",
+                                        "Waiting" => "Bekliyor",
+                                        "Cancelled" => "İptal",
+                                        _ => item.Status
+                                    };
+
+                                    <tr>
+
+                                        <td>
+
+                                            <span class="plate-badge">
+                                                @item.Plate
+                                            </span>
+
+                                        </td>
+
+                                        <td>
+
+                                            <div class="fw-semibold">
+                                                @item.CustomerName
+                                            </div>
+
+                                        </td>
+
+                                        <td>
+
+                                            <span class="text-muted">
+                                                @item.CheckInDate.ToString("dd.MM.yyyy")
+                                            </span>
+
+                                        </td>
+
+                                        <td>
+
+                                            <span class="service-status-badge @statusClass">
+
+                                                <span class="status-dot"></span>
+
+                                                @statusText
+
+                                            </span>
+
+                                        </td>
+
+                                        <td class="text-end fw-bold">
+
+                                            @item.TotalPrice.ToString("N0") ₺
+
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="dashboard-empty-state">
+
+                        <i class="bi bi-wrench-adjustable-circle"></i>
+
+                        <h6>
+                            Aktif servis kaydı bulunmuyor
+                        </h6>
+
+                        <span>
+                            Yeni servis kaydı oluşturulduğunda burada
+                            görüntülenecektir.
+                        </span>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- YAKLAŞAN TESLİMATLAR -->
+<div class="row g-4 mb-4">
+
+    <div class="col-12">
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-success">
+                        <i class="bi bi-calendar2-check-fill"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>
+                            Yaklaşan Teslimatlar
+                        </h5>
+
+                        <span>
+                            Teslim edilmesi planlanan araçların güncel listesi
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <span class="app-badge app-badge-success">
+
+                    <i class="bi bi-truck"></i>
+
+                    @Model.WaitingDelivery araç bekliyor
+
+                </span>
+
+            </div>
+
+            <div class="app-card-body p-0">
+
+                @if (Model.UpcomingDeliveries != null &&
+                                Model.UpcomingDeliveries.Any())
+                {
+                    <div class="table-responsive">
+
+                        <table class="table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Plaka
+                                    </th>
+
+                                    <th>
+                                        Müşteri
+                                    </th>
+
+                                    <th>
+                                        Teslim Tarihi
+                                    </th>
+
+                                    <th>
+                                        Durum
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var item in Model.UpcomingDeliveries)
+                                {
+                                    <tr>
+
+                                        <td>
+
+                                            <span class="plate-badge">
+                                                @item.Plate
+                                            </span>
+
+                                        </td>
+
+                                        <td>
+
+                                            <div class="fw-semibold">
+                                                @item.CustomerName
+                                            </div>
+
+                                        </td>
+
+                                        <td>
+
+                                            <span class="text-muted">
+                                                @item.DeliveryDate.ToString("dd.MM.yyyy")
+                                            </span>
+
+                                        </td>
+
+                                        <td>
+
+                                            <span class="service-status-badge status-completed">
+
+                                                <span class="status-dot"></span>
+
+                                                Teslim Bekliyor
+
+                                            </span>
+
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="dashboard-empty-state">
+
+                        <i class="bi bi-calendar-x"></i>
+
+                        <h6>
+                            Yaklaşan teslimat bulunmuyor
+                        </h6>
+
+                        <span>
+                            Teslim tarihi yaklaşan araçlar burada
+                            görüntülenecektir.
+                        </span>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- HIZLI İŞLEMLER VE SON AKTİVİTELER -->
+<div class="row g-4 mb-4">
+
+    <!-- Hızlı İşlemler -->
+    <div class="col-xl-5">
+
+        <div class="app-card h-100">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-primary">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>
+                            Hızlı İşlemler
+                        </h5>
+
+                        <span>
+                            Sık kullanılan işlemlere hızlı erişim
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+
+                        <a asp-controller="Customer"
+                           asp-action="Create"
+                           class="quick-action-item">
+
+                            <div class="quick-action-icon quick-action-blue">
+                                <i class="bi bi-person-plus-fill"></i>
+                            </div>
+
+                            <div>
+
+                                <h6>
+                                    Yeni Müşteri
+                                </h6>
+
+                                <span>
+                                    Müşteri kaydı oluştur
+                                </span>
+
+                            </div>
+
+                            <i class="bi bi-chevron-right quick-arrow"></i>
+
+                        </a>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <a asp-controller="Vehicle"
+                           asp-action="Create"
+                           class="quick-action-item">
+
+                            <div class="quick-action-icon quick-action-green">
+                                <i class="bi bi-car-front-fill"></i>
+                            </div>
+
+                            <div>
+
+                                <h6>
+                                    Yeni Araç
+                                </h6>
+
+                                <span>
+                                    Araç kaydı oluştur
+                                </span>
+
+                            </div>
+
+                            <i class="bi bi-chevron-right quick-arrow"></i>
+
+                        </a>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <a asp-controller="ServiceRecord"
+                           asp-action="Create"
+                           class="quick-action-item">
+
+                            <div class="quick-action-icon quick-action-orange">
+                                <i class="bi bi-tools"></i>
+                            </div>
+
+                            <div>
+
+                                <h6>
+                                    Yeni Servis
+                                </h6>
+
+                                <span>
+                                    Servis kaydı aç
+                                </span>
+
+                            </div>
+
+                            <i class="bi bi-chevron-right quick-arrow"></i>
+
+                        </a>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <a asp-controller="SparePart"
+                           asp-action="Create"
+                           class="quick-action-item">
+
+                            <div class="quick-action-icon quick-action-purple">
+                                <i class="bi bi-box-seam-fill"></i>
+                            </div>
+
+                            <div>
+
+                                <h6>
+                                    Yedek Parça
+                                </h6>
+
+                                <span>
+                                    Parça kaydı oluştur
+                                </span>
+
+                            </div>
+
+                            <i class="bi bi-chevron-right quick-arrow"></i>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Son Aktiviteler -->
+    <div class="col-xl-7">
+
+        <div class="app-card h-100">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-success">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>
+                            Son Aktiviteler
+                        </h5>
+
+                        <span>
+                            Sistemde gerçekleştirilen son işlemler
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                @if (Model.RecentActivities != null &&
+                                Model.RecentActivities.Any())
+                {
+                    <div class="activity-timeline">
+
+                        @foreach (var item in Model.RecentActivities)
+                        {
+                            var activityClass =
+                            item.ActivityType switch
+                            {
+                                "Customer" => "activity-blue",
+                                "Vehicle" => "activity-green",
+                                "Service" => "activity-orange",
+                                "SparePart" => "activity-purple",
+                                _ => "activity-gray"
+                            };
+
+                            var activityIcon =
+                            item.ActivityType switch
+                            {
+                                "Customer" => "bi-person-plus-fill",
+                                "Vehicle" => "bi-car-front-fill",
+                                "Service" => "bi-tools",
+                                "SparePart" => "bi-box-seam-fill",
+                                _ => "bi-activity"
+                            };
+
+                            <div class="activity-item">
+
+                                <div class="activity-marker @activityClass">
+                                    <i class="bi @activityIcon"></i>
+                                </div>
+
+                                <div class="activity-content">
+
+                                    <div class="d-flex justify-content-between gap-3">
+
+                                        <div>
+
+                                            <h6 class="mb-1">
+                                                @item.Title
+                                            </h6>
+
+                                            <span>
+                                                @item.Description
+                                            </span>
+
+                                        </div>
+
+                                        <small>
+                                            @item.ActivityDate.ToString("dd.MM.yyyy HH:mm")
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
+                }
+                else
+                {
+                    <div class="dashboard-empty-state">
+
+                        <i class="bi bi-clock-history"></i>
+
+                        <h6>
+                            Henüz aktivite bulunmuyor
+                        </h6>
+
+                        <span>
+                            Sistemde işlem yapıldığında son aktiviteler burada
+                            görüntülenecektir.
+                        </span>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            initializeDashboardClock();
+            initializeCounters();
+            initializeRevenueChart();
+            initializeBrandChart();
+            initializeServiceStatusChart();
+
+        });
+
+        function initializeDashboardClock() {
+
+            const clockElement =
+                document.getElementById("dashboardClock");
+
+            if (!clockElement) {
+                return;
+            }
+
+            const updateClock = function () {
+
+                const now = new Date();
+
+                clockElement.textContent =
+                    now.toLocaleTimeString("tr-TR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit"
+                    });
+
+            };
+
+            updateClock();
+
+            setInterval(updateClock, 1000);
+
+        }
+
+        function initializeCounters() {
+
+            const counters =
+                document.querySelectorAll(".counter");
+
+            counters.forEach(function (counter) {
+
+                const target =
+                    Number(counter.dataset.target || 0);
+
+                if (!Number.isFinite(target) || target <= 0) {
+                    counter.textContent = "0";
+                    return;
+                }
+
+                const duration = 900;
+                const startTime = performance.now();
+
+                const updateCounter =
+                    function (currentTime) {
+
+                        const elapsed =
+                            currentTime - startTime;
+
+                        const progress =
+                            Math.min(elapsed / duration, 1);
+
+                        const easedProgress =
+                            1 - Math.pow(1 - progress, 3);
+
+                        counter.textContent =
+                            Math.floor(
+                                target * easedProgress
+                            ).toLocaleString("tr-TR");
+
+                        if (progress < 1) {
+                            requestAnimationFrame(updateCounter);
+                        }
+                        else {
+                            counter.textContent =
+                                target.toLocaleString("tr-TR");
+                        }
+
+                    };
+
+                requestAnimationFrame(updateCounter);
+
+            });
+
+        }
+
+        function initializeRevenueChart() {
+
+            const revenueCanvas =
+                document.getElementById("revenueChart");
+
+            if (!revenueCanvas ||
+                typeof Chart === "undefined") {
+                return;
+            }
+
+            const revenueLabels = [
+                @foreach (var item in Model.MonthlyRevenues ?? Enumerable.Empty<dynamic>())
+                {
+                        <text>
+                            @Html.Raw(
+                                System.Text.Json.JsonSerializer.Serialize(
+                                        item.Month
+                                )
+                                        ),
+                </text>
+                        }
+            ];
+
+            const revenueValues = [
+                @foreach (var item in Model.MonthlyRevenues ?? Enumerable.Empty<dynamic>())
+                {
+                        <text>
+                            @item.Revenue.ToString(
+                                System.Globalization.CultureInfo.InvariantCulture
+                                        ),
+                </text>
+                        }
+            ];
+
+            const revenueContext =
+                revenueCanvas.getContext("2d");
+
+            const revenueGradient =
+                revenueContext.createLinearGradient(
+                    0,
+                    0,
+                    0,
+                    340
+                );
+
+            revenueGradient.addColorStop(
+                0,
+                "rgba(37, 99, 235, 0.30)"
+            );
+
+            revenueGradient.addColorStop(
+                1,
+                "rgba(37, 99, 235, 0.01)"
+            );
+
+            new Chart(revenueCanvas, {
+
+                type: "line",
+
+                data: {
+
+                    labels: revenueLabels,
+
+                    datasets: [
+                        {
+                            label: "Aylık Ciro",
+                            data: revenueValues,
+                            borderColor: "#2563eb",
+                            backgroundColor: revenueGradient,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: "#ffffff",
+                            pointBorderColor: "#2563eb",
+                            pointBorderWidth: 3
+                        }
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    interaction: {
+                        mode: "index",
+                        intersect: false
+                    },
+
+                    plugins: {
+
+                        legend: {
+                            display: false
+                        },
+
+                        tooltip: {
+
+                            callbacks: {
+
+                                label: function (context) {
+
+                                    return new Intl.NumberFormat(
+                                        "tr-TR",
+                                        {
+                                            style: "currency",
+                                            currency: "TRY",
+                                            maximumFractionDigits: 0
+                                        }
+                                    ).format(context.raw);
+
+                                }
+
+                            }
+
+                        }
+
+                    },
+
+                    scales: {
+
+                        x: {
+
+                            grid: {
+                                display: false
+                            },
+
+                            ticks: {
+                                color: "#64748b"
+                            }
+
+                        },
+
+                        y: {
+
+                            beginAtZero: true,
+
+                            grid: {
+                                color: "rgba(148, 163, 184, 0.15)"
+                            },
+
+                            ticks: {
+
+                                color: "#64748b",
+
+                                callback: function (value) {
+
+                                    return new Intl.NumberFormat(
+                                        "tr-TR",
+                                        {
+                                            notation: "compact",
+                                            maximumFractionDigits: 1
+                                        }
+                                    ).format(value) + " ₺";
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            });
+
+        }
+
+        function initializeBrandChart() {
+
+            const brandCanvas =
+                document.getElementById("brandChart");
+
+            if (!brandCanvas ||
+                typeof Chart === "undefined") {
+                return;
+            }
+
+            const brandLabels = [
+                @foreach (var item in Model.BrandDistributions ?? Enumerable.Empty<dynamic>())
+                {
+                        <text>
+                            @Html.Raw(
+                                System.Text.Json.JsonSerializer.Serialize(
+                                        item.BrandName
+                                )
+                                        ),
+                </text>
+                        }
+            ];
+
+            const brandValues = [
+                @foreach (var item in Model.BrandDistributions ?? Enumerable.Empty<dynamic>())
+                {
+                        <text>
+                            @item.VehicleCount,
+                        </text>
+                }
+            ];
+
+            new Chart(brandCanvas, {
+
+                type: "doughnut",
+
+                data: {
+
+                    labels: brandLabels,
+
+                    datasets: [
+                        {
+                            data: brandValues,
+
+                            backgroundColor: [
+                                "#2563eb",
+                                "#16a34a",
+                                "#f97316",
+                                "#9333ea",
+                                "#dc2626",
+                                "#0891b2",
+                                "#eab308",
+                                "#475569"
+                            ],
+
+                            borderWidth: 0,
+                            hoverOffset: 8
+                        }
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: "68%",
+
+                    plugins: {
+
+                        legend: {
+
+                            position: "bottom",
+
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: "circle",
+                                padding: 16,
+                                color: "#475569",
+                                font: {
+                                    size: 12
+                                }
+                            }
+
+                        },
+
+                        tooltip: {
+
+                            callbacks: {
+
+                                label: function (context) {
+
+                                    const total =
+                                        context.dataset.data.reduce(
+                                            function (sum, value) {
+                                                return sum + value;
+                                            },
+                                            0
+                                        );
+
+                                    const percentage =
+                                        total > 0
+                                            ? (
+                                                context.raw /
+                                                total *
+                                                100
+                                            ).toFixed(1)
+                                            : 0;
+
+                                    return context.label +
+                                        ": " +
+                                        context.raw +
+                                        " araç (%" +
+                                        percentage +
+                                        ")";
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            });
+
+        }
+
+        function initializeServiceStatusChart() {
+
+            const serviceStatusCanvas =
+                document.getElementById(
+                    "serviceStatusChart"
+                );
+
+            if (!serviceStatusCanvas ||
+                typeof Chart === "undefined") {
+                return;
+            }
+
+            const serviceStatusLabels = [
+                @foreach (var item in Model.ServiceStatusCharts ?? Enumerable.Empty<dynamic>())
+                {
+                        <text>
+                            @Html.Raw(
+                                System.Text.Json.JsonSerializer.Serialize(
+                                        item.StatusName
+                                )
+                                        ),
+                </text>
+                        }
+            ];
+
+            const serviceStatusValues = [
+                @foreach (var item in Model.ServiceStatusCharts ?? Enumerable.Empty<dynamic>())
+                {
+                        <text>
+                            @item.Count,
+                        </text>
+                }
+            ];
+
+            const translatedStatusLabels =
+                serviceStatusLabels.map(
+                    function (status) {
+
+                        switch (status) {
+
+                            case "Completed":
+                                return "Tamamlandı";
+
+                            case "InProgress":
+                                return "Devam Ediyor";
+
+                            case "Waiting":
+                                return "Bekliyor";
+
+                            case "Cancelled":
+                                return "İptal";
+
+                            default:
+                                return status;
+
+                        }
+
+                    }
+                );
+
+            new Chart(serviceStatusCanvas, {
+
+                type: "bar",
+
+                data: {
+
+                    labels: translatedStatusLabels,
+
+                    datasets: [
+                        {
+                            label: "Servis Sayısı",
+                            data: serviceStatusValues,
+
+                            backgroundColor: [
+                                "rgba(37, 99, 235, 0.85)",
+                                "rgba(22, 163, 74, 0.85)",
+                                "rgba(249, 115, 22, 0.85)",
+                                "rgba(220, 38, 38, 0.85)",
+                                "rgba(147, 51, 234, 0.85)"
+                            ],
+
+                            borderRadius: 10,
+                            borderSkipped: false,
+                            barThickness: 28
+                        }
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    plugins: {
+
+                        legend: {
+                            display: false
+                        },
+
+                        tooltip: {
+
+                            callbacks: {
+
+                                label: function (context) {
+                                    return context.raw +
+                                        " servis kaydı";
+                                }
+
+                            }
+
+                        }
+
+                    },
+
+                    scales: {
+
+                        x: {
+
+                            grid: {
+                                display: false
+                            },
+
+                            ticks: {
+                                color: "#64748b"
+                            }
+
+                        },
+
+                        y: {
+
+                            beginAtZero: true,
+
+                            ticks: {
+                                precision: 0,
+                                color: "#64748b"
+                            },
+
+                            grid: {
+                                color: "rgba(148, 163, 184, 0.15)"
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            });
+
+        }
+
+    </script>
+
+}

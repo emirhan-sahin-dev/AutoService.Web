@@ -1,0 +1,479 @@
+﻿@model List<AutoService.Dto.RoleDtos.ResultRoleDto>
+
+@{
+    ViewData["Title"] = "Rol Yönetimi";
+
+    var totalRoleCount = Model?.Count ?? 0;
+    var activeRoleCount = Model?.Count(x => x.IsActive) ?? 0;
+    var passiveRoleCount = Model?.Count(x => !x.IsActive) ?? 0;
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-shield-lock-fill"></i>
+            Sistem Yönetimi
+        </div>
+
+        <h1>Rol Yönetimi</h1>
+
+        <p>
+            Sistem rollerini, kullanıcı sayılarını ve rol durumlarını yönetin.
+        </p>
+
+    </div>
+
+    <a asp-action="Create"
+       class="btn-app-primary">
+
+        <i class="bi bi-plus-circle-fill"></i>
+        Yeni Rol
+
+    </a>
+
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+
+        <i class="bi bi-check-circle-fill me-2"></i>
+
+        @TempData["Success"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+        @TempData["Error"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+
+    </div>
+}
+
+<div class="row g-4 mb-4">
+
+    <div class="col-xl-4 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-primary">
+
+            <div class="dashboard-alert-icon icon-primary">
+
+                <i class="bi bi-shield-fill"></i>
+
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>@totalRoleCount</strong>
+
+                <span>Toplam rol</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-success">
+
+            <div class="dashboard-alert-icon icon-success">
+
+                <i class="bi bi-shield-check"></i>
+
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>@activeRoleCount</strong>
+
+                <span>Aktif rol</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4 col-md-12">
+
+        <div class="dashboard-alert dashboard-alert-warning">
+
+            <div class="dashboard-alert-icon icon-warning">
+
+                <i class="bi bi-shield-x"></i>
+
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>@passiveRoleCount</strong>
+
+                <span>Pasif rol</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="app-card">
+
+    <div class="app-card-header">
+
+        <div class="d-flex align-items-center gap-3">
+
+            <div class="chart-header-icon icon-primary">
+
+                <i class="bi bi-person-gear"></i>
+
+            </div>
+
+            <div class="app-card-title">
+
+                <h5>Rol Listesi</h5>
+
+                <span>
+                    Roller ve bu rollere bağlı kullanıcılar
+                </span>
+
+            </div>
+
+        </div>
+
+        <span class="app-badge app-badge-primary">
+
+            <i class="bi bi-database"></i>
+
+            @totalRoleCount kayıt
+
+        </span>
+
+    </div>
+
+    <div class="app-card-body p-0">
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+
+                <table class="table app-table align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Rol</th>
+
+                            <th>Kullanıcı Sayısı</th>
+
+                            <th>Durum</th>
+
+                            <th>Oluşturulma Tarihi</th>
+
+                            <th class="text-end">
+                                İşlemler
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <td>
+
+                                    <div class="customer-identity">
+
+                                        <div class="customer-avatar">
+
+                                            <i class="bi bi-shield-lock-fill"></i>
+
+                                        </div>
+
+                                        <div>
+
+                                            <div class="customer-name">
+
+                                                @item.RoleName
+
+                                            </div>
+
+                                            <span class="customer-subtitle">
+
+                                                Rol ID: @item.RoleId
+
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    <span class="app-badge app-badge-primary">
+
+                                        <i class="bi bi-people-fill"></i>
+
+                                        @item.UserCount kullanıcı
+
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="app-badge app-badge-success">
+
+                                            <i class="bi bi-check-circle-fill"></i>
+
+                                            Aktif
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="app-badge app-badge-danger">
+
+                                            <i class="bi bi-x-circle-fill"></i>
+
+                                            Pasif
+
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td>
+
+                                    @item.CreatedDate.ToString("dd.MM.yyyy")
+
+                                </td>
+
+                                <td>
+
+                                    <div class="table-actions justify-content-end">
+
+                                        <a asp-action="Detail"
+                                           asp-route-id="@item.RoleId"
+                                           class="table-action-btn action-detail"
+                                           title="Detay">
+
+                                            <i class="bi bi-eye-fill"></i>
+
+                                        </a>
+
+                                        <a asp-action="Update"
+                                           asp-route-id="@item.RoleId"
+                                           class="table-action-btn action-edit"
+                                           title="Düzenle">
+
+                                            <i class="bi bi-pencil-square"></i>
+
+                                        </a>
+
+                                        <button type="button"
+                                                class="table-action-btn action-delete deleteBtn"
+                                                data-id="@item.RoleId"
+                                                data-name="@item.RoleName"
+                                                data-user-count="@item.UserCount"
+                                                title="Sil">
+
+                                            <i class="bi bi-trash3-fill"></i>
+
+                                        </button>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <div class="dashboard-empty-state">
+
+                <i class="bi bi-shield-x"></i>
+
+                <h6>Rol bulunamadı</h6>
+
+                <span>
+                    Sistemde kayıtlı rol bulunmamaktadır.
+                </span>
+
+                <a asp-action="Create"
+                   class="btn-app-primary mt-3">
+
+                    <i class="bi bi-plus-circle-fill"></i>
+                    İlk Rolü Ekle
+
+                </a>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+<form id="deleteForm"
+      asp-action="Delete"
+      method="post"
+      class="d-none">
+
+    @Html.AntiForgeryToken()
+
+    <input type="hidden"
+           name="id"
+           id="deleteRoleId" />
+
+</form>
+
+@section Scripts
+{
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const deleteButtons =
+                document.querySelectorAll(".deleteBtn");
+
+            const deleteForm =
+                document.getElementById("deleteForm");
+
+            const deleteRoleId =
+                document.getElementById("deleteRoleId");
+
+            if (!deleteForm || !deleteRoleId) {
+                return;
+            }
+
+            deleteButtons.forEach(function (button) {
+
+                button.addEventListener("click", function () {
+
+                    const id = this.dataset.id;
+
+                    const name = this.dataset.name;
+
+                    const userCount =
+                        Number(this.dataset.userCount || 0);
+
+                    if (userCount > 0) {
+
+                        Swal.fire({
+
+                            title: "Rol silinemez",
+
+                            html:
+                                "<strong>" +
+                                escapeHtml(name) +
+                                "</strong> rolüne bağlı " +
+                                userCount +
+                                " kullanıcı bulunmaktadır.",
+
+                            icon: "error",
+
+                            confirmButtonText: "Tamam",
+
+                            confirmButtonColor: "#2563eb"
+
+                        });
+
+                        return;
+
+                    }
+
+                    Swal.fire({
+
+                        title: "Rol silinsin mi?",
+
+                        html:
+                            "<strong>" +
+                            escapeHtml(name) +
+                            "</strong> rolü silinecek.",
+
+                        icon: "warning",
+
+                        showCancelButton: true,
+
+                        reverseButtons: true,
+
+                        focusCancel: true,
+
+                        confirmButtonColor: "#dc2626",
+
+                        cancelButtonColor: "#64748b",
+
+                        confirmButtonText:
+                            '<i class="bi bi-trash3-fill me-1"></i> Evet, sil',
+
+                        cancelButtonText:
+                            '<i class="bi bi-x-circle me-1"></i> İptal'
+
+                    }).then(function (result) {
+
+                        if (result.isConfirmed) {
+
+                            deleteRoleId.value = id;
+
+                            deleteForm.submit();
+
+                        }
+
+                    });
+
+                });
+
+            });
+
+        });
+
+        function escapeHtml(value) {
+
+            const element =
+                document.createElement("div");
+
+            element.textContent = value || "";
+
+            return element.innerHTML;
+
+        }
+
+    </script>
+}

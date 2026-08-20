@@ -1,0 +1,1124 @@
+﻿@model AutoService.Dto.ServiceRecordDtos.ServiceExitReceiptDto
+
+@{
+    ViewData["Title"] = "Servis Çıkış Fişi";
+
+    var isDelivered = Model.ActualDeliveryDate.HasValue;
+    var statusText = isDelivered
+        ? "TESLİM EDİLDİ"
+        : "TASLAK";
+
+    var currencySymbol = Model.Currency?.ToUpperInvariant() switch
+    {
+        "TRY" => "₺",
+        "EUR" => "€",
+        "USD" => "$",
+        _ => Model.Currency ?? "₺"
+    };
+}
+
+<style>
+    .receipt-page {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    .receipt-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
+    }
+
+    .receipt-toolbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .receipt-paper {
+        background: #ffffff;
+        border: 1px solid #dfe5ec;
+        border-radius: 22px;
+        box-shadow: 0 16px 45px rgba(15, 23, 42, .09);
+        overflow: hidden;
+        color: #172033;
+    }
+
+    .receipt-accent {
+        height: 7px;
+        background: linear-gradient(90deg, #2563eb 0%, #06b6d4 52%, #22c55e 100%);
+    }
+
+    .receipt-inner {
+        padding: 34px;
+    }
+
+    .receipt-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 30px;
+        align-items: start;
+        padding-bottom: 24px;
+        border-bottom: 2px solid #e8edf3;
+    }
+
+    .receipt-brand {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .receipt-brand-logo {
+        width: 58px;
+        height: 58px;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        color: #2563eb;
+        font-size: 27px;
+        flex: 0 0 auto;
+    }
+
+    .receipt-brand h2 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 900;
+        letter-spacing: -.4px;
+    }
+
+    .receipt-brand-details {
+        margin-top: 8px;
+        display: grid;
+        gap: 4px;
+        color: #667085;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .receipt-title {
+        text-align: right;
+        min-width: 250px;
+    }
+
+        .receipt-title h1 {
+            margin: 0;
+            font-size: 27px;
+            font-weight: 950;
+            letter-spacing: .4px;
+        }
+
+    .receipt-number {
+        margin-top: 9px;
+        font-size: 14px;
+        color: #667085;
+        font-weight: 700;
+    }
+
+    .receipt-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 12px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: .3px;
+    }
+
+        .receipt-status.delivered {
+            background: #ecfdf3;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        .receipt-status.draft {
+            background: #fff7ed;
+            color: #c2410c;
+            border: 1px solid #fed7aa;
+        }
+
+    .receipt-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 22px;
+    }
+
+    .receipt-meta-card {
+        padding: 15px 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        background: #fbfdff;
+    }
+
+        .receipt-meta-card span {
+            display: block;
+            color: #667085;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 6px;
+        }
+
+        .receipt-meta-card strong {
+            display: block;
+            font-size: 14px;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+
+    .receipt-section {
+        margin-top: 24px;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .receipt-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 17px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .receipt-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .receipt-section-title i {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            color: #2563eb;
+            background: #eaf2ff;
+        }
+
+        .receipt-section-title h3 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        .receipt-section-title small {
+            display: block;
+            margin-top: 2px;
+            color: #667085;
+            font-size: 12px;
+        }
+
+    .receipt-count {
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: #ffffff;
+        border: 1px solid #dbe3ec;
+        color: #475467;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .receipt-section-body {
+        padding: 17px;
+    }
+
+    .receipt-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px 22px;
+    }
+
+    .receipt-info-item {
+        padding-bottom: 10px;
+        border-bottom: 1px dashed #e2e8f0;
+    }
+
+        .receipt-info-item span {
+            display: block;
+            color: #667085;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+
+        .receipt-info-item strong {
+            font-size: 13px;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+
+    .receipt-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .receipt-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+    }
+
+        .receipt-table th {
+            padding: 11px 12px;
+            text-align: left;
+            background: #f8fafc;
+            border-bottom: 1px solid #dfe5ec;
+            color: #475467;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .35px;
+        }
+
+        .receipt-table td {
+            padding: 12px;
+            border-bottom: 1px solid #edf1f5;
+            font-size: 12px;
+            vertical-align: top;
+        }
+
+        .receipt-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .receipt-table .text-end {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .receipt-table .text-center {
+            text-align: center;
+        }
+
+    .receipt-operation-name {
+        font-weight: 850;
+        color: #172033;
+    }
+
+    .receipt-operation-description {
+        margin-top: 4px;
+        color: #667085;
+        line-height: 1.45;
+        max-width: 340px;
+    }
+
+    .receipt-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+        font-size: 10px;
+        font-weight: 850;
+    }
+
+    .receipt-empty {
+        text-align: center;
+        padding: 30px 18px;
+        color: #667085;
+    }
+
+        .receipt-empty i {
+            display: block;
+            font-size: 32px;
+            margin-bottom: 8px;
+            color: #94a3b8;
+        }
+
+    .receipt-bottom-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 390px;
+        gap: 22px;
+        align-items: start;
+        margin-top: 24px;
+    }
+
+    .receipt-note-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .receipt-note-title {
+        padding: 13px 16px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        font-weight: 900;
+        font-size: 14px;
+    }
+
+    .receipt-note-body {
+        min-height: 145px;
+        padding: 16px;
+        white-space: pre-wrap;
+        line-height: 1.6;
+        color: #475467;
+        font-size: 13px;
+    }
+
+    .receipt-summary {
+        border: 1px solid #dbe3ec;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #ffffff;
+    }
+
+    .receipt-summary-header {
+        padding: 14px 17px;
+        background: #0f172a;
+        color: white;
+        font-size: 15px;
+        font-weight: 900;
+    }
+
+    .receipt-summary-body {
+        padding: 17px;
+    }
+
+    .receipt-summary-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 9px 0;
+        border-bottom: 1px dashed #e2e8f0;
+        font-size: 13px;
+    }
+
+        .receipt-summary-row span {
+            color: #667085;
+        }
+
+        .receipt-summary-row strong {
+            color: #172033;
+            white-space: nowrap;
+        }
+
+        .receipt-summary-row:last-of-type {
+            border-bottom: none;
+        }
+
+    .receipt-grand-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 18px;
+        margin-top: 14px;
+        padding: 16px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #eff6ff, #ecfeff);
+        border: 1px solid #bfdbfe;
+    }
+
+        .receipt-grand-total span {
+            font-size: 12px;
+            font-weight: 850;
+            color: #1e3a8a;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+        .receipt-grand-total strong {
+            font-size: 24px;
+            font-weight: 950;
+            color: #1d4ed8;
+            white-space: nowrap;
+        }
+
+    .receipt-vat-note {
+        margin-top: 10px;
+        font-size: 11px;
+        line-height: 1.45;
+        color: #667085;
+        text-align: right;
+    }
+
+    .receipt-signatures {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 30px;
+        margin-top: 44px;
+    }
+
+    .receipt-signature {
+        text-align: center;
+    }
+
+    .receipt-signature-space {
+        height: 58px;
+    }
+
+    .receipt-signature-line {
+        border-top: 1px solid #94a3b8;
+        padding-top: 8px;
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .receipt-signature-name {
+        margin-top: 4px;
+        min-height: 18px;
+        font-size: 11px;
+        color: #667085;
+    }
+
+    .receipt-footer {
+        margin-top: 28px;
+        padding-top: 16px;
+        border-top: 1px solid #e2e8f0;
+        color: #667085;
+        font-size: 10px;
+        line-height: 1.55;
+        text-align: center;
+    }
+
+    .receipt-payment-status {
+        margin-top: 14px;
+        padding: 14px 16px;
+        border-radius: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+        .receipt-payment-status.paid {
+            background: #ecfdf3;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+
+        .receipt-payment-status.partial {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            color: #9a3412;
+        }
+
+        .receipt-payment-status.unpaid {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+        }
+
+        .receipt-payment-status strong {
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+    .receipt-payment-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .receipt-payment-item {
+        display: grid;
+        grid-template-columns: 130px 1fr auto;
+        gap: 14px;
+        align-items: center;
+        padding: 11px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #fbfdff;
+        font-size: 12px;
+    }
+
+        .receipt-payment-item span {
+            color: #667085;
+        }
+
+        .receipt-payment-item strong {
+            color: #172033;
+            white-space: nowrap;
+        }
+
+    @@media (max-width: 900px) {
+        .receipt-header,
+        .receipt-bottom-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .receipt-title {
+            text-align: left;
+            min-width: 0;
+        }
+
+        .receipt-meta-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .receipt-info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .receipt-signatures {
+            grid-template-columns: 1fr;
+        }
+
+        .receipt-inner {
+            padding: 20px;
+        }
+    }
+
+    @@media print {
+        body {
+            background: #ffffff !important;
+        }
+
+        .sidebar,
+        .navbar,
+        .topbar,
+        .receipt-toolbar,
+        footer {
+            display: none !important;
+        }
+
+        main,
+        .main-content,
+        .content-wrapper,
+        .container-fluid {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .receipt-page {
+            max-width: none;
+            margin: 0;
+        }
+
+        .receipt-paper {
+            border: none;
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        .receipt-inner {
+            padding: 7mm;
+        }
+
+        .receipt-section,
+        .receipt-note-card,
+        .receipt-summary {
+            break-inside: avoid;
+        }
+
+        .receipt-table thead {
+            display: table-header-group;
+        }
+
+        .receipt-table tr {
+            break-inside: avoid;
+        }
+
+        @@page {
+            size: A4;
+            margin: 8mm;
+        }
+    }
+</style>
+
+<div class="receipt-page">
+
+    <div class="receipt-toolbar">
+        <a asp-action="Detail"
+           asp-route-id="@Model.ServiceRecordId"
+           class="btn-app-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Servis Kaydına Dön
+        </a>
+
+        <div class="receipt-toolbar-actions">
+            <button type="button"
+                    onclick="window.print()"
+                    class="btn-app-primary">
+                <i class="bi bi-printer-fill"></i>
+                Yazdır / PDF
+            </button>
+        </div>
+    </div>
+
+    <div class="receipt-paper">
+        <div class="receipt-accent"></div>
+
+        <div class="receipt-inner">
+
+            <div class="receipt-header">
+                <div class="receipt-brand">
+                    <div class="receipt-brand-logo">
+                        <i class="bi bi-wrench-adjustable-circle-fill"></i>
+                    </div>
+
+                    <div>
+                        <h2>@Model.CompanyName</h2>
+
+                        <div class="receipt-brand-details">
+                            <span>
+                                <i class="bi bi-telephone-fill"></i>
+                                @(string.IsNullOrWhiteSpace(Model.CompanyPhone) ? "-" : Model.CompanyPhone)
+                            </span>
+                            <span>
+                                <i class="bi bi-envelope-fill"></i>
+                                @(string.IsNullOrWhiteSpace(Model.CompanyEmail) ? "-" : Model.CompanyEmail)
+                            </span>
+                            <span>
+                                <i class="bi bi-geo-alt-fill"></i>
+                                @(string.IsNullOrWhiteSpace(Model.CompanyAddress) ? "-" : Model.CompanyAddress)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="receipt-title">
+                    <h1>SERVİS ÇIKIŞ FİŞİ</h1>
+
+                    <div class="receipt-number">
+                        Servis No: #@Model.ServiceRecordId
+                    </div>
+
+                    <span class="receipt-status @(isDelivered ? "delivered" : "draft")">
+                        <i class="bi @(isDelivered ? "bi-check-circle-fill" : "bi-hourglass-split")"></i>
+                        @statusText
+                    </span>
+                </div>
+            </div>
+
+            <div class="receipt-meta-grid">
+                <div class="receipt-meta-card">
+                    <span>Servis Giriş Tarihi</span>
+                    <strong>@Model.CheckInDate.ToString("dd.MM.yyyy HH:mm")</strong>
+                </div>
+
+                <div class="receipt-meta-card">
+                    <span>Gerçek Teslim Tarihi</span>
+                    <strong>
+                        @(Model.ActualDeliveryDate.HasValue
+                                                ? Model.ActualDeliveryDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                                : "Araç henüz teslim edilmedi")
+                    </strong>
+                </div>
+
+                <div class="receipt-meta-card">
+                    <span>Servis Danışmanı</span>
+                    <strong>
+                        @(string.IsNullOrWhiteSpace(Model.AdvisorName)
+                                                ? "-"
+                                                : Model.AdvisorName)
+                    </strong>
+                </div>
+            </div>
+
+            <div class="receipt-section">
+                <div class="receipt-section-header">
+                    <div class="receipt-section-title">
+                        <i class="bi bi-person-vcard-fill"></i>
+                        <div>
+                            <h3>Müşteri ve Araç Bilgileri</h3>
+                            <small>Servis kaydına bağlı müşteri ve araç bilgileri</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="receipt-section-body">
+                    <div class="receipt-info-grid">
+                        <div class="receipt-info-item">
+                            <span>Müşteri</span>
+                            <strong>@Model.CustomerName</strong>
+                        </div>
+
+                        <div class="receipt-info-item">
+                            <span>Telefon</span>
+                            <strong>@Model.CustomerPhone</strong>
+                        </div>
+
+                        <div class="receipt-info-item">
+                            <span>E-Posta</span>
+                            <strong>@Model.CustomerEmail</strong>
+                        </div>
+
+                        <div class="receipt-info-item">
+                            <span>Adres</span>
+                            <strong>@Model.CustomerAddress</strong>
+                        </div>
+
+                        <div class="receipt-info-item">
+                            <span>Plaka</span>
+                            <strong>@Model.Plate</strong>
+                        </div>
+
+                        <div class="receipt-info-item">
+                            <span>Marka / Model</span>
+                            <strong>@Model.BrandName @Model.ModelName</strong>
+                        </div>
+
+                        <div class="receipt-info-item">
+                            <span>Model Yılı</span>
+                            <strong>@Model.ModelYear</strong>
+                        </div>
+
+                        <div class="receipt-info-item">
+                            <span>Kilometre</span>
+                            <strong>@Model.Mileage.ToString("N0") KM</strong>
+                        </div>
+
+                        <div class="receipt-info-item">
+                            <span>Şasi No</span>
+                            <strong>@Model.VinNumber</strong>
+                        </div>
+
+                        <div class="receipt-info-item">
+                            <span>Servis Durumu</span>
+                            <strong>@Model.Status</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="receipt-section">
+                <div class="receipt-section-header">
+                    <div class="receipt-section-title">
+                        <i class="bi bi-tools"></i>
+                        <div>
+                            <h3>Yapılan Servis İşlemleri</h3>
+                            <small>İşlem, usta, süre ve işçilik detayları</small>
+                        </div>
+                    </div>
+
+                    <span class="receipt-count">
+                        @Model.TotalOperationCount işlem
+                    </span>
+                </div>
+
+                @if (Model.Operations.Any())
+                {
+                    <div class="receipt-table-wrap">
+                        <table class="receipt-table">
+                            <thead>
+                                <tr>
+                                    <th>İşlem</th>
+                                    <th>Usta / Uzmanlık</th>
+                                    <th class="text-center">Süre</th>
+                                    <th class="text-center">Durum</th>
+                                    <th class="text-end">İşçilik</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var operation in Model.Operations)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="receipt-operation-name">
+                                                @operation.OperationTypeName
+                                            </div>
+
+                                            @if (!string.IsNullOrWhiteSpace(operation.WorkDescription))
+                                            {
+                                                <div class="receipt-operation-description">
+                                                    @operation.WorkDescription
+                                                </div>
+                                            }
+                                            else if (!string.IsNullOrWhiteSpace(operation.ProblemDescription))
+                                            {
+                                                <div class="receipt-operation-description">
+                                                    @operation.ProblemDescription
+                                                </div>
+                                            }
+                                        </td>
+
+                                        <td>
+                                            <strong>@operation.MechanicFullName</strong>
+                                            <div class="receipt-operation-description">
+                                                @operation.SpecialtyName
+                                            </div>
+                                        </td>
+
+                                        <td class="text-center">
+                                            @operation.LaborHours.ToString("N2") saat
+                                        </td>
+
+                                        <td class="text-center">
+                                            <span class="receipt-badge">
+                                                @operation.Status
+                                            </span>
+                                        </td>
+
+                                        <td class="text-end">
+                                            <strong>
+                                                @operation.CustomerLaborPrice.ToString("N2") @currencySymbol
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="receipt-empty">
+                        <i class="bi bi-tools"></i>
+                        Servis kaydına bağlı işlem bulunmuyor.
+                    </div>
+                }
+            </div>
+
+            <div class="receipt-section">
+                <div class="receipt-section-header">
+                    <div class="receipt-section-title">
+                        <i class="bi bi-box-seam-fill"></i>
+                        <div>
+                            <h3>Kullanılan Yedek Parçalar</h3>
+                            <small>Parça kodu, adet ve satış fiyatları</small>
+                        </div>
+                    </div>
+
+                    <span class="receipt-count">
+                        @Model.TotalPartQuantity adet
+                    </span>
+                </div>
+
+                @if (Model.Parts.Any())
+                {
+                    <div class="receipt-table-wrap">
+                        <table class="receipt-table">
+                            <thead>
+                                <tr>
+                                    <th>Parça</th>
+                                    <th>Kod</th>
+                                    <th>Bağlı İşlem</th>
+                                    <th class="text-center">Adet</th>
+                                    <th class="text-end">Birim Fiyat</th>
+                                    <th class="text-end">Toplam</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var part in Model.Parts)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@part.PartName</strong>
+                                        </td>
+
+                                        <td>@part.PartCode</td>
+
+                                        <td>@part.OperationTypeName</td>
+
+                                        <td class="text-center">
+                                            @part.Quantity
+                                        </td>
+
+                                        <td class="text-end">
+                                            @part.UnitPrice.ToString("N2") @currencySymbol
+                                        </td>
+
+                                        <td class="text-end">
+                                            <strong>
+                                                @part.TotalPrice.ToString("N2") @currencySymbol
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="receipt-empty">
+                        <i class="bi bi-box-seam"></i>
+                        Bu servis kaydında kullanılan yedek parça bulunmuyor.
+                    </div>
+                }
+            </div>
+
+            <div class="receipt-bottom-grid">
+                <div class="receipt-note-card">
+                    <div class="receipt-note-title">
+                        Servis Notları
+                    </div>
+
+                    <div class="receipt-note-body">
+                        @(string.IsNullOrWhiteSpace(Model.Description)
+                                                ? "Servis notu bulunmuyor."
+                                                : Model.Description)
+                    </div>
+                </div>
+
+                <div class="receipt-summary">
+                    <div class="receipt-summary-header">
+                        Finansal Özet
+                    </div>
+
+                    <div class="receipt-summary-body">
+                        <div class="receipt-summary-row">
+                            <span>İşçilik Toplamı</span>
+                            <strong>@Model.LaborSubtotal.ToString("N2") @currencySymbol</strong>
+                        </div>
+
+                        <div class="receipt-summary-row">
+                            <span>Parça Toplamı</span>
+                            <strong>@Model.PartsSubtotal.ToString("N2") @currencySymbol</strong>
+                        </div>
+
+                        <div class="receipt-summary-row">
+                            <span>KDV Hariç Tutar</span>
+                            <strong>@Model.Subtotal.ToString("N2") @currencySymbol</strong>
+                        </div>
+
+                        <div class="receipt-summary-row">
+                            <span>KDV (%@Model.VatRate.ToString("N0"))</span>
+                            <strong>@Model.VatAmount.ToString("N2") @currencySymbol</strong>
+                        </div>
+
+                        <div class="receipt-summary-row">
+                            <span>Toplam Ödenen</span>
+                            <strong>@Model.TotalPaid.ToString("N2") @currencySymbol</strong>
+                        </div>
+
+                        <div class="receipt-summary-row">
+                            <span>Kalan Borç</span>
+                            <strong>@Model.RemainingAmount.ToString("N2") @currencySymbol</strong>
+                        </div>
+
+                        <div class="receipt-grand-total">
+                            <span>Genel Toplam</span>
+                            <strong>@Model.GrandTotal.ToString("N2") @currencySymbol</strong>
+                        </div>
+
+                        <div class="receipt-vat-note">
+                            İşçilik ve parça satış fiyatları KDV dahildir.
+                            KDV tutarı genel toplamın içinden ayrıştırılarak gösterilmiştir.
+                        </div>
+
+                        <div class="receipt-payment-status @(Model.IsFullyPaid ? "paid" : Model.HasPartialPayment ? "partial" : "unpaid")">
+                            <span>
+                                <i class="bi @(Model.IsFullyPaid ? "bi-check-circle-fill" : Model.HasPartialPayment ? "bi-exclamation-circle-fill" : "bi-x-circle-fill")"></i>
+                                @Model.PaymentStatusText
+                            </span>
+
+                            <strong>
+                                @(Model.IsFullyPaid
+                                                                ? "BORÇ KAPANDI"
+                                                                : $"{Model.RemainingAmount:N2} {currencySymbol} KALAN")
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="receipt-section">
+                <div class="receipt-section-header">
+                    <div class="receipt-section-title">
+                        <i class="bi bi-wallet2"></i>
+                        <div>
+                            <h3>Ödeme Hareketleri</h3>
+                            <small>Servis kaydına ait tahsilat geçmişi</small>
+                        </div>
+                    </div>
+
+                    <span class="receipt-count">
+                        @Model.Payments.Count ödeme
+                    </span>
+                </div>
+
+                <div class="receipt-section-body">
+                    @if (Model.Payments.Any())
+                    {
+                        <div class="receipt-payment-list">
+                            @foreach (var payment in Model.Payments)
+                            {
+                                var methodText = payment.PaymentMethod switch
+                                {
+                                    AutoService.Entity.Enums.PaymentMethod.Cash => "Nakit",
+                                    AutoService.Entity.Enums.PaymentMethod.CreditCard => "Kredi Kartı",
+                                    AutoService.Entity.Enums.PaymentMethod.BankTransfer => "Havale / EFT",
+                                    AutoService.Entity.Enums.PaymentMethod.Other => "Diğer",
+                                    _ => payment.PaymentMethod.ToString()
+                                };
+
+                                <div class="receipt-payment-item">
+                                    <span>@payment.PaymentDate.ToString("dd.MM.yyyy HH:mm")</span>
+
+                                    <span>
+                                        <strong>@methodText</strong>
+                                        @if (!string.IsNullOrWhiteSpace(payment.TransactionReference))
+                                        {
+                                            <span> · @payment.TransactionReference</span>
+                                        }
+                                    </span>
+
+                                    <strong>@payment.Amount.ToString("N2") @currencySymbol</strong>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="receipt-empty">
+                            <i class="bi bi-wallet2"></i>
+                            Bu servis kaydı için henüz ödeme alınmamış.
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="receipt-signatures">
+                <div class="receipt-signature">
+                    <div class="receipt-signature-space"></div>
+                    <div class="receipt-signature-line">
+                        Servis Danışmanı
+                    </div>
+                    <div class="receipt-signature-name">
+                        @(string.IsNullOrWhiteSpace(Model.AdvisorName)
+                                                ? "Ad Soyad / İmza"
+                                                : Model.AdvisorName)
+                    </div>
+                </div>
+
+                <div class="receipt-signature">
+                    <div class="receipt-signature-space"></div>
+                    <div class="receipt-signature-line">
+                        Servis Yetkilisi
+                    </div>
+                    <div class="receipt-signature-name">
+                        Kaşe / İmza
+                    </div>
+                </div>
+
+                <div class="receipt-signature">
+                    <div class="receipt-signature-space"></div>
+                    <div class="receipt-signature-line">
+                        Müşteri
+                    </div>
+                    <div class="receipt-signature-name">
+                        @Model.CustomerName
+                    </div>
+                </div>
+            </div>
+
+            <div class="receipt-footer">
+                Bu belge, yukarıda belirtilen servis işlemleri ve kullanılan parçalar için düzenlenmiştir.
+                Takılan parçalar üretici veya tedarikçi garanti koşullarına; yapılan işçilikler servis garanti koşullarına tabidir.
+                Araç tesliminde müşteri tarafından kontrol edilerek imzalanır.
+            </div>
+
+        </div>
+    </div>
+</div>

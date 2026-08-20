@@ -1,0 +1,233 @@
+﻿@model AutoService.Dto.RoleDtos.GetByIdRoleDto
+
+@{
+    ViewData["Title"] = "Rol Detayı";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-shield-lock-fill"></i>
+            Sistem Yönetimi
+        </div>
+
+        <h1>Rol Detayı</h1>
+
+        <p>
+            Seçili rol hakkında detaylı bilgileri görüntüleyin.
+        </p>
+
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+
+        <a href="javascript:history.back()"
+           class="btn-app-secondary">
+
+            <i class="bi bi-arrow-left"></i>
+            Önceki Sayfaya Dön
+
+        </a>
+
+        <a asp-action="Index"
+           class="btn-app-secondary">
+
+            <i class="bi bi-list-ul"></i>
+            Rol Listesi
+
+        </a>
+
+        <a asp-action="Update"
+           asp-route-id="@Model.RoleId"
+           class="btn-app-primary">
+
+            <i class="bi bi-pencil-square"></i>
+            Düzenle
+
+        </a>
+
+    </div>
+
+</div>
+
+<div class="row g-4 mb-4">
+
+    <div class="col-xl-4 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-primary">
+
+            <div class="dashboard-alert-icon icon-primary">
+
+                <i class="bi bi-shield-lock-fill"></i>
+
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>@Model.RoleName</strong>
+
+                <span>Rol Adı</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+
+        <div class="dashboard-alert dashboard-alert-success">
+
+            <div class="dashboard-alert-icon icon-success">
+
+                <i class="bi bi-people-fill"></i>
+
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>@Model.UserCount</strong>
+
+                <span>Bağlı Kullanıcı</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4 col-md-6">
+
+        <div class="dashboard-alert @(Model.IsActive ? "dashboard-alert-success" : "dashboard-alert-danger")">
+
+            <div class="dashboard-alert-icon @(Model.IsActive ? "icon-success" : "icon-danger")">
+
+                <i class="bi @(Model.IsActive ? "bi-check-circle-fill" : "bi-x-circle-fill")"></i>
+
+            </div>
+
+            <div class="dashboard-alert-content">
+
+                <strong>
+
+                    @(Model.IsActive ? "Aktif" : "Pasif")
+
+                </strong>
+
+                <span>Rol Durumu</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="app-card">
+
+    <div class="app-card-header">
+
+        <div class="d-flex align-items-center gap-3">
+
+            <div class="chart-header-icon icon-primary">
+
+                <i class="bi bi-info-circle-fill"></i>
+
+            </div>
+
+            <div class="app-card-title">
+
+                <h5>Rol Bilgileri</h5>
+
+                <span>
+                    Sistemde kayıtlı rol bilgileri
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="app-card-body">
+
+        <div class="row g-4">
+
+            <div class="col-md-6">
+
+                <label class="form-label fw-semibold">
+                    Rol ID
+                </label>
+
+                <div class="form-control bg-light">
+
+                    @Model.RoleId
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label class="form-label fw-semibold">
+                    Rol Adı
+                </label>
+
+                <div class="form-control bg-light">
+
+                    @Model.RoleName
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label class="form-label fw-semibold">
+                    Kullanıcı Sayısı
+                </label>
+
+                <div class="form-control bg-light">
+
+                    @Model.UserCount
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label class="form-label fw-semibold">
+                    Durum
+                </label>
+
+                <div class="form-control bg-light">
+
+                    @(Model.IsActive ? "Aktif" : "Pasif")
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label class="form-label fw-semibold">
+                    Oluşturulma Tarihi
+                </label>
+
+                <div class="form-control bg-light">
+
+                    @Model.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

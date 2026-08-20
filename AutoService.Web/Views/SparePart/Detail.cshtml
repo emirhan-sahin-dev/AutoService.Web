@@ -1,0 +1,321 @@
+﻿@model AutoService.Dto.SparePartDtos.SparePartDetailDto
+
+@{
+    ViewData["Title"] = "Parça Detayı";
+
+    var isOutOfStock = Model.StockQuantity <= 0;
+    var isLowStock = Model.StockQuantity > 0 && Model.StockQuantity <= 5;
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-box-seam-fill"></i>
+            Yedek Parça Yönetimi
+        </div>
+
+        <h1>Parça Detayı</h1>
+
+        <p>
+            Parçanın fiyat, kod ve güncel stok bilgilerini görüntüleyin.
+        </p>
+
+    </div>
+
+    <a asp-action="Index"
+       class="btn-app-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+        Parça Listesi
+
+    </a>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-xl-4">
+
+        <div class="app-card spare-part-profile">
+
+            <div class="spare-part-profile-cover">
+
+                <div class="spare-part-profile-icon">
+                    <i class="bi bi-gear-wide-connected"></i>
+                </div>
+
+            </div>
+
+            <div class="spare-part-profile-content">
+
+                <span class="spare-part-code">
+                    @Model.PartCode
+                </span>
+
+                <h4>@Model.PartName</h4>
+
+                @if (isOutOfStock)
+                {
+                    <span class="spare-part-status spare-part-status-danger">
+
+                        <i class="bi bi-x-circle-fill"></i>
+                        Stok Tükendi
+
+                    </span>
+                }
+                else if (isLowStock)
+                {
+                    <span class="spare-part-status spare-part-status-warning">
+
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        Düşük Stok
+
+                    </span>
+                }
+                else
+                {
+                    <span class="spare-part-status spare-part-status-success">
+
+                        <i class="bi bi-check-circle-fill"></i>
+                        Stokta Mevcut
+
+                    </span>
+                }
+
+                <div class="spare-part-profile-stats">
+
+                    <div>
+
+                        <strong>
+                            @Model.StockQuantity
+                        </strong>
+
+                        <span>Stok Adedi</span>
+
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            @Model.UnitPrice.ToString("N2") ₺
+                        </strong>
+
+                        <span>Birim Fiyat</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-8">
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-success">
+                        <i class="bi bi-card-list"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Parça Bilgileri</h5>
+
+                        <span>
+                            Stok kartına ait kayıtlı bilgiler
+                        </span>
+
+                    </div>
+
+                </div>
+
+                @if (isOutOfStock)
+                {
+                    <span class="app-badge app-badge-danger">
+
+                        <i class="bi bi-x-circle-fill"></i>
+                        Stok Yok
+
+                    </span>
+                }
+                else if (isLowStock)
+                {
+                    <span class="app-badge app-badge-warning">
+
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        Düşük Stok
+
+                    </span>
+                }
+                else
+                {
+                    <span class="app-badge app-badge-success">
+
+                        <i class="bi bi-check-circle-fill"></i>
+                        Stokta
+
+                    </span>
+                }
+
+            </div>
+
+            <div class="app-card-body">
+
+                <div class="detail-info-grid">
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-primary">
+                            <i class="bi bi-box-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Parça Adı</span>
+
+                            <strong>@Model.PartName</strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-warning">
+                            <i class="bi bi-upc-scan"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Parça Kodu</span>
+
+                            <strong class="spare-part-detail-code">
+                                @Model.PartCode
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon icon-success">
+                            <i class="bi bi-tag-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Birim Fiyat</span>
+
+                            <strong class="spare-part-price-value">
+                                @Model.UnitPrice.ToString("N2") ₺
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="detail-info-item">
+
+                        <div class="detail-info-icon @(isOutOfStock ? "icon-danger" : isLowStock ? "icon-warning" : "icon-primary")">
+                            <i class="bi bi-boxes"></i>
+                        </div>
+
+                        <div>
+
+                            <span>Stok Miktarı</span>
+
+                            <strong>
+                                @Model.StockQuantity adet
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                @if (isOutOfStock)
+                {
+                    <div class="spare-part-detail-alert danger">
+
+                        <i class="bi bi-x-octagon-fill"></i>
+
+                        <div>
+
+                            <strong>Parça stokta bulunmuyor</strong>
+
+                            <span>
+                                Bu parça yeni servis işlemlerinde kullanılmadan
+                                önce stok girişi yapılmalıdır.
+                            </span>
+
+                        </div>
+
+                    </div>
+                }
+                else if (isLowStock)
+                {
+                    <div class="spare-part-detail-alert warning">
+
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+
+                        <div>
+
+                            <strong>Stok miktarı kritik seviyede</strong>
+
+                            <span>
+                                Yeni parça siparişi verilmesi önerilir.
+                            </span>
+
+                        </div>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="spare-part-detail-alert success">
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                        <div>
+
+                            <strong>Stok seviyesi uygun</strong>
+
+                            <span>
+                                Parça servis işlemlerinde kullanılabilir.
+                            </span>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+            <div class="app-card-footer">
+
+                <a asp-action="Index"
+                   class="btn-app-secondary">
+
+                    <i class="bi bi-arrow-left"></i>
+                    Parça Listesine Dön
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

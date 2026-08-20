@@ -1,0 +1,298 @@
+﻿@model AutoService.Dto.ServiceOperationDtos.UpdateServiceOperationStatusDto
+
+@{
+    ViewData["Title"] = "İşlem Durumu Güncelle";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <div class="page-header-label">
+            <i class="bi bi-arrow-repeat"></i>
+            Servis İşlemleri
+        </div>
+
+        <h1>İşlem Durumunu Güncelle</h1>
+
+        <p>
+            Servis işleminin mevcut durumunu ve yapılan işlem açıklamasını güncelleyin.
+        </p>
+
+    </div>
+
+    <a asp-action="Index"
+       asp-route-serviceRecordId="@ViewBag.ServiceRecordId"
+       class="btn-app-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+        İşlem Listesine Dön
+
+    </a>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-xl-8">
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="chart-header-icon icon-primary">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </div>
+
+                    <div class="app-card-title">
+
+                        <h5>Durum Bilgileri</h5>
+
+                        <span>
+                            İşlem durumunu ve çalışma açıklamasını düzenleyin
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="app-card-body">
+
+                <form asp-action="UpdateStatus"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <input asp-for="ServiceOperationId"
+                           type="hidden" />
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger">
+                    </div>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label class="app-form-label">
+                                    <i class="bi bi-car-front-fill"></i>
+                                    Araç
+                                </label>
+
+                                <div class="form-control bg-light">
+                                    @(ViewBag.VehiclePlate ?? "-")
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label class="app-form-label">
+                                    <i class="bi bi-tools"></i>
+                                    İşlem Türü
+                                </label>
+
+                                <div class="form-control bg-light">
+                                    @(ViewBag.OperationTypeName ?? "-")
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label class="app-form-label">
+                                    <i class="bi bi-person-gear"></i>
+                                    Atanan Usta
+                                </label>
+
+                                <div class="form-control bg-light">
+                                    @(ViewBag.MechanicFullName ?? "-")
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="Status"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-list-check"></i>
+                                    İşlem Durumu
+                                    <span>*</span>
+
+                                </label>
+
+                                <div class="app-select-wrapper">
+
+                                    <i class="bi bi-arrow-repeat"></i>
+
+                                    <select asp-for="Status"
+                                            asp-items="ViewBag.Statuses"
+                                            class="app-form-control app-form-select">
+
+                                        <option value="">
+                                            Durum seçiniz
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                                <span asp-validation-for="Status"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-12">
+
+                            <div class="app-form-group">
+
+                                <label asp-for="WorkDescription"
+                                       class="app-form-label">
+
+                                    <i class="bi bi-card-text"></i>
+                                    Yapılan İşlem Açıklaması
+
+                                </label>
+
+                                <textarea asp-for="WorkDescription"
+                                          class="app-form-control"
+                                          rows="6"
+                                          placeholder="Yapılan işlemleri, kontrolleri ve gerekli notları yazınız...">
+                                </textarea>
+
+                                <span asp-validation-for="WorkDescription"
+                                      class="app-validation-message">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="service-detail-form-notice">
+
+                        <i class="bi bi-info-circle-fill"></i>
+
+                        <div>
+
+                            <strong>Otomatik tarih işlemleri</strong>
+
+                            <span>
+                                Durum “İşleme Alındı” seçildiğinde başlama tarihi,
+                                “Tamamlandı” seçildiğinde tamamlanma tarihi otomatik atanır.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="app-form-actions">
+
+                        <a asp-action="Index"
+                           asp-route-serviceRecordId="@ViewBag.ServiceRecordId"
+                           class="btn-app-secondary">
+
+                            <i class="bi bi-x-circle"></i>
+                            Vazgeç
+
+                        </a>
+
+                        <button type="submit"
+                                class="btn-app-primary">
+
+                            <i class="bi bi-check-circle-fill"></i>
+                            Durumu Güncelle
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-4">
+
+        <div class="app-card form-info-card">
+
+            <div class="form-info-icon">
+                <i class="bi bi-info-circle-fill"></i>
+            </div>
+
+            <h5>Durum Akışı</h5>
+
+            <p>
+                Servis işlemlerini gerçek çalışma sürecine uygun şekilde takip edin.
+            </p>
+
+            <ul class="form-info-list">
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Bekliyor
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    İşleme Alındı
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Parça Bekleniyor
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Tamamlandı
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Kalite Kontrol
+                </li>
+
+                <li>
+                    <i class="bi bi-check-circle-fill"></i>
+                    Teslime Hazır
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}
